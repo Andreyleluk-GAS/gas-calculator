@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-// Исправлен список импорта: добавлены ChevronRight, TrendingDown и другие используемые иконки
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
-  FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, TrendingDown 
+  Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, 
+  Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, 
+  FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, Share 
 } from 'lucide-react';
+// import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
 
 const App = () => {
+  const reportRef = useRef(null); 
   const [step, setStep] = useState(1); 
   const [systemType, setSystemType] = useState('cng'); 
+  const [generatedImage, setGeneratedImage] = useState(null); 
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const [inputs, setInputs] = useState({
     dieselConsumption: 36,    // Норма расхода Дизель
@@ -47,6 +51,7 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
+    // Вспомогательная функция для безопасного преобразования в число
     const val = (v) => {
         const parsed = parseFloat(v);
         return isNaN(parsed) ? 0 : parsed;
@@ -128,6 +133,70 @@ const App = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadImage = async () => {
+    // setIsGenerating(true);
+    
+    // Эмуляция задержки (в реальном проекте здесь будет вызов html2canvas)
+    // setTimeout(async () => {
+        // !!! ВАЖНО: РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ VITE ПРОЕКТЕ !!!
+        /*
+        if (reportRef.current) {
+            try {
+                // Сохраняем текущую позицию прокрутки
+                const originalScrollPos = window.scrollY;
+                
+                // Прокручиваем наверх для корректного рендеринга
+                window.scrollTo(0, 0);
+
+                const canvas = await html2canvas(reportRef.current, {
+                    scale: 3, // Высокое качество
+                    backgroundColor: "#ffffff",
+                    useCORS: true,
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    onclone: (clonedDoc) => {
+                        const element = clonedDoc.querySelector('.report-container');
+                        if(element) {
+                            element.style.transform = 'none';
+                            element.style.margin = '0';
+                            // Фикс для шрифтов и межстрочных интервалов
+                            const all = element.getElementsByTagName('*');
+                            for (let i = 0; i < all.length; i++) {
+                                const style = window.getComputedStyle(all[i]);
+                                if (style.display !== 'none') {
+                                    // Принудительно устанавливаем line-height для предотвращения смещения
+                                    all[i].style.lineHeight = style.lineHeight !== 'normal' ? style.lineHeight : '1.2';
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const imgData = canvas.toDataURL("image/jpeg", 0.92);
+                setGeneratedImage(imgData); // Показываем модальное окно
+                window.scrollTo(0, originalScrollPos); // Возвращаем прокрутку
+            } catch (err) {
+                console.error("Ошибка при генерации изображения:", err);
+                alert("Не удалось создать изображение. Попробуйте обновить страницу.");
+            } finally {
+                setIsGenerating(false);
+            }
+        } else {
+            setIsGenerating(false);
+        }
+        */
+       
+       // ВРЕМЕННО: Убираем бесконечную загрузку в превью
+       // setIsGenerating(false);
+       alert("Пожалуйста, раскомментируйте код html2canvas в src/App.jsx. В демо-режиме это не работает.");
+    // }, 100);
+  };
+
+  const closePreview = () => {
+    setGeneratedImage(null);
   };
 
   const formatMoney = (num) => {
@@ -314,6 +383,31 @@ const App = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-8 relative flex flex-col justify-between">
       <style>{printStyles}</style>
+      
+      {/* Модальное окно с превью картинки */}
+      {generatedImage && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4 animate-fade-in print-hidden">
+            <div className="relative w-full max-w-lg bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <span className="font-bold text-gray-700 text-sm">Ваш расчет готов</span>
+                    <button onClick={closePreview} className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300"><X className="w-4 h-4 text-gray-600" /></button>
+                </div>
+                <div className="overflow-y-auto p-4 flex-1 bg-gray-100 flex justify-center">
+                    <img src={generatedImage} alt="Calculation Result" className="w-full h-auto object-contain shadow-md" />
+                </div>
+                <div className="p-4 bg-white border-t border-gray-100 space-y-3">
+                    <p className="text-center text-xs text-gray-500">
+                        Нажмите и удерживайте картинку, чтобы сохранить её, или используйте кнопку ниже
+                    </p>
+                    <a href={generatedImage} download={`raschet-${systemType}.jpg`} className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+                        <Share className="w-4 h-4" />
+                        Скачать / Поделиться
+                    </a>
+                </div>
+            </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto w-full print-container">
         
         <header className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-2 print-hidden">
@@ -321,13 +415,31 @@ const App = () => {
             <button onClick={() => setStep(2)} className="group flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors font-medium text-sm"><ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Назад</button>
           </div>
           <div className="flex items-center gap-2">
-             <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
+             <button onClick={handlePrint} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
+             
+             <button 
+                onClick={handleDownloadImage} 
+                disabled={isGenerating}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white border border-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+             >
+                {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                {isGenerating ? 'Создание...' : 'Скачать JPG'}
+             </button>
           </div>
         </header>
 
-        {/* Контейнер отчета */}
-        <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm relative overflow-hidden">
+        {/* report-container класс добавлен для html2canvas */}
+        <div ref={reportRef} className="bg-white p-3 md:p-6 rounded-xl report-container shadow-sm relative overflow-hidden">
              
+             {/* --- ВОДЯНОЙ ЗНАК --- */}
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.05] select-none">
+                 <img 
+                    src="/logo.png" 
+                    alt="Watermark" 
+                    className="w-3/4 md:w-1/2 object-contain transform -rotate-12"
+                 />
+            </div>
+
             <div className="relative z-10">
                 <div className="mb-2 md:mb-4 text-center border-b border-slate-100 pb-2">
                     <h1 className="text-lg md:text-2xl font-bold text-slate-900 leading-none">Отчет по эффективности газодизеля</h1>
@@ -340,40 +452,41 @@ const App = () => {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                            <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
-                            <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
+                            {/* УМЕНЬШЕННЫЕ ШРИФТЫ ДЛЯ МОБИЛЬНЫХ */}
+                            <div className="text-slate-500 text-xs md:text-sm mb-0.5 leading-none">Пробег в месяц</div>
+                            <div className="font-bold text-slate-900 text-sm md:text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                         </div>
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                            <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
+                            <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
+                            <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
                         </div>
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-sm mb-0.5 leading-none">Цена ДТ</div>
-                            <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
+                            <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Цена ДТ</div>
+                            <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
                         </div>
 
                         <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                            <div className={`${themeStyles.textDark} text-sm mb-0.5 leading-none`}>Процент замещения</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
+                            <div className={`${themeStyles.textDark} text-xs md:text-sm mb-0.5 leading-none`}>Процент замещения</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
                         </div>
                         
                         <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
                             <div>
-                                <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Коэффициент</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
+                                <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Коэффициент</div>
+                                <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
                             </div>
                             <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
                             <div className="text-right">
-                                <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Расход Газа</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>
+                                <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Расход Газа</div>
+                                <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>
                                     {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
                                 </div>
                             </div>
                         </div>
 
                         <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
                         </div>
                     </div>
                 </div>
@@ -537,14 +650,14 @@ const App = () => {
                         <div className="flex h-8 md:h-10 rounded-lg overflow-hidden mb-1.5">
                             <div 
                                 className="bg-red-500 flex items-center justify-center text-white font-bold text-xs md:text-base relative group" 
-                                style={{ width: `${summary.dualTotal > 0 ? (summary.dualDieselPart / summary.dualTotal) * 100 : 0}%` }}
+                                style={{ width: `${dieselPercent}%` }}
                             >
                                 <span className="z-10 truncate px-2">Дизель</span>
                                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
                             <div 
                                 className={`${isLng ? 'bg-blue-600' : 'bg-green-600'} flex items-center justify-center text-white font-bold text-xs md:text-base relative group`} 
-                                style={{ width: `${summary.dualTotal > 0 ? (summary.dualGasPart / summary.dualTotal) * 100 : 0}%` }}
+                                style={{ width: `${gasPercent}%` }}
                             >
                                 <span className="z-10 truncate px-2">Газ</span>
                                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -553,10 +666,10 @@ const App = () => {
                         
                         <div className="flex justify-between text-[10px] md:text-xs leading-none">
                             <div className="text-red-700 font-medium">
-                                Дизельное топливо: {formatMoney(summary.dualDieselPart)} <span className="text-slate-400">({summary.dualTotal > 0 ? ((summary.dualDieselPart / summary.dualTotal) * 100).toFixed(0) : 0}%)</span>
+                                Дизельное топливо: {formatMoney(summary.dualDieselPart)} <span className="text-slate-400">({dieselPercent.toFixed(0)}%)</span>
                             </div>
                             <div className={`${themeStyles.text} font-medium`}>
-                                {gasName}: {formatMoney(summary.dualGasPart)} <span className="text-slate-400">({summary.dualTotal > 0 ? ((summary.dualGasPart / summary.dualTotal) * 100).toFixed(0) : 0}%)</span>
+                                {gasName}: {formatMoney(summary.dualGasPart)} <span className="text-slate-400">({gasPercent.toFixed(0)}%)</span>
                             </div>
                         </div>
                     </div>
