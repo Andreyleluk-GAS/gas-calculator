@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+// Исправлен список импорта: добавлены ChevronRight, TrendingDown и другие используемые иконки
 import { 
-  Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, 
-  Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, 
-  FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download
+  Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
+  FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, TrendingDown 
 } from 'lucide-react';
 
 const App = () => {
@@ -47,9 +47,7 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
-    // Вспомогательная функция для безопасного преобразования в число
     const val = (v) => {
-        if (v === '') return 0;
         const parsed = parseFloat(v);
         return isNaN(parsed) ? 0 : parsed;
     };
@@ -316,7 +314,6 @@ const App = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-8 relative flex flex-col justify-between">
       <style>{printStyles}</style>
-
       <div className="max-w-6xl mx-auto w-full print-container">
         
         <header className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-2 print-hidden">
@@ -331,15 +328,6 @@ const App = () => {
         {/* Контейнер отчета */}
         <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm relative overflow-hidden">
              
-             {/* --- ВОДЯНОЙ ЗНАК --- */}
-             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.05] select-none">
-                 <img 
-                    src="/logo.png" 
-                    alt="Watermark" 
-                    className="w-3/4 md:w-1/2 object-contain transform -rotate-12"
-                 />
-            </div>
-
             <div className="relative z-10">
                 <div className="mb-2 md:mb-4 text-center border-b border-slate-100 pb-2">
                     <h1 className="text-lg md:text-2xl font-bold text-slate-900 leading-none">Отчет по эффективности газодизеля</h1>
@@ -352,41 +340,40 @@ const App = () => {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                            {/* УВЕЛИЧЕННЫЕ ШРИФТЫ */}
-                            <div className="text-slate-500 text-base mb-0.5 leading-none">Пробег в месяц</div>
-                            <div className="font-bold text-slate-900 text-lg leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
+                            <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
+                            <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                         </div>
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-base mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                            <div className="font-bold text-red-900 text-lg leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
+                            <div className="text-red-800/60 text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
+                            <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
                         </div>
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-base mb-0.5 leading-none">Цена ДТ</div>
-                            <div className="font-bold text-red-900 text-lg leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
+                            <div className="text-red-800/60 text-sm mb-0.5 leading-none">Цена ДТ</div>
+                            <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
                         </div>
 
                         <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                            <div className={`${themeStyles.textDark} text-base mb-0.5 leading-none`}>Процент замещения</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
+                            <div className={`${themeStyles.textDark} text-sm mb-0.5 leading-none`}>Процент замещения</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
                         </div>
                         
                         <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
                             <div>
-                                <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Коэффициент</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
+                                <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Коэффициент</div>
+                                <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
                             </div>
                             <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
                             <div className="text-right">
-                                <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Расход Газа</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>
+                                <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Расход Газа</div>
+                                <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>
                                     {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
                                 </div>
                             </div>
                         </div>
 
                         <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                            <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Цена {gasName}</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
                         </div>
                     </div>
                 </div>
