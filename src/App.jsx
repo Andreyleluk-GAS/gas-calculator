@@ -10,23 +10,36 @@ const App = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [inputs, setInputs] = useState({
-    dieselConsumption: 36,    
-    dieselPrice: 75,          
-    lngCoefficient: 0.857,    
-    lngPrice: 43.5,           
-    cngCoefficient: 1.2,      
-    cngPrice: 27.5,           
-    monthlyMileage: 15000,    
-    months: 12,               
-    substitutionRate: 60      
+    dieselConsumption: 36,    // Норма расхода Дизель
+    dieselPrice: 75,          // Стоимость Дизеля
+    
+    lngCoefficient: 0.857,    // Коэффициент СПГ
+    lngPrice: 43.5,           // Стоимость СПГ
+    
+    cngCoefficient: 1.2,      // Коэффициент КПГ
+    cngPrice: 27.5,           // Стоимость КПГ
+    
+    monthlyMileage: 15000,    // Пробег в месяц
+    months: 12,               // Период расчета
+    substitutionRate: 60      // Процент замещения
   });
 
   const [summary, setSummary] = useState({
-    dieselOnlyTotal: 0, dualTotal: 0, dualDieselPart: 0, dualGasPart: 0,
-    savings: 0, costPerKmDiesel: 0, costPerKmDual: 0, monthlySavings: 0,
-    dualTotalDiscounted: 0, dualGasPartDiscounted: 0,
-    savingsDiscounted: 0, monthlySavingsDiscounted: 0,
-    qtyDieselOnly_100: 0, qtyDualDiesel_100: 0, qtyDualGas_100: 0
+    dieselOnlyTotal: 0,
+    dualTotal: 0,
+    dualDieselPart: 0,
+    dualGasPart: 0,
+    savings: 0,
+    costPerKmDiesel: 0,
+    costPerKmDual: 0,
+    monthlySavings: 0,
+    dualTotalDiscounted: 0,
+    dualGasPartDiscounted: 0,
+    savingsDiscounted: 0,
+    monthlySavingsDiscounted: 0,
+    qtyDieselOnly_100: 0,
+    qtyDualDiesel_100: 0,
+    qtyDualGas_100: 0
   });
 
   useEffect(() => {
@@ -34,9 +47,14 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
-    const val = (v) => { const p = parseFloat(v); return isNaN(p) ? 0 : p; };
+    const val = (v) => {
+        const parsed = parseFloat(v);
+        return isNaN(parsed) ? 0 : parsed;
+    };
+
     const substitutionPercent = val(inputs.substitutionRate) / 100;
     const dieselRate = 1 - substitutionPercent;
+
     const gasCoefficient = systemType === 'lng' ? val(inputs.lngCoefficient) : val(inputs.cngCoefficient);
     const gasPrice = systemType === 'lng' ? val(inputs.lngPrice) : val(inputs.cngPrice);
     const gasPriceDiscounted = gasPrice * 0.8; 
@@ -47,14 +65,16 @@ const App = () => {
 
     const costDieselOnly_Km = (qtyDieselOnly_100 * val(inputs.dieselPrice)) / 100;
     const costDualDiesel_Km = (qtyDualDiesel_100 * val(inputs.dieselPrice)) / 100;
+    
     const costDualGas_Km = (qtyDualGas_100 * gasPrice) / 100;
     const costDualTotal_Km = costDualDiesel_Km + costDualGas_Km;
-    
+
     const costDualGasDiscounted_Km = (qtyDualGas_100 * gasPriceDiscounted) / 100;
     const costDualTotalDiscounted_Km = costDualDiesel_Km + costDualGasDiscounted_Km;
 
     const totalMileage = val(inputs.monthlyMileage) * val(inputs.months);
     const totalCostDiesel = totalMileage * costDieselOnly_Km;
+    
     const totalCostDualDiesel = totalMileage * costDualDiesel_Km;
     const totalCostDualGas = totalMileage * costDualGas_Km;
     const totalCostDual = totalCostDualDiesel + totalCostDualGas;
@@ -63,6 +83,7 @@ const App = () => {
     const totalCostDualGasDiscounted = totalMileage * costDualGasDiscounted_Km;
     const totalCostDualDiscounted = totalCostDualDiesel + totalCostDualGasDiscounted;
     const totalSavingsDiscounted = totalCostDiesel - totalCostDualDiscounted;
+
     const monthsDivider = val(inputs.months) || 1;
 
     setSummary({
@@ -86,31 +107,42 @@ const App = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (value === '') { setInputs(prev => ({ ...prev, [name]: '' })); return; }
+    
+    if (value === '') {
+        setInputs(prev => ({ ...prev, [name]: '' }));
+        return;
+    }
+
     let finalValue = parseFloat(value);
+    
     if (!isNaN(finalValue) && name === 'substitutionRate') {
       if (finalValue > 100) finalValue = 100;
       if (finalValue < 0) finalValue = 0;
     }
-    setInputs(prev => ({ ...prev, [name]: finalValue }));
+
+    setInputs(prev => ({
+      ...prev,
+      [name]: finalValue
+    }));
   };
 
-  const handlePrint = () => { window.print(); };
+  const handlePrint = () => {
+    window.print();
+  };
 
-  // --- ГЕНЕРАЦИЯ КАРТИНКИ ---
-  const handleGenerateImage = async () => {
+  const handleDownloadImage = async () => {
     setIsGenerating(true);
     
-    // Эмуляция задержки (в реальном проекте здесь будет вызов html2canvas)
-    setTimeout(() => {
-        // !!! РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ ПРОЕКТЕ !!!
-        /*
-        if (reportRef.current) {
+    if (reportRef.current) {
+        try {
+            // Сохраняем текущую позицию прокрутки
             const originalScrollPos = window.scrollY;
+            
+            // Прокручиваем наверх, чтобы избежать смещения
             window.scrollTo(0, 0);
 
-            html2canvas(reportRef.current, {
-                scale: 3, 
+            const canvas = await html2canvas(reportRef.current, {
+                scale: 3, // Высокое качество
                 backgroundColor: "#ffffff",
                 useCORS: true,
                 allowTaint: true,
@@ -119,41 +151,41 @@ const App = () => {
                 onclone: (clonedDoc) => {
                     const element = clonedDoc.querySelector('.report-container');
                     if(element) {
+                        // Принудительно сбрасываем стили, которые могут двигать текст
                         element.style.transform = 'none';
                         element.style.margin = '0';
+                        // Фикс шрифтов для Windows/Android
                         const all = element.getElementsByTagName('*');
                         for (let i = 0; i < all.length; i++) {
+                            // Принудительный line-height часто чинит смещение
                             if (window.getComputedStyle(all[i]).display !== 'none') {
                                 all[i].style.lineHeight = '1.2';
                             }
                         }
                     }
                 }
-            }).then(canvas => {
-                const imgData = canvas.toDataURL("image/jpeg", 0.92);
-                setGeneratedImage(imgData); 
-                window.scrollTo(0, originalScrollPos); 
-                setIsGenerating(false);
-            }).catch(err => {
-                console.error(err);
-                alert("Ошибка генерации. Попробуйте еще раз.");
-                setIsGenerating(false);
-                window.scrollTo(0, originalScrollPos);
             });
+
+            const imgData = canvas.toDataURL("image/jpeg", 0.92);
+            setGeneratedImage(imgData); // Показываем картинку в модалке
+            window.scrollTo(0, originalScrollPos); // Возвращаем скролл
+        } catch (err) {
+            console.error(err);
+            alert("Ошибка генерации. Попробуйте еще раз.");
+        } finally {
+            setIsGenerating(false);
         }
-        */
-        
-        // Удалите этот alert, когда раскомментируете код выше
-        alert("Пожалуйста, раскомментируйте код html2canvas в src/App.jsx. В демо-режиме это не работает.");
-        setIsGenerating(false);
-    }, 100);
+    }
   };
 
   const closePreview = () => {
     setGeneratedImage(null);
   };
 
-  const formatMoney = (num) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(num);
+  const formatMoney = (num) => {
+    return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(num);
+  };
+  
   const getVal = (val) => val === '' ? 0 : val;
 
   const isLng = systemType === 'lng';
@@ -169,21 +201,41 @@ const App = () => {
     gradient: isLng ? 'from-blue-600 to-blue-700' : 'from-green-600 to-green-700',
     button: isLng ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700',
     subtleBg: isLng ? 'bg-blue-50/50' : 'bg-green-50/50',
-    separatorBg: isLng ? 'bg-blue-900' : 'bg-green-900',
+    separatorBg: isLng ? 'bg-blue-900' : 'bg-green-900', 
   };
 
   const printStyles = `
     @media print {
-      @page { size: A4; margin: 5mm; }
-      body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 11px; }
-      .print-container { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; zoom: 0.9; }
-      .print-hidden { display: none !important; }
-      .bg-gradient-to-br { background: ${isLng ? 'linear-gradient(to bottom right, #2563eb, #1d4ed8)' : 'linear-gradient(to bottom right, #16a34a, #15803d)'} !important; }
-      .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+      @page {
+        size: A4;
+        margin: 5mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+        font-size: 11px;
+      }
+      .print-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        zoom: 0.9;
+      }
+      .print-hidden {
+        display: none !important;
+      }
+      .bg-gradient-to-br {
+        background: ${isLng ? 'linear-gradient(to bottom right, #2563eb, #1d4ed8)' : 'linear-gradient(to bottom right, #16a34a, #15803d)'} !important;
+      }
+      .break-inside-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
     }
   `;
 
-  // --- ЭКРАН 1: ВЫБОР СИСТЕМЫ ---
   if (step === 1) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
@@ -194,6 +246,7 @@ const App = () => {
               <h1 className="text-3xl font-bold text-slate-900 mb-2">Калькулятор Эффективности</h1> 
               <p className="text-lg text-slate-600">Выберите тип оборудования</p>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"> 
               <div onClick={() => setSystemType('cng')} className={`cursor-pointer group relative p-6 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${systemType === 'cng' ? 'border-green-500 bg-white shadow-lg ring-4 ring-green-500/10' : 'border-slate-200 bg-white hover:border-green-300'}`}>
                 <div className="flex justify-between items-start mb-4">
@@ -225,38 +278,74 @@ const App = () => {
     );
   }
 
-  // --- ЭКРАН 2: ВВОД ПАРАМЕТРОВ ---
   if (step === 2) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
         <style>{printStyles}</style>
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="max-w-xl w-full">
-              <button onClick={() => setStep(1)} className="flex items-center gap-3 mb-3 w-full text-left group hover:opacity-80 transition-opacity">
-                  <div className="p-1.5 bg-white border border-slate-200 rounded-full text-slate-500 shadow-sm"><ChevronLeft className="w-5 h-5" /></div>
+              <button 
+                onClick={() => setStep(1)} 
+                className="flex items-center gap-3 mb-3 w-full text-left group hover:opacity-80 transition-opacity"
+              >
+                  <div className="p-1.5 bg-white border border-slate-200 rounded-full text-slate-500 shadow-sm">
+                    <ChevronLeft className="w-5 h-5" />
+                  </div>
                   <h1 className="text-lg font-bold text-slate-900">Ввод параметров</h1>
               </button>
+
               <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-5">
                 <div className="space-y-4">
+                  
+                  {/* Дизель */}
                   <div className="p-3 bg-red-50 rounded-2xl border border-red-200">
-                    <div className="flex items-center gap-2 mb-2 text-red-800 font-bold uppercase tracking-wide border-b border-red-200 pb-1 text-sm"><Fuel className="w-4 h-4 text-red-600" /> Дизель (Базовый)</div>
+                    <div className="flex items-center gap-2 mb-2 text-red-800 font-bold uppercase tracking-wide border-b border-red-200 pb-1 text-sm">
+                      <Fuel className="w-4 h-4 text-red-600" /> Дизель (Базовый)
+                    </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2"><label className="text-xs font-semibold text-red-900/70">Расход (л/100км)</label><input type="number" name="dieselConsumption" value={inputs.dieselConsumption} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" /></div>
-                      <div className="flex items-center justify-between gap-2"><label className="text-xs font-semibold text-red-900/70">Стоимость (₽/л)</label><input type="number" name="dieselPrice" value={inputs.dieselPrice} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" /></div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-xs font-semibold text-red-900/70">Расход (л/100км)</label>
+                        <input type="number" name="dieselConsumption" value={inputs.dieselConsumption} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-xs font-semibold text-red-900/70">Стоимость (₽/л)</label>
+                        <input type="number" name="dieselPrice" value={inputs.dieselPrice} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Газ */}
                   <div className={`p-3 rounded-2xl border ${themeStyles.bg} ${themeStyles.border}`}>
-                    <div className={`flex items-center gap-2 mb-2 text-sm font-bold uppercase tracking-wide border-b ${themeStyles.border} pb-1 ${themeStyles.textDark}`}>{isLng ? <Flame className="w-4 h-4" /> : <Gauge className="w-4 h-4" />} {gasName}</div>
+                    <div className={`flex items-center gap-2 mb-2 text-sm font-bold uppercase tracking-wide border-b ${themeStyles.border} pb-1 ${themeStyles.textDark}`}>
+                      {isLng ? <Flame className="w-4 h-4" /> : <Gauge className="w-4 h-4" />} {gasName}
+                    </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2"><label className={`text-xs font-semibold ${themeStyles.textDark}`}>Коэф. расхода</label><input type="number" step="0.001" name={isLng ? "lngCoefficient" : "cngCoefficient"} value={isLng ? inputs.lngCoefficient : inputs.cngCoefficient} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} /></div>
-                      <div className="flex items-center justify-between gap-2"><label className={`text-xs font-semibold ${themeStyles.textDark}`}>Стоимость (₽/{gasUnit})</label><input type="number" step="0.1" name={isLng ? "lngPrice" : "cngPrice"} value={isLng ? inputs.lngPrice : inputs.cngPrice} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} /></div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className={`text-xs font-semibold ${themeStyles.textDark}`}>Коэф. расхода</label>
+                        <input type="number" step="0.001" name={isLng ? "lngCoefficient" : "cngCoefficient"} value={isLng ? inputs.lngCoefficient : inputs.cngCoefficient} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className={`text-xs font-semibold ${themeStyles.textDark}`}>Стоимость (₽/{gasUnit})</label>
+                        <input type="number" step="0.1" name={isLng ? "lngPrice" : "cngPrice"} value={isLng ? inputs.lngPrice : inputs.cngPrice} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Общие (низ) */}
                   <div className="grid grid-cols-2 gap-3 pt-1">
-                      <div><label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Пробег (км/мес)</label><input type="number" name="monthlyMileage" value={inputs.monthlyMileage} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} /></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">% замещения ДТ</label><input type="number" name="substitutionRate" min="0" max="100" value={inputs.substitutionRate} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} /></div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Пробег (км/мес)</label>
+                        <input type="number" name="monthlyMileage" value={inputs.monthlyMileage} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">% замещения ДТ</label>
+                        <input type="number" name="substitutionRate" min="0" max="100" value={inputs.substitutionRate} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} />
+                      </div>
                   </div>
-                  <button onClick={() => setStep(3)} className={`w-full flex items-center justify-center gap-2 text-white text-base font-bold py-2.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg ${themeStyles.button}`}>Рассчитать экономию <ArrowRight className="w-4 h-4" /></button>
+
+                  <button onClick={() => setStep(3)} className={`w-full flex items-center justify-center gap-2 text-white text-base font-bold py-2.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg ${themeStyles.button}`}>
+                    Рассчитать экономию <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
           </div>
@@ -332,40 +421,40 @@ const App = () => {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                        <div className="text-slate-500 text-xs md:text-sm mb-0.5 leading-none">Пробег в месяц</div>
-                        <div className="font-bold text-slate-900 text-sm md:text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
+                        <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
+                        <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                        <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
+                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
+                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Цена ДТ</div>
-                        <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
+                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Цена ДТ</div>
+                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                        <div className={`${themeStyles.textDark} text-xs md:text-sm mb-0.5 leading-none`}>Процент замещения</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
+                        <div className={`${themeStyles.textDark} text-sm mb-0.5 leading-none`}>Процент замещения</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
                     </div>
                     
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
                         <div>
-                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Коэффициент</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Коэффициент</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
                         </div>
                         <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
                         <div className="text-right">
-                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Расход Газа</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>
+                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Расход Газа</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>
                                 {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
                             </div>
                         </div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                        <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
+                        <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
                     </div>
                 </div>
             </div>
@@ -444,13 +533,13 @@ const App = () => {
                             
                             {/* Ряд 1: Расход */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
+                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л ДТ</span>
                             </div>
 
                             {/* Ряд 2: Стоимость 1 км */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-10 md:h-14">
-                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
+                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className="text-base md:text-xl font-bold text-red-900 leading-none block">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
                                     <span className="text-[10px] text-transparent block font-medium mt-0.5 leading-none">.</span>
@@ -459,14 +548,14 @@ const App = () => {
 
                             {/* Ряд 3: Затраты в месяц */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5">Затраты в месяц</span>
+                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Затраты в месяц</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
                             <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-sm md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
-                                <span className="text-base md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
+                                <span className="text-red-900/60 text-xs md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
+                                <span className="text-lg md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
                             </div>
                         </div>
                     </div>
@@ -483,7 +572,7 @@ const App = () => {
                             
                             {/* Ряд 1: Расход */}
                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
                                 <div className="flex items-center">
                                     <span className="text-base md:text-xl font-bold text-red-900 whitespace-nowrap leading-none">
                                         {summary.qtyDualDiesel_100} л ДТ
@@ -497,7 +586,7 @@ const App = () => {
 
                             {/* Ряд 2: Стоимость 1 км */}
                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-10 md:h-14`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none block`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
                                     <span className="text-[9px] md:text-[10px] text-green-600 block font-medium mt-0.5 leading-none">Выгоднее на {(summary.costPerKmDiesel - summary.costPerKmDual).toFixed(2)} ₽</span>
@@ -506,14 +595,14 @@ const App = () => {
 
                             {/* Ряд 3: Затраты в месяц */}
                              <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
                                 <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
                             <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
-                                <span className={`text-base md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
+                                <span className={`text-lg md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
                             </div>
                         </div>
                     </div>
