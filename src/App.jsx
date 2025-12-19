@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const App = () => {
-  // --- Состояние навигации ---
-  const [step, setStep] = useState(1); // 1 = Выбор, 2 = Ввод, 3 = Результат
-  const [systemType, setSystemType] = useState('cng'); // 'cng' (КПГ) или 'lng' (СПГ)
+  const reportRef = useRef(null); 
+  const [step, setStep] = useState(1); 
+  const [systemType, setSystemType] = useState('cng'); 
 
-  // --- Состояние для входных данных ---
   const [inputs, setInputs] = useState({
-    dieselConsumption: 30,    // Норма расхода Дизель
-    dieselPrice: 75,          // Стоимость Дизеля
+    dieselConsumption: 30,    
+    dieselPrice: 75,          
     
-    lngCoefficient: 0.857,    // Коэффициент СПГ
-    lngPrice: 43.5,           // Стоимость СПГ
+    lngCoefficient: 0.857,    
+    lngPrice: 43.5,           
     
-    cngCoefficient: 1.2,      // Коэффициент КПГ
-    cngPrice: 27.5,           // Стоимость КПГ
+    cngCoefficient: 1.2,      
+    cngPrice: 27.5,           
     
-    monthlyMileage: 18000,    // Пробег в месяц
-    months: 12,               // Период расчета (фиксированный, скрыт из UI)
-    substitutionRate: 60      // Процент замещения
+    monthlyMileage: 18000,    
+    months: 12,               
+    substitutionRate: 60      
   });
 
   const [summary, setSummary] = useState({
@@ -31,59 +31,48 @@ const App = () => {
     costPerKmDiesel: 0,
     costPerKmDual: 0,
     monthlySavings: 0,
-    // С учетом скидки
     dualTotalDiscounted: 0,
     dualGasPartDiscounted: 0,
     savingsDiscounted: 0,
     monthlySavingsDiscounted: 0,
-    // Физический расход
     qtyDieselOnly_100: 0,
     qtyDualDiesel_100: 0,
     qtyDualGas_100: 0
   });
 
-  // --- Расчет ---
   useEffect(() => {
     calculateResults();
   }, [inputs, systemType]);
 
   const calculateResults = () => {
-    // 1. Параметры системы
     const substitutionPercent = inputs.substitutionRate / 100;
     const dieselRate = 1 - substitutionPercent;
 
     const gasCoefficient = systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient;
     const gasPrice = systemType === 'lng' ? inputs.lngPrice : inputs.cngPrice;
-    const gasPriceDiscounted = gasPrice * 0.8; // Скидка 20%
+    const gasPriceDiscounted = gasPrice * 0.8; 
 
-    // 2. Расход на 100 км (Физический объем)
     const qtyDieselOnly_100 = inputs.dieselConsumption; 
     const qtyDualDiesel_100 = inputs.dieselConsumption * dieselRate; 
     const qtyDualGas_100 = (inputs.dieselConsumption * substitutionPercent) * gasCoefficient;
 
-    // 3. Стоимость 1 км пути (Рубли)
     const costDieselOnly_Km = (qtyDieselOnly_100 * inputs.dieselPrice) / 100;
     const costDualDiesel_Km = (qtyDualDiesel_100 * inputs.dieselPrice) / 100;
     
-    // Без скидки
     const costDualGas_Km = (qtyDualGas_100 * gasPrice) / 100;
     const costDualTotal_Km = costDualDiesel_Km + costDualGas_Km;
 
-    // Со скидкой
     const costDualGasDiscounted_Km = (qtyDualGas_100 * gasPriceDiscounted) / 100;
     const costDualTotalDiscounted_Km = costDualDiesel_Km + costDualGasDiscounted_Km;
 
-    // 4. Итоги за период
     const totalMileage = inputs.monthlyMileage * inputs.months;
     const totalCostDiesel = totalMileage * costDieselOnly_Km;
     
-    // Без скидки
     const totalCostDualDiesel = totalMileage * costDualDiesel_Km;
     const totalCostDualGas = totalMileage * costDualGas_Km;
     const totalCostDual = totalCostDualDiesel + totalCostDualGas;
     const totalSavings = totalCostDiesel - totalCostDual;
 
-    // Со скидкой
     const totalCostDualGasDiscounted = totalMileage * costDualGasDiscounted_Km;
     const totalCostDualDiscounted = totalCostDualDiesel + totalCostDualGasDiscounted;
     const totalSavingsDiscounted = totalCostDiesel - totalCostDualDiscounted;
@@ -97,12 +86,10 @@ const App = () => {
       costPerKmDiesel: costDieselOnly_Km,
       costPerKmDual: costDualTotal_Km,
       monthlySavings: Math.round(totalSavings / inputs.months),
-      // С учетом скидки
       dualTotalDiscounted: Math.round(totalCostDualDiscounted),
       dualGasPartDiscounted: Math.round(totalCostDualGasDiscounted),
       savingsDiscounted: Math.round(totalSavingsDiscounted),
       monthlySavingsDiscounted: Math.round(totalSavingsDiscounted / inputs.months),
-      // Физический расход (округляем для красоты)
       qtyDieselOnly_100: parseFloat(qtyDieselOnly_100.toFixed(1)),
       qtyDualDiesel_100: parseFloat(qtyDualDiesel_100.toFixed(1)),
       qtyDualGas_100: parseFloat(qtyDualGas_100.toFixed(1))
@@ -124,15 +111,29 @@ const App = () => {
     }));
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadImage = () => {
+    if (reportRef.current) {
+        html2canvas(reportRef.current, {
+            scale: 2, // Высокое качество
+            backgroundColor: "#ffffff",
+            useCORS: true
+        }).then(canvas => {
+            const image = canvas.toDataURL("image/jpeg", 0.9);
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = `raschet-${systemType}.jpg`;
+            link.click();
+        }).catch(err => {
+            console.error("Ошибка генерации изображения:", err);
+            alert("Ошибка при создании изображения. Попробуйте обновить страницу.");
+        });
+    }
   };
 
   const formatMoney = (num) => {
     return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(num);
   };
   
-  // --- Theme Helper Variables ---
   const isLng = systemType === 'lng';
   const gasName = isLng ? 'СПГ (LNG)' : 'КПГ (CNG)';
   const gasUnit = isLng ? 'кг' : 'м³';
@@ -148,7 +149,6 @@ const App = () => {
     subtleBg: isLng ? 'bg-blue-50/50' : 'bg-green-50/50',
   };
 
-  // --- GLOBAL STYLES FOR PRINTING ---
   const printStyles = `
     @media print {
       @page {
@@ -159,13 +159,13 @@ const App = () => {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         background-color: white !important;
-        font-size: 12px; /* Base font size specifically for print */
+        font-size: 12px;
       }
-      /* Scale content to fit width */
       .print-container {
         width: 100% !important;
         max-width: 100% !important;
-        zoom: 0.85; /* Slightly scale down to ensure fit */
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .print-hidden {
         display: none !important;
@@ -173,7 +173,6 @@ const App = () => {
       .bg-gradient-to-br {
         background: ${isLng ? 'linear-gradient(to bottom right, #2563eb, #1d4ed8)' : 'linear-gradient(to bottom right, #16a34a, #15803d)'} !important;
       }
-      /* Prevent page breaks inside cards */
       .break-inside-avoid {
         break-inside: avoid;
         page-break-inside: avoid;
@@ -181,7 +180,6 @@ const App = () => {
     }
   `;
 
-  // --- ЭКРАН 1: ВЫБОР СИСТЕМЫ ---
   if (step === 1) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
@@ -224,7 +222,6 @@ const App = () => {
     );
   }
 
-  // --- ЭКРАН 2: ВВОД ПАРАМЕТРОВ ---
   if (step === 2) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
@@ -268,259 +265,246 @@ const App = () => {
     );
   }
 
-  // --- ЭКРАН 3: РЕЗУЛЬТАТЫ (ОБНОВЛЕННЫЙ) ---
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8 relative flex flex-col justify-between">
       <style>{printStyles}</style>
       <div className="max-w-6xl mx-auto w-full print-container">
         
-        {/* Хедер Результатов */}
         <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 print-hidden">
           <div className="flex items-center gap-4">
             <button onClick={() => setStep(2)} className="group flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors font-medium"><ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Изменить параметры</button>
           </div>
           <div className="flex items-center gap-3">
-             <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Save className="w-4 h-4" /> Скачать PDF / Печать</button>
+             <button onClick={handleDownloadImage} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Download className="w-4 h-4" /> Сохранить как картинку</button>
           </div>
         </header>
 
-        {/* 1. Блок Исходных Данных */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print:shadow-none print:border print:mb-4 print:p-4 break-inside-avoid">
-            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-slate-500" />
-                Исходные данные для расчета
-            </h3>
-            {/* FORCE PRINT GRID COLS 3 */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 text-sm print:gap-2">
-                {/* Первая Строка */}
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="text-slate-500 text-xs mb-1">Пробег в месяц</div>
-                    <div className="font-bold text-slate-900">{inputs.monthlyMileage.toLocaleString()} км</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-lg border border-red-100">
-                    <div className="text-red-800/60 text-xs mb-1">Расход Дизеля (Норма)</div>
-                    <div className="font-bold text-red-900">{inputs.dieselConsumption} л/100км</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-lg border border-red-100">
-                    <div className="text-red-800/60 text-xs mb-1">Цена ДТ</div>
-                    <div className="font-bold text-red-900">{inputs.dieselPrice} ₽/л</div>
-                </div>
-
-                {/* Вторая Строка */}
-                <div className={`p-3 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                    <div className={`${themeStyles.textDark} text-xs mb-1`}>Процент замещения</div>
-                    <div className={`font-bold ${themeStyles.textDark}`}>{inputs.substitutionRate}% Газ</div>
-                </div>
-                 
-                 {/* Split Card for Coefficient and Gas Consumption */}
-                 <div className={`p-3 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
-                    <div>
-                        <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Коэффициент</div>
-                        <div className={`font-bold ${themeStyles.textDark}`}>{systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient}</div>
-                    </div>
-                    
-                    <div className={`w-px h-8 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
-
-                    <div className="text-right">
-                        <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Расход Газа</div>
-                        <div className={`font-bold ${themeStyles.textDark}`}>
-                            {((inputs.dieselConsumption * inputs.substitutionRate / 100) * (systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient)).toFixed(1)} {gasUnit}/100км
-                        </div>
-                    </div>
-                </div>
-
-                 <div className={`p-3 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                    <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Цена {gasName}</div>
-                    <div className={`font-bold ${themeStyles.textDark}`}>{systemType === 'lng' ? inputs.lngPrice : inputs.cngPrice} ₽/{gasUnit}</div>
-                </div>
-            </div>
-        </div>
-
-        {/* 2. Детальный Результат (Разделенный) */}
-        <div className="space-y-6 print:space-y-4">
+        <div ref={reportRef} className="bg-white p-4 rounded-xl">
             
-            {/* КАРТОЧКИ ЭКОНОМИИ */}
-            {/* FORCE PRINT GRID COLS 2 OR 1 */}
-            <div className={`grid grid-cols-1 ${!isLng ? 'md:grid-cols-2 print:grid-cols-2' : ''} gap-6 items-stretch break-inside-avoid print:gap-4`}>
-                
-                {/* ЛЕВАЯ КАРТОЧКА: БАЗОВАЯ ЭКОНОМИЯ */}
-                <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col justify-between h-full print:p-6`}>
-                    <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-                      {isLng ? <Flame size={300} /> : <Gauge size={300} />}
-                    </div>
-                    
-                    <div className="relative z-10 flex-1">
-                        <h2 className="text-xl font-bold text-white mb-4">Базовый расчет</h2>
-                        <div className="flex items-center gap-2 bg-white/20 text-white px-3 py-1.5 rounded-full text-sm font-medium w-fit mb-6 backdrop-blur-sm">
-                             <Fuel className="w-4 h-4" />
-                             Стандартные условия
-                        </div>
+            <div className="mb-6 text-center border-b border-slate-100 pb-4">
+                <h1 className="text-2xl font-bold text-slate-900">Отчет по эффективности газодизеля</h1>
+                <p className="text-slate-500 text-sm mt-1">Сформировано: {new Date().toLocaleDateString()}</p>
+            </div>
 
-                        <div className="text-xl text-white/80 font-medium mb-2">Итоговая экономия</div>
-                        <div className="text-5xl font-bold tracking-tight mb-4">{formatMoney(summary.savings)}</div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print:shadow-none print:border print:mb-4 print:p-4 break-inside-avoid">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-slate-500" />
+                    Исходные данные для расчета
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 text-sm print:gap-2">
+                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="text-slate-500 text-xs mb-1">Пробег в месяц</div>
+                        <div className="font-bold text-slate-900">{inputs.monthlyMileage.toLocaleString()} км</div>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-lg border border-red-100">
+                        <div className="text-red-800/60 text-xs mb-1">Расход Дизеля (Норма)</div>
+                        <div className="font-bold text-red-900">{inputs.dieselConsumption} л/100км</div>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-lg border border-red-100">
+                        <div className="text-red-800/60 text-xs mb-1">Цена ДТ</div>
+                        <div className="font-bold text-red-900">{inputs.dieselPrice} ₽/л</div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
+                        <div className={`${themeStyles.textDark} text-xs mb-1`}>Процент замещения</div>
+                        <div className={`font-bold ${themeStyles.textDark}`}>{inputs.substitutionRate}% Газ</div>
                     </div>
                     
-                    <div className="relative z-10 flex gap-3 flex-wrap">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm border border-white/10">
-                        <Wallet className="w-4 h-4" />
-                        <span>{formatMoney(summary.monthlySavings)} в месяц</span>
+                    <div className={`p-3 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
+                        <div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Коэффициент</div>
+                            <div className={`font-bold ${themeStyles.textDark}`}>{systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient}</div>
                         </div>
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm border border-white/10">
-                        <TrendingDown className="w-4 h-4" />
-                        <span>- {((summary.savings / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
+                        <div className={`w-px h-8 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
+                        <div className="text-right">
+                            <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Расход Газа</div>
+                            <div className={`font-bold ${themeStyles.textDark}`}>
+                                {((inputs.dieselConsumption * inputs.substitutionRate / 100) * (systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient)).toFixed(1)} {gasUnit}/100км
+                            </div>
                         </div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
+                        <div className={`${themeStyles.textDark} opacity-60 text-xs mb-1`}>Цена {gasName}</div>
+                        <div className={`font-bold ${themeStyles.textDark}`}>{systemType === 'lng' ? inputs.lngPrice : inputs.cngPrice} ₽/{gasUnit}</div>
                     </div>
                 </div>
+            </div>
 
-                {/* ПРАВАЯ КАРТОЧКА: ЭКОНОМИЯ СО СКИДКОЙ ГГМТ (ТОЛЬКО ДЛЯ КПГ / CNG) */}
-                {!isLng && (
-                <div className="bg-white rounded-3xl shadow-lg relative overflow-hidden border border-blue-200 p-8 flex flex-col justify-between h-full print:p-6">
-                    <div className="relative z-10 flex-1">
-                         <h2 className="text-xl font-bold text-blue-900 mb-4">Программа ООО "ГГМТ"</h2>
-                         <div className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium w-fit mb-6">
-                             <Tag className="w-4 h-4" />
-                             Скидка на метан 20%
+            <div className="space-y-6 print:space-y-4">
+                <div className={`grid grid-cols-1 ${!isLng ? 'md:grid-cols-2 print:grid-cols-2' : ''} gap-6 items-stretch break-inside-avoid print:gap-4`}>
+                    
+                    <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col justify-between h-full print:p-6`}>
+                        <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                        {isLng ? <Flame size={300} /> : <Gauge size={300} />}
+                        </div>
+                        
+                        <div className="relative z-10 flex-1">
+                            <h2 className="text-xl font-bold text-white mb-4">Базовый расчет</h2>
+                            <div className="flex items-center gap-2 bg-white/20 text-white px-3 py-1.5 rounded-full text-sm font-medium w-fit mb-6 backdrop-blur-sm">
+                                <Fuel className="w-4 h-4" />
+                                Стандартные условия
+                            </div>
+
+                            <div className="text-xl text-white/80 font-medium mb-2">Итоговая экономия</div>
+                            <div className="text-5xl font-bold tracking-tight mb-4">{formatMoney(summary.savings)}</div>
+                        </div>
+                        
+                        <div className="relative z-10 flex gap-3 flex-wrap">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm border border-white/10">
+                            <Wallet className="w-4 h-4" />
+                            <span>{formatMoney(summary.monthlySavings)} в месяц</span>
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm border border-white/10">
+                            <TrendingDown className="w-4 h-4" />
+                            <span>- {((summary.savings / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {!isLng && (
+                    <div className="bg-white rounded-3xl shadow-lg relative overflow-hidden border border-blue-200 p-8 flex flex-col justify-between h-full print:p-6">
+                        <div className="relative z-10 flex-1">
+                            <h2 className="text-xl font-bold text-blue-900 mb-4">Программа ООО "ГГМТ"</h2>
+                            <div className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium w-fit mb-6">
+                                <Tag className="w-4 h-4" />
+                                Скидка на метан 20%
+                            </div>
+                            
+                            <div className="text-xl text-slate-600 font-medium mb-2">Итоговая экономия со скидкой</div>
+                            <div className="text-5xl font-bold tracking-tight text-blue-900 mb-4">{formatMoney(summary.savingsDiscounted)}</div>
+                        </div>
+                        
+                        <div className="relative z-10 flex gap-3 flex-wrap">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 rounded-full text-sm text-blue-800 border border-blue-100">
+                            <Wallet className="w-4 h-4" />
+                            <span>{formatMoney(summary.monthlySavingsDiscounted)} в месяц</span>
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 rounded-full text-sm text-blue-800 border border-blue-100">
+                            <TrendingDown className="w-4 h-4" />
+                            <span>- {((summary.savingsDiscounted / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
+                            </div>
+                        </div>
+                    </div>
+                    )}
+
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 print:gap-4 break-inside-avoid">
+                    
+                    <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 relative overflow-hidden print:p-4">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+                        <h3 className="text-lg font-bold text-red-900 mb-6 relative z-10 flex items-center gap-2">
+                            <Fuel className="w-5 h-5" />
+                            Только Дизель (100%)
+                        </h3>
+                        
+                        <div className="space-y-3 relative z-10">
+                            
+                            <div className="flex justify-between items-end border-b border-red-100 pb-2">
+                                <span className="text-red-900/60 text-sm">Расход топлива на 100км</span>
+                                <span className="text-xl font-bold text-red-900">{summary.qtyDieselOnly_100} л ДТ</span>
+                            </div>
+
+                            <div className="flex justify-between items-end border-b border-red-100 pb-2">
+                                <span className="text-red-900/60 text-sm">Стоимость 1 км</span>
+                                <span className="text-xl font-bold text-red-900">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
+                            </div>
+                            <div className="flex justify-between items-end border-b border-red-100 pb-2">
+                                <span className="text-red-900/60 text-sm">Затраты в месяц</span>
+                                <span className="text-xl font-bold text-red-900">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
+                            </div>
+                            <div className="flex justify-between items-end pt-2">
+                                <span className="text-red-900/60 text-sm font-medium">ИТОГО за период</span>
+                                <span className="text-3xl font-bold text-red-900">{formatMoney(summary.dieselOnlyTotal)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={`bg-white rounded-2xl shadow-sm border ${themeStyles.border} p-6 relative overflow-hidden print:p-4`}>
+                        <div className={`absolute top-0 right-0 w-32 h-32 ${themeStyles.bg} rounded-bl-full -mr-10 -mt-10 z-0`}></div>
+                        <h3 className={`text-lg font-bold ${themeStyles.textDark} mb-6 relative z-10 flex items-center gap-2`}>
+                            {isLng ? <Flame className="w-5 h-5" /> : <Gauge className="w-5 h-5" />}
+                            Газодизель ({gasName})
+                        </h3>
+                        
+                        <div className="space-y-3 relative z-10">
+                            
+                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Расход топлива на 100км</span>
+                                <div className="flex items-center">
+                                    <span className="text-xl font-bold text-red-700 whitespace-nowrap">
+                                        {summary.qtyDualDiesel_100} л ДТ
+                                    </span>
+                                    <div className={`h-5 w-px mx-2 ${themeStyles.bg} opacity-40`}></div>
+                                    <span className={`text-xl font-bold ${themeStyles.textDark} whitespace-nowrap`}>
+                                        {summary.qtyDualGas_100} {gasUnit} {isLng ? 'СПГ' : 'КПГ'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Стоимость 1 км</span>
+                                <div className="text-right">
+                                    <span className={`text-xl font-bold ${themeStyles.textDark}`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
+                                    <span className="text-xs text-green-600 block font-medium">Выгоднее на {(summary.costPerKmDiesel - summary.costPerKmDual).toFixed(2)} ₽</span>
+                                </div>
+                            </div>
+                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Затраты в месяц</span>
+                                <span className={`text-xl font-bold ${themeStyles.textDark}`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
+                            </div>
+                            <div className="flex justify-between items-end pt-2">
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm font-medium`}>ИТОГО за период</span>
+                                <span className={`text-3xl font-bold ${themeStyles.textDark}`}>{formatMoney(summary.dualTotal)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 print:p-4 break-inside-avoid">
+                     <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                         <BarChart3 className="w-4 h-4" />
+                         Структура затрат в газодизельном режиме (Без учета скидки)
+                     </h4>
+                     
+                     <div className="flex h-12 rounded-xl overflow-hidden mb-3">
+                         <div 
+                            className="bg-red-500 flex items-center justify-center text-white font-bold text-sm relative group"
+                            style={{ width: `${(summary.dualDieselPart / summary.dualTotal) * 100}%` }}
+                         >
+                             <span className="z-10 truncate px-2">Дизель</span>
+                             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                          </div>
-                         
-                         <div className="text-xl text-slate-600 font-medium mb-2">Итоговая экономия со скидкой</div>
-                         <div className="text-5xl font-bold tracking-tight text-blue-900 mb-4">{formatMoney(summary.savingsDiscounted)}</div>
-                    </div>
-                    
-                    <div className="relative z-10 flex gap-3 flex-wrap">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 rounded-full text-sm text-blue-800 border border-blue-100">
-                        <Wallet className="w-4 h-4" />
-                        <span>{formatMoney(summary.monthlySavingsDiscounted)} в месяц</span>
-                        </div>
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 rounded-full text-sm text-blue-800 border border-blue-100">
-                        <TrendingDown className="w-4 h-4" />
-                        <span>- {((summary.savingsDiscounted / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
-                        </div>
-                    </div>
-                </div>
-                )}
-
-            </div>
-
-            {/* Сравнение затрат (Grid) */}
-            {/* FORCE PRINT GRID COLS 2 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 print:gap-4 break-inside-avoid">
-                
-                {/* 100% Дизель */}
-                <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 relative overflow-hidden print:p-4">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-10 -mt-10 z-0"></div>
-                    <h3 className="text-lg font-bold text-red-900 mb-6 relative z-10 flex items-center gap-2">
-                        <Fuel className="w-5 h-5" />
-                        Только Дизель (100%)
-                    </h3>
-                    
-                    <div className="space-y-3 relative z-10">
-                        
-                        {/* UPDATED: Расход топлива на 100км */}
-                        <div className="flex justify-between items-end border-b border-red-100 pb-2">
-                            <span className="text-red-900/60 text-sm">Расход топлива на 100км</span>
-                            <span className="text-xl font-bold text-red-900">{summary.qtyDieselOnly_100} л ДТ</span>
-                        </div>
-
-                        <div className="flex justify-between items-end border-b border-red-100 pb-2">
-                            <span className="text-red-900/60 text-sm">Стоимость 1 км</span>
-                            <span className="text-xl font-bold text-red-900">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
-                        </div>
-                        <div className="flex justify-between items-end border-b border-red-100 pb-2">
-                            <span className="text-red-900/60 text-sm">Затраты в месяц</span>
-                            <span className="text-xl font-bold text-red-900">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
-                        </div>
-                        <div className="flex justify-between items-end pt-2">
-                            <span className="text-red-900/60 text-sm font-medium">ИТОГО за период</span>
-                            <span className="text-3xl font-bold text-red-900">{formatMoney(summary.dieselOnlyTotal)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Газодизель */}
-                <div className={`bg-white rounded-2xl shadow-sm border ${themeStyles.border} p-6 relative overflow-hidden print:p-4`}>
-                    <div className={`absolute top-0 right-0 w-32 h-32 ${themeStyles.bg} rounded-bl-full -mr-10 -mt-10 z-0`}></div>
-                    <h3 className={`text-lg font-bold ${themeStyles.textDark} mb-6 relative z-10 flex items-center gap-2`}>
-                        {isLng ? <Flame className="w-5 h-5" /> : <Gauge className="w-5 h-5" />}
-                        Газодизель ({gasName})
-                    </h3>
-                    
-                    <div className="space-y-3 relative z-10">
-                        
-                        {/* UPDATED: Расход топлива на 100км */}
-                        <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
-                            <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Расход топлива на 100км</span>
-                            <div className="flex items-center">
-                                <span className="text-xl font-bold text-red-700">
-                                    {summary.qtyDualDiesel_100} л ДТ
-                                </span>
-                                <div className={`h-5 w-0.5 mx-2 ${themeStyles.bg} opacity-40`}></div>
-                                <span className={`text-xl font-bold ${themeStyles.textDark}`}>
-                                    {summary.qtyDualGas_100} {gasUnit} {isLng ? 'СПГ' : 'КПГ'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
-                            <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Стоимость 1 км</span>
-                            <div className="text-right">
-                                <span className={`text-xl font-bold ${themeStyles.textDark}`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
-                                <span className="text-xs text-green-600 block font-medium">Выгоднее на {(summary.costPerKmDiesel - summary.costPerKmDual).toFixed(2)} ₽</span>
-                            </div>
-                        </div>
-                         <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-2`}>
-                            <span className={`${themeStyles.textDark} opacity-60 text-sm`}>Затраты в месяц</span>
-                            <span className={`text-xl font-bold ${themeStyles.textDark}`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
-                        </div>
-                        <div className="flex justify-between items-end pt-2">
-                            <span className={`${themeStyles.textDark} opacity-60 text-sm font-medium`}>ИТОГО за период</span>
-                            <span className={`text-3xl font-bold ${themeStyles.textDark}`}>{formatMoney(summary.dualTotal)}</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-             {/* Структура затрат Газодизеля (Bar Chart Simulation) */}
-             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 print:p-4 break-inside-avoid">
-                 <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                     <BarChart3 className="w-4 h-4" />
-                     Структура затрат в газодизельном режиме (Без учета скидки)
-                 </h4>
-                 
-                 <div className="flex h-12 rounded-xl overflow-hidden mb-3">
-                     <div 
-                        className="bg-red-500 flex items-center justify-center text-white font-bold text-sm relative group"
-                        style={{ width: `${(summary.dualDieselPart / summary.dualTotal) * 100}%` }}
-                     >
-                         <span className="z-10 truncate px-2">Дизель</span>
-                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                         <div 
+                            className={`${isLng ? 'bg-blue-600' : 'bg-green-600'} flex items-center justify-center text-white font-bold text-sm relative group`}
+                            style={{ width: `${(summary.dualGasPart / summary.dualTotal) * 100}%` }}
+                         >
+                             <span className="z-10 truncate px-2">Газ</span>
+                             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                         </div>
                      </div>
-                     <div 
-                        className={`${isLng ? 'bg-blue-600' : 'bg-green-600'} flex items-center justify-center text-white font-bold text-sm relative group`}
-                        style={{ width: `${(summary.dualGasPart / summary.dualTotal) * 100}%` }}
-                     >
-                         <span className="z-10 truncate px-2">Газ</span>
-                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                     
+                     <div className="flex justify-between text-sm">
+                         <div className="text-red-700 font-medium">
+                             Дизельное топливо: {formatMoney(summary.dualDieselPart)} <span className="text-slate-400">({((summary.dualDieselPart / summary.dualTotal) * 100).toFixed(0)}%)</span>
+                         </div>
+                         <div className={`${themeStyles.text} font-medium`}>
+                             {gasName}: {formatMoney(summary.dualGasPart)} <span className="text-slate-400">({((summary.dualGasPart / summary.dualTotal) * 100).toFixed(0)}%)</span>
+                         </div>
                      </div>
                  </div>
                  
-                 <div className="flex justify-between text-sm">
-                     <div className="text-red-700 font-medium">
-                         Дизельное топливо: {formatMoney(summary.dualDieselPart)} <span className="text-slate-400">({((summary.dualDieselPart / summary.dualTotal) * 100).toFixed(0)}%)</span>
-                     </div>
-                     <div className={`${themeStyles.text} font-medium`}>
-                         {gasName}: {formatMoney(summary.dualGasPart)} <span className="text-slate-400">({((summary.dualGasPart / summary.dualTotal) * 100).toFixed(0)}%)</span>
-                     </div>
+                 <div className="flex justify-center pb-8 pt-4">
+                    <p className="text-slate-400 text-xs max-w-2xl text-center">
+                      * Расчет носит информационный характер. Реальная экономия зависит от фактического процента замещения, который может варьироваться в зависимости от нагрузки двигателя и манеры вождения.
+                    </p>
                  </div>
-             </div>
-             
-             <div className="flex justify-center pb-8 pt-4">
-                <p className="text-slate-400 text-xs max-w-2xl text-center">
-                  * Расчет носит информационный характер. Реальная экономия зависит от фактического процента замещения, который может варьироваться в зависимости от нагрузки двигателя и манеры вождения.
-                </p>
-             </div>
 
+            </div>
         </div>
+
       </div>
       <footer className="text-center text-slate-400 text-sm py-4 flex items-center justify-center gap-1 print:hidden">
           <Copyright className="w-4 h-4" />
