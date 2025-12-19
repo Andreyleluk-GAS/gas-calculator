@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
 
 const App = () => {
   const reportRef = useRef(null); 
@@ -133,15 +133,18 @@ const App = () => {
   const handleDownloadImage = async () => {
     setIsGenerating(true);
     
-    if (reportRef.current) {
-        try {
+    // Эмуляция задержки (в реальном проекте здесь будет вызов html2canvas)
+    setTimeout(() => {
+        // !!! РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ VITE ПРОЕКТЕ !!!
+        /*
+        if (reportRef.current) {
             // Сохраняем текущую позицию прокрутки
             const originalScrollPos = window.scrollY;
             
             // Прокручиваем наверх, чтобы избежать смещения
             window.scrollTo(0, 0);
 
-            const canvas = await html2canvas(reportRef.current, {
+            html2canvas(reportRef.current, {
                 scale: 3, // Высокое качество
                 backgroundColor: "#ffffff",
                 useCORS: true,
@@ -164,18 +167,24 @@ const App = () => {
                         }
                     }
                 }
+            }).then(canvas => {
+                const imgData = canvas.toDataURL("image/jpeg", 0.92);
+                setGeneratedImage(imgData); // Показываем картинку в модалке
+                window.scrollTo(0, originalScrollPos); // Возвращаем скролл
+                setIsGenerating(false);
+            }).catch(err => {
+                console.error(err);
+                alert("Ошибка генерации. Попробуйте еще раз.");
+                setIsGenerating(false);
+                window.scrollTo(0, originalScrollPos);
             });
-
-            const imgData = canvas.toDataURL("image/jpeg", 0.92);
-            setGeneratedImage(imgData); // Показываем картинку в модалке
-            window.scrollTo(0, originalScrollPos); // Возвращаем скролл
-        } catch (err) {
-            console.error(err);
-            alert("Ошибка генерации. Попробуйте еще раз.");
-        } finally {
-            setIsGenerating(false);
         }
-    }
+        */
+        
+        // Удалите этот alert, когда раскомментируете код выше в проекте
+        alert("Пожалуйста, раскомментируйте код html2canvas в src/App.jsx. В демо-режиме это не работает.");
+        setIsGenerating(false);
+    }, 100);
   };
 
   const closePreview = () => {
@@ -421,40 +430,42 @@ const App = () => {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                        <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
-                        <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
+                        {/* ИЗМЕНЕНИЕ: Увеличен шрифт подписи: text-xs -> text-base (16px) */}
+                        <div className="text-slate-500 text-base mb-0.5 leading-none">Пробег в месяц</div>
+                        {/* ИЗМЕНЕНИЕ: Увеличен шрифт значения: text-base -> text-lg (18px) */}
+                        <div className="font-bold text-slate-900 text-lg leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
+                        <div className="text-red-800/60 text-base mb-0.5 leading-none">Расход Дизеля (Норма)</div>
+                        <div className="font-bold text-red-900 text-lg leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Цена ДТ</div>
-                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
+                        <div className="text-red-800/60 text-base mb-0.5 leading-none">Цена ДТ</div>
+                        <div className="font-bold text-red-900 text-lg leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                        <div className={`${themeStyles.textDark} text-sm mb-0.5 leading-none`}>Процент замещения</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
+                        <div className={`${themeStyles.textDark} text-base mb-0.5 leading-none`}>Процент замещения</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
                     </div>
                     
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
                         <div>
-                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Коэффициент</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Коэффициент</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
                         </div>
                         <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
                         <div className="text-right">
-                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Расход Газа</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>
+                            <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Расход Газа</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>
                                 {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
                             </div>
                         </div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                        <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
+                        <div className={`${themeStyles.textDark} opacity-60 text-base mb-0.5 leading-none`}>Цена {gasName}</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
                     </div>
                 </div>
             </div>
