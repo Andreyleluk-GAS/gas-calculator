@@ -18,7 +18,7 @@ const App = () => {
     cngPrice: 27.5,           // Стоимость КПГ
     
     monthlyMileage: 18000,    // Пробег в месяц
-    months: 12,               // Период расчета
+    months: 12,               // Период расчета (фиксированный, скрыт из UI)
     substitutionRate: 60      // Процент замещения
   });
 
@@ -102,7 +102,7 @@ const App = () => {
       dualGasPartDiscounted: Math.round(totalCostDualGasDiscounted),
       savingsDiscounted: Math.round(totalSavingsDiscounted),
       monthlySavingsDiscounted: Math.round(totalSavingsDiscounted / inputs.months),
-      // Физический расход
+      // Физический расход (округляем для красоты)
       qtyDieselOnly_100: parseFloat(qtyDieselOnly_100.toFixed(1)),
       qtyDualDiesel_100: parseFloat(qtyDualDiesel_100.toFixed(1)),
       qtyDualGas_100: parseFloat(qtyDualGas_100.toFixed(1))
@@ -152,25 +152,31 @@ const App = () => {
   const printStyles = `
     @media print {
       @page {
-        size: auto;
-        margin: 10mm;
+        size: A4;
+        margin: 5mm;
       }
       body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         background-color: white !important;
+        font-size: 12px; /* Base font size specifically for print */
+      }
+      /* Scale content to fit width */
+      .print-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        zoom: 0.85; /* Slightly scale down to ensure fit */
       }
       .print-hidden {
         display: none !important;
       }
-      .print-full-width {
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
       .bg-gradient-to-br {
         background: ${isLng ? 'linear-gradient(to bottom right, #2563eb, #1d4ed8)' : 'linear-gradient(to bottom right, #16a34a, #15803d)'} !important;
+      }
+      /* Prevent page breaks inside cards */
+      .break-inside-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
     }
   `;
@@ -266,7 +272,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8 relative flex flex-col justify-between">
       <style>{printStyles}</style>
-      <div className="max-w-6xl mx-auto w-full print-full-width">
+      <div className="max-w-6xl mx-auto w-full print-container">
         
         {/* Хедер Результатов */}
         <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 print-hidden">
@@ -279,12 +285,13 @@ const App = () => {
         </header>
 
         {/* 1. Блок Исходных Данных */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print:shadow-none print:border print:mb-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print:shadow-none print:border print:mb-4 print:p-4 break-inside-avoid">
             <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-slate-500" />
                 Исходные данные для расчета
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            {/* FORCE PRINT GRID COLS 3 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 text-sm print:gap-2">
                 {/* Первая Строка */}
                 <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div className="text-slate-500 text-xs mb-1">Пробег в месяц</div>
@@ -330,13 +337,14 @@ const App = () => {
         </div>
 
         {/* 2. Детальный Результат (Разделенный) */}
-        <div className="space-y-6">
+        <div className="space-y-6 print:space-y-4">
             
             {/* КАРТОЧКИ ЭКОНОМИИ */}
-            <div className={`grid grid-cols-1 ${!isLng ? 'md:grid-cols-2' : ''} gap-6 items-stretch`}>
+            {/* FORCE PRINT GRID COLS 2 OR 1 */}
+            <div className={`grid grid-cols-1 ${!isLng ? 'md:grid-cols-2 print:grid-cols-2' : ''} gap-6 items-stretch break-inside-avoid print:gap-4`}>
                 
                 {/* ЛЕВАЯ КАРТОЧКА: БАЗОВАЯ ЭКОНОМИЯ */}
-                <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col justify-between h-full`}>
+                <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col justify-between h-full print:p-6`}>
                     <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                       {isLng ? <Flame size={300} /> : <Gauge size={300} />}
                     </div>
@@ -366,7 +374,7 @@ const App = () => {
 
                 {/* ПРАВАЯ КАРТОЧКА: ЭКОНОМИЯ СО СКИДКОЙ ГГМТ (ТОЛЬКО ДЛЯ КПГ / CNG) */}
                 {!isLng && (
-                <div className="bg-white rounded-3xl shadow-lg relative overflow-hidden border border-blue-200 p-8 flex flex-col justify-between h-full">
+                <div className="bg-white rounded-3xl shadow-lg relative overflow-hidden border border-blue-200 p-8 flex flex-col justify-between h-full print:p-6">
                     <div className="relative z-10 flex-1">
                          <h2 className="text-xl font-bold text-blue-900 mb-4">Программа ООО "ГГМТ"</h2>
                          <div className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium w-fit mb-6">
@@ -394,10 +402,11 @@ const App = () => {
             </div>
 
             {/* Сравнение затрат (Grid) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* FORCE PRINT GRID COLS 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 print:gap-4 break-inside-avoid">
                 
                 {/* 100% Дизель */}
-                <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 relative overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 relative overflow-hidden print:p-4">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-10 -mt-10 z-0"></div>
                     <h3 className="text-lg font-bold text-red-900 mb-6 relative z-10 flex items-center gap-2">
                         <Fuel className="w-5 h-5" />
@@ -428,7 +437,7 @@ const App = () => {
                 </div>
 
                 {/* Газодизель */}
-                <div className={`bg-white rounded-2xl shadow-sm border ${themeStyles.border} p-6 relative overflow-hidden`}>
+                <div className={`bg-white rounded-2xl shadow-sm border ${themeStyles.border} p-6 relative overflow-hidden print:p-4`}>
                     <div className={`absolute top-0 right-0 w-32 h-32 ${themeStyles.bg} rounded-bl-full -mr-10 -mt-10 z-0`}></div>
                     <h3 className={`text-lg font-bold ${themeStyles.textDark} mb-6 relative z-10 flex items-center gap-2`}>
                         {isLng ? <Flame className="w-5 h-5" /> : <Gauge className="w-5 h-5" />}
@@ -472,7 +481,7 @@ const App = () => {
             </div>
 
              {/* Структура затрат Газодизеля (Bar Chart Simulation) */}
-             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 print:p-4 break-inside-avoid">
                  <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
                      <BarChart3 className="w-4 h-4" />
                      Структура затрат в газодизельном режиме (Без учета скидки)
