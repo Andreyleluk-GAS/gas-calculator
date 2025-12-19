@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 // Добавлены недостающие иконки: ChevronRight, ArrowRight, TrendingDown
 import { RefreshCw, Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, TrendingDown, CheckCircle2, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, X, Share } from 'lucide-react';
-// import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
+import html2canvas from 'html2canvas';
 
 const App = () => {
   const reportRef = useRef(null); 
