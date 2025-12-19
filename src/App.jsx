@@ -4,7 +4,7 @@ import {
   Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, 
   FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, Share 
 } from 'lucide-react';
-// import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
+import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
 
 const App = () => {
   const reportRef = useRef(null); 
