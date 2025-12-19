@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, Image as ImageIcon } from 'lucide-react';
+import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const App = () => {
@@ -45,6 +45,7 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
+    // Вспомогательная функция для безопасного преобразования в число
     const val = (v) => {
         const parsed = parseFloat(v);
         return isNaN(parsed) ? 0 : parsed;
@@ -124,19 +125,15 @@ const App = () => {
     }));
   };
 
-  // --- Функция Печати (для PDF) ---
   const handlePrint = () => {
     window.print();
   };
 
-  // --- Функция Сохранения JPG (через html2canvas) ---
   const handleDownloadImage = () => {
-    // !!! РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ VITE ПРОЕКТЕ !!!
-    /*
     if (reportRef.current) {
         html2canvas(reportRef.current, {
             scale: 3, // Высокое качество
-            backgroundColor: "#f1f5f9", // Цвет фона (slate-100)
+            backgroundColor: "#ffffff",
             useCORS: true,
             scrollY: -window.scrollY,
             onclone: (clonedDoc) => {
@@ -144,7 +141,10 @@ const App = () => {
                 if(element) {
                     element.style.transform = 'none';
                     element.style.margin = '0';
-                    element.style.padding = '20px'; // Добавляем немного воздуха вокруг
+                    // Убираем потенциальные сдвиги
+                    element.style.position = 'relative';
+                    element.style.top = '0';
+                    element.style.left = '0';
                 }
             }
         }).then(canvas => {
@@ -157,9 +157,9 @@ const App = () => {
             console.error("Ошибка генерации изображения:", err);
             alert("Ошибка при создании изображения.");
         });
+    } else {
+        alert("Элемент отчета не найден. Попробуйте обновить страницу.");
     }
-    */
-    alert("Пожалуйста, раскомментируйте код html2canvas в src/App.jsx");
   };
 
   const formatMoney = (num) => {
@@ -349,9 +349,7 @@ const App = () => {
             <button onClick={() => setStep(2)} className="group flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors font-medium text-sm"><ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Назад</button>
           </div>
           <div className="flex items-center gap-2">
-             {/* КНОПКА ПЕЧАТИ (Только для ПК - hidden md:flex) */}
              <button onClick={handlePrint} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
-             {/* КНОПКА JPG (Всегда видна) */}
              <button onClick={handleDownloadImage} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Download className="w-4 h-4" /> JPG</button>
           </div>
         </header>
