@@ -355,7 +355,6 @@ const App = () => {
             
             <div className="mb-2 md:mb-4 text-center border-b border-slate-100 pb-2">
                 <h1 className="text-lg md:text-2xl font-bold text-slate-900 leading-none">Отчет по эффективности газодизеля</h1>
-                <p className="text-slate-500 text-[10px] md:text-sm mt-1 leading-none">Сформировано: {new Date().toLocaleDateString()}</p>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 md:p-4 mb-2 md:mb-4 print:shadow-none print:border print:mb-2 print:p-2 break-inside-avoid">
