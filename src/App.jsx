@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, Share } from 'lucide-react';
-import html2canvas from 'html2canvas'; // !!! РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ !!!
+// Разбиваем импорты для надежности
+import { 
+  Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, 
+  Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, 
+  FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, Share 
+} from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const App = () => {
   const reportRef = useRef(null); 
@@ -47,6 +52,7 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
+    // Вспомогательная функция для безопасного преобразования в число
     const val = (v) => {
         const parsed = parseFloat(v);
         return isNaN(parsed) ? 0 : parsed;
@@ -130,54 +136,56 @@ const App = () => {
     window.print();
   };
 
-  const handleDownloadImage = async () => {
+  const handleGenerateImage = async () => {
     setIsGenerating(true);
     
-    // Эмуляция задержки (в реальном проекте здесь будет вызов html2canvas)
-    setTimeout(() => {
-        // !!! РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ VITE ПРОЕКТЕ !!!
-        /*
+    // Используем setTimeout, чтобы UI успел обновиться перед тяжелой операцией
+    setTimeout(async () => {
         if (reportRef.current) {
-            const originalScrollPos = window.scrollY;
-            window.scrollTo(0, 0);
+            try {
+                // Сохраняем текущую позицию прокрутки
+                const originalScrollPos = window.scrollY;
+                
+                // Прокручиваем наверх для корректного рендеринга
+                window.scrollTo(0, 0);
 
-            html2canvas(reportRef.current, {
-                scale: 3, 
-                backgroundColor: "#ffffff",
-                useCORS: true,
-                allowTaint: true,
-                scrollX: 0,
-                scrollY: 0,
-                onclone: (clonedDoc) => {
-                    const element = clonedDoc.querySelector('.report-container');
-                    if(element) {
-                        element.style.transform = 'none';
-                        element.style.margin = '0';
-                        const all = element.getElementsByTagName('*');
-                        for (let i = 0; i < all.length; i++) {
-                            if (window.getComputedStyle(all[i]).display !== 'none') {
-                                all[i].style.lineHeight = '1.2';
+                const canvas = await html2canvas(reportRef.current, {
+                    scale: 3, // Высокое качество
+                    backgroundColor: "#ffffff",
+                    useCORS: true,
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    onclone: (clonedDoc) => {
+                        const element = clonedDoc.querySelector('.report-container');
+                        if(element) {
+                            element.style.transform = 'none';
+                            element.style.margin = '0';
+                            // Фикс для шрифтов и межстрочных интервалов
+                            const all = element.getElementsByTagName('*');
+                            for (let i = 0; i < all.length; i++) {
+                                const style = window.getComputedStyle(all[i]);
+                                if (style.display !== 'none') {
+                                    // Принудительно устанавливаем line-height для предотвращения смещения
+                                    all[i].style.lineHeight = style.lineHeight !== 'normal' ? style.lineHeight : '1.2';
+                                }
                             }
                         }
                     }
-                }
-            }).then(canvas => {
+                });
+
                 const imgData = canvas.toDataURL("image/jpeg", 0.92);
-                setGeneratedImage(imgData); // Показываем картинку в модалке (New Approach)
-                window.scrollTo(0, originalScrollPos); 
+                setGeneratedImage(imgData); // Показываем модальное окно
+                window.scrollTo(0, originalScrollPos); // Возвращаем прокрутку
+            } catch (err) {
+                console.error("Ошибка при генерации изображения:", err);
+                alert("Не удалось создать изображение. Попробуйте обновить страницу.");
+            } finally {
                 setIsGenerating(false);
-            }).catch(err => {
-                console.error(err);
-                alert("Ошибка генерации. Попробуйте еще раз.");
-                setIsGenerating(false);
-                window.scrollTo(0, originalScrollPos);
-            });
+            }
+        } else {
+            setIsGenerating(false);
         }
-        */
-        
-        // Удалите этот alert, когда раскомментируете код выше в проекте
-        alert("Пожалуйста, раскомментируйте код html2canvas в src/App.jsx. В демо-режиме это не работает.");
-        setIsGenerating(false);
     }, 100);
   };
 
@@ -195,7 +203,7 @@ const App = () => {
   const gasName = isLng ? 'СПГ (LNG)' : 'КПГ (CNG)';
   const gasUnit = isLng ? 'кг' : 'м³';
   
-  // Безопасный расчет процентов для диаграммы
+  // Расчет процентов для диаграммы
   const dieselPercent = summary.dualTotal > 0 ? (summary.dualDieselPart / summary.dualTotal) * 100 : 0;
   const gasPercent = summary.dualTotal > 0 ? (summary.dualGasPart / summary.dualTotal) * 100 : 0;
 
@@ -428,7 +436,9 @@ const App = () => {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
+                        {/* Увеличен шрифт подписи */}
                         <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
+                        {/* Увеличен шрифт значения */}
                         <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
@@ -476,14 +486,14 @@ const App = () => {
                         </div>
                         
                         <div className="relative z-10 flex-1">
-                            <h2 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2 leading-tight">Базовый расчет</h2>
+                            <h2 className="text-sm md:text-lg font-bold text-white mb-1 md:mb-2 leading-tight">Базовый расчет</h2>
                             <div className="flex items-center gap-1.5 bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px] font-medium w-fit mb-2 md:mb-3 backdrop-blur-sm leading-none">
                                 <Fuel className="w-3 h-3" />
                                 Стандартные условия
                             </div>
 
-                            <div className="text-sm md:text-lg text-white/80 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия</div>
-                            <div className="text-3xl md:text-5xl font-bold tracking-tight mb-2 md:mb-3 leading-none">{formatMoney(summary.savings)}</div>
+                            <div className="text-xs md:text-base text-white/80 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия</div>
+                            <div className="text-2xl md:text-4xl font-bold tracking-tight mb-2 md:mb-3 leading-none">{formatMoney(summary.savings)}</div>
                         </div>
                         
                         <div className="relative z-10 flex gap-2 flex-wrap">
@@ -501,14 +511,14 @@ const App = () => {
                     {!isLng && (
                     <div className="bg-white rounded-2xl shadow-lg relative overflow-hidden border border-blue-200 p-3 md:p-4 flex flex-col justify-between h-full print:p-4">
                         <div className="relative z-10 flex-1">
-                            <h2 className="text-base md:text-xl font-bold text-blue-900 mb-1 md:mb-2 leading-tight">Программа ООО "ГГМТ"</h2>
+                            <h2 className="text-sm md:text-lg font-bold text-blue-900 mb-1 md:mb-2 leading-tight">Программа ООО "ГГМТ"</h2>
                             <div className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full text-[10px] font-medium w-fit mb-2 md:mb-3 leading-none">
                                 <Tag className="w-3 h-3" />
                                 Скидка на метан 20%
                             </div>
                             
-                            <div className="text-sm md:text-lg text-slate-600 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия со скидкой</div>
-                            <div className="text-3xl md:text-5xl font-bold tracking-tight text-blue-900 mb-2 md:mb-3 leading-none">{formatMoney(summary.savingsDiscounted)}</div>
+                            <div className="text-xs md:text-base text-slate-600 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия со скидкой</div>
+                            <div className="text-2xl md:text-4xl font-bold tracking-tight text-blue-900 mb-2 md:mb-3 leading-none">{formatMoney(summary.savingsDiscounted)}</div>
                         </div>
                         
                         <div className="relative z-10 flex gap-2 flex-wrap">
