@@ -322,7 +322,8 @@ const App = () => {
             <button onClick={() => setStep(2)} className="group flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors font-medium text-sm"><ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Назад</button>
           </div>
           <div className="flex items-center gap-2">
-             <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
+             {/* Кнопка Печать теперь скрыта на мобильных (hidden) и видна начиная с md (md:flex) */}
+             <button onClick={handlePrint} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
           </div>
         </header>
 
@@ -339,7 +340,7 @@ const App = () => {
                         <FileText className="w-4 h-4 text-slate-500" />
                         Исходные данные для расчета
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:grid-cols-3 print:gap-2">
                         <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
                             {/* УВЕЛИЧЕННЫЕ ШРИФТЫ */}
                             <div className="text-slate-500 text-xs md:text-sm mb-0.5 leading-none">Пробег в месяц</div>
@@ -440,7 +441,7 @@ const App = () => {
 
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-2 md:gap-4 print:gap-3 break-inside-avoid">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 print:grid-cols-2 print:gap-3 break-inside-avoid">
                         
                         {/* КАРТОЧКА: ТОЛЬКО ДИЗЕЛЬ */}
                         <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-3 relative overflow-hidden print:p-3">
