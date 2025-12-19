@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Исправлен импорт: добавлен ChevronRight
 import { 
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
   FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, TrendingDown 
@@ -327,7 +328,7 @@ const App = () => {
 
         {/* Контейнер отчета */}
         <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm relative overflow-hidden">
-             
+            
             <div className="relative z-10">
                 <div className="mb-2 md:mb-4 text-center border-b border-slate-100 pb-2">
                     <h1 className="text-lg md:text-2xl font-bold text-slate-900 leading-none">Отчет по эффективности газодизеля</h1>
@@ -454,7 +455,7 @@ const App = () => {
                                 {/* Ряд 1: Расход */}
                                 <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
                                     <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
-                                    <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л ДТ</span>
+                                    <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л</span>
                                 </div>
 
                                 {/* Ряд 2: Стоимость 1 км */}
@@ -495,11 +496,11 @@ const App = () => {
                                     <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
                                     <div className="flex items-center">
                                         <span className="text-base md:text-xl font-bold text-red-900 whitespace-nowrap leading-none">
-                                            {summary.qtyDualDiesel_100} л ДТ
+                                            {summary.qtyDualDiesel_100} л
                                         </span>
                                         <div className={`h-6 w-px mx-2 ${themeStyles.separatorBg} opacity-20`}></div>
                                         <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} whitespace-nowrap leading-none`}>
-                                            {summary.qtyDualGas_100} {gasUnit} {isLng ? 'СПГ' : 'КПГ'}
+                                            {summary.qtyDualGas_100} {gasUnit}
                                         </span>
                                     </div>
                                 </div>
