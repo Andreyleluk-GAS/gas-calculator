@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas'; // РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ В ВАШЕМ ПРОЕКТЕ
 
 const App = () => {
   const reportRef = useRef(null); 
@@ -45,19 +45,22 @@ const App = () => {
   }, [inputs, systemType]);
 
   const calculateResults = () => {
-    const substitutionPercent = inputs.substitutionRate / 100;
+    // Вспомогательная функция: если поле пустое (''), считаем его как 0
+    const val = (v) => (v === '' ? 0 : Number(v));
+
+    const substitutionPercent = val(inputs.substitutionRate) / 100;
     const dieselRate = 1 - substitutionPercent;
 
-    const gasCoefficient = systemType === 'lng' ? inputs.lngCoefficient : inputs.cngCoefficient;
-    const gasPrice = systemType === 'lng' ? inputs.lngPrice : inputs.cngPrice;
+    const gasCoefficient = systemType === 'lng' ? val(inputs.lngCoefficient) : val(inputs.cngCoefficient);
+    const gasPrice = systemType === 'lng' ? val(inputs.lngPrice) : val(inputs.cngPrice);
     const gasPriceDiscounted = gasPrice * 0.8; 
 
-    const qtyDieselOnly_100 = inputs.dieselConsumption; 
-    const qtyDualDiesel_100 = inputs.dieselConsumption * dieselRate; 
-    const qtyDualGas_100 = (inputs.dieselConsumption * substitutionPercent) * gasCoefficient;
+    const qtyDieselOnly_100 = val(inputs.dieselConsumption); 
+    const qtyDualDiesel_100 = val(inputs.dieselConsumption) * dieselRate; 
+    const qtyDualGas_100 = (val(inputs.dieselConsumption) * substitutionPercent) * gasCoefficient;
 
-    const costDieselOnly_Km = (qtyDieselOnly_100 * inputs.dieselPrice) / 100;
-    const costDualDiesel_Km = (qtyDualDiesel_100 * inputs.dieselPrice) / 100;
+    const costDieselOnly_Km = (qtyDieselOnly_100 * val(inputs.dieselPrice)) / 100;
+    const costDualDiesel_Km = (qtyDualDiesel_100 * val(inputs.dieselPrice)) / 100;
     
     const costDualGas_Km = (qtyDualGas_100 * gasPrice) / 100;
     const costDualTotal_Km = costDualDiesel_Km + costDualGas_Km;
@@ -65,7 +68,7 @@ const App = () => {
     const costDualGasDiscounted_Km = (qtyDualGas_100 * gasPriceDiscounted) / 100;
     const costDualTotalDiscounted_Km = costDualDiesel_Km + costDualGasDiscounted_Km;
 
-    const totalMileage = inputs.monthlyMileage * inputs.months;
+    const totalMileage = val(inputs.monthlyMileage) * val(inputs.months);
     const totalCostDiesel = totalMileage * costDieselOnly_Km;
     
     const totalCostDualDiesel = totalMileage * costDualDiesel_Km;
@@ -85,11 +88,11 @@ const App = () => {
       savings: Math.round(totalSavings),
       costPerKmDiesel: costDieselOnly_Km,
       costPerKmDual: costDualTotal_Km,
-      monthlySavings: Math.round(totalSavings / inputs.months),
+      monthlySavings: Math.round(totalSavings / val(inputs.months) || 1), // защита от деления на 0
       dualTotalDiscounted: Math.round(totalCostDualDiscounted),
       dualGasPartDiscounted: Math.round(totalCostDualGasDiscounted),
       savingsDiscounted: Math.round(totalSavingsDiscounted),
-      monthlySavingsDiscounted: Math.round(totalSavingsDiscounted / inputs.months),
+      monthlySavingsDiscounted: Math.round(totalSavingsDiscounted / val(inputs.months) || 1),
       qtyDieselOnly_100: parseFloat(qtyDieselOnly_100.toFixed(1)),
       qtyDualDiesel_100: parseFloat(qtyDualDiesel_100.toFixed(1)),
       qtyDualGas_100: parseFloat(qtyDualGas_100.toFixed(1))
@@ -98,9 +101,21 @@ const App = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    let finalValue = Number(value);
     
-    if (name === 'substitutionRate') {
+    // ИСПРАВЛЕНИЕ: Если значение пустое, оставляем пустую строку, чтобы не появлялся 0
+    if (value === '') {
+      setInputs(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+      return;
+    }
+
+    // Если не пустое, преобразуем в число
+    let finalValue = parseFloat(value);
+    
+    // Валидация для процентов (только если введено корректное число)
+    if (name === 'substitutionRate' && !isNaN(finalValue)) {
       if (finalValue > 100) finalValue = 100;
       if (finalValue < 0) finalValue = 0;
     }
@@ -112,6 +127,11 @@ const App = () => {
   };
 
   const handleDownloadImage = () => {
+    // ВРЕМЕННО: Оставляю window.print() для демо
+    // window.print(); 
+    
+    // !!! РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК В ВАШЕМ VITE ПРОЕКТЕ !!!
+    /*
     if (reportRef.current) {
         html2canvas(reportRef.current, {
             scale: 3, 
@@ -120,10 +140,15 @@ const App = () => {
             scrollY: -window.scrollY,
             onclone: (clonedDoc) => {
                 const element = clonedDoc.querySelector('.report-container');
-                if(element) element.style.transform = 'none';
+                if(element) {
+                    element.style.transform = 'none';
+                    // Принудительно выставляем высоту строки, чтобы текст не прыгал
+                    const texts = element.querySelectorAll('*');
+                    texts.forEach(t => t.style.lineHeight = '1.2'); 
+                }
             }
         }).then(canvas => {
-            const image = canvas.toDataURL("image/jpeg", 0.9);
+            const image = canvas.toDataURL("image/jpeg", 0.95); 
             const link = document.createElement("a");
             link.href = image;
             link.download = `raschet-${systemType}.jpg`;
@@ -133,6 +158,8 @@ const App = () => {
             alert("Ошибка при создании изображения.");
         });
     }
+    */
+    alert("Пожалуйста, раскомментируйте код html2canvas в вашем проекте для работы скачивания.");
   };
 
   const formatMoney = (num) => {
@@ -448,13 +475,13 @@ const App = () => {
                         <div className="space-y-1.5 relative z-10">
                             
                             {/* Ряд 1: Расход */}
-                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-10">
-                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Расход топлива на 100км</span>
+                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-14">
+                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л ДТ</span>
                             </div>
 
                             {/* Ряд 2: Стоимость 1 км */}
-                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-12">
+                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-16">
                                 <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className="text-base md:text-xl font-bold text-red-900 leading-none block">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
@@ -463,13 +490,13 @@ const App = () => {
                             </div>
 
                             {/* Ряд 3: Затраты в месяц */}
-                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-10">
+                            <div className="flex justify-between items-end border-b border-red-100 pb-1 h-14">
                                 <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Затраты в месяц</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
-                            <div className="flex justify-between items-end pt-1 h-12">
+                            <div className="flex justify-between items-end pt-1 h-14">
                                 <span className="text-red-900/60 text-xs md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
                                 <span className="text-xl md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
                             </div>
@@ -487,8 +514,8 @@ const App = () => {
                         <div className="space-y-1.5 relative z-10">
                             
                             {/* Ряд 1: Расход */}
-                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-10`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Расход топлива на 100км</span>
+                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-14`}>
+                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
                                 <div className="flex items-center">
                                     <span className="text-base md:text-xl font-bold text-red-900 whitespace-nowrap leading-none">
                                         {summary.qtyDualDiesel_100} л ДТ
@@ -501,7 +528,7 @@ const App = () => {
                             </div>
 
                             {/* Ряд 2: Стоимость 1 км */}
-                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-12`}>
+                            <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-16`}>
                                 <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none block`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
@@ -510,13 +537,13 @@ const App = () => {
                             </div>
 
                             {/* Ряд 3: Затраты в месяц */}
-                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-10`}>
+                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-14`}>
                                 <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
                                 <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
-                            <div className="flex justify-between items-end pt-1 h-12">
+                            <div className="flex justify-between items-end pt-1 h-14">
                                 <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
                                 <span className={`text-xl md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
                             </div>
