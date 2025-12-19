@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
-// import html2canvas from 'html2canvas'; // РАСКОММЕНТИРУЙТЕ В ВАШЕМ ПРОЕКТЕ
+import html2canvas from 'html2canvas'; // РАСКОММЕНТИРУЙТЕ В ВАШЕМ ПРОЕКТЕ
 
 const App = () => {
   const reportRef = useRef(null); 
