@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-// Добавлены недостающие иконки: ChevronRight, ArrowRight, TrendingDown
-import { RefreshCw, Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, TrendingDown, CheckCircle2, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download, X, Share } from 'lucide-react';
+import { Calculator, Save, RefreshCw, TrendingDown, Fuel, Truck, Flame, Gauge, Info, ChevronRight, ChevronLeft, CheckCircle2, Sparkles, X, ArrowRight, FileText, Wallet, BarChart3, Copyright, Tag, Printer, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
+
 const App = () => {
   const reportRef = useRef(null); 
   const [step, setStep] = useState(1); 
@@ -332,40 +332,40 @@ const App = () => {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:gap-2">
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                        <div className="text-slate-500 text-sm mb-0.5 leading-none">Пробег в месяц</div>
-                        <div className="font-bold text-slate-900 text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
+                        <div className="text-slate-500 text-xs md:text-sm mb-0.5 leading-none">Пробег в месяц</div>
+                        <div className="font-bold text-slate-900 text-sm md:text-base leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
+                        <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
+                        <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
                     </div>
                     <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                        <div className="text-red-800/60 text-sm mb-0.5 leading-none">Цена ДТ</div>
-                        <div className="font-bold text-red-900 text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
+                        <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Цена ДТ</div>
+                        <div className="font-bold text-red-900 text-sm md:text-base leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                        <div className={`${themeStyles.textDark} text-sm mb-0.5 leading-none`}>Процент замещения</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
+                        <div className={`${themeStyles.textDark} text-xs md:text-sm mb-0.5 leading-none`}>Процент замещения</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
                     </div>
                     
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
                         <div>
-                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Коэффициент</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
+                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Коэффициент</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
                         </div>
                         <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
                         <div className="text-right">
-                            <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Расход Газа</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>
+                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Расход Газа</div>
+                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>
                                 {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
                             </div>
                         </div>
                     </div>
 
                     <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                        <div className={`${themeStyles.textDark} opacity-60 text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
-                        <div className={`font-bold ${themeStyles.textDark} text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
+                        <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
+                        <div className={`font-bold ${themeStyles.textDark} text-sm md:text-base leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
                     </div>
                 </div>
             </div>
@@ -444,13 +444,13 @@ const App = () => {
                             
                             {/* Ряд 1: Расход */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
+                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л ДТ</span>
                             </div>
 
                             {/* Ряд 2: Стоимость 1 км */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-10 md:h-14">
-                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
+                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className="text-base md:text-xl font-bold text-red-900 leading-none block">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
                                     <span className="text-[10px] text-transparent block font-medium mt-0.5 leading-none">.</span>
@@ -459,14 +459,14 @@ const App = () => {
 
                             {/* Ряд 3: Затраты в месяц */}
                             <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Затраты в месяц</span>
+                                <span className="text-red-900/60 text-sm md:text-sm leading-none mb-0.5">Затраты в месяц</span>
                                 <span className="text-base md:text-xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
                             <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                <span className="text-red-900/60 text-xs md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
-                                <span className="text-lg md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
+                                <span className="text-red-900/60 text-sm md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
+                                <span className="text-base md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
                             </div>
                         </div>
                     </div>
@@ -483,7 +483,7 @@ const App = () => {
                             
                             {/* Ряд 1: Расход */}
                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
                                 <div className="flex items-center">
                                     <span className="text-base md:text-xl font-bold text-red-900 whitespace-nowrap leading-none">
                                         {summary.qtyDualDiesel_100} л ДТ
@@ -497,7 +497,7 @@ const App = () => {
 
                             {/* Ряд 2: Стоимость 1 км */}
                             <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-10 md:h-14`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
                                 <div className="text-right">
                                     <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none block`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
                                     <span className="text-[9px] md:text-[10px] text-green-600 block font-medium mt-0.5 leading-none">Выгоднее на {(summary.costPerKmDiesel - summary.costPerKmDual).toFixed(2)} ₽</span>
@@ -506,14 +506,14 @@ const App = () => {
 
                             {/* Ряд 3: Затраты в месяц */}
                              <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
                                 <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
                             </div>
 
                             {/* Ряд 4: Итого */}
                             <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
-                                <span className={`text-lg md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
+                                <span className={`${themeStyles.textDark} opacity-60 text-sm md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
+                                <span className={`text-base md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
                             </div>
                         </div>
                     </div>
