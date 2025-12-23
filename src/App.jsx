@@ -1,585 +1,486 @@
 import React, { useState, useEffect } from 'react';
-// Исправлен импорт: добавлен ChevronRight
 import { 
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
-  FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, TrendingDown 
+  FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, 
+  TrendingDown, Truck, Settings2, Layers 
 } from 'lucide-react';
 
 const App = () => {
-  const [step, setStep] = useState(1); 
+  // Навигация: HOME, GAS_DIESEL, REMOT
+  const [view, setView] = useState('HOME');
+  const [step, setStep] = useState(1);
   const [systemType, setSystemType] = useState('cng'); 
 
-  const [inputs, setInputs] = useState({
-    dieselConsumption: 36,    // Норма расхода Дизель
-    dieselPrice: 75,          // Стоимость Дизеля
-    
-    lngCoefficient: 0.857,    // Коэффициент СПГ
-    lngPrice: 43.5,           // Стоимость СПГ
-    
-    cngCoefficient: 1.2,      // Коэффициент КПГ
-    cngPrice: 27.5,           // Стоимость КПГ
-    
-    monthlyMileage: 15000,    // Пробег в месяц
-    months: 12,               // Период расчета
-    substitutionRate: 60      // Процент замещения
-  });
-
-  const [summary, setSummary] = useState({
-    dieselOnlyTotal: 0,
-    dualTotal: 0,
-    dualDieselPart: 0,
-    dualGasPart: 0,
-    savings: 0,
-    costPerKmDiesel: 0,
-    costPerKmDual: 0,
-    monthlySavings: 0,
-    dualTotalDiscounted: 0,
-    dualGasPartDiscounted: 0,
-    savingsDiscounted: 0,
-    monthlySavingsDiscounted: 0,
-    qtyDieselOnly_100: 0,
-    qtyDualDiesel_100: 0,
-    qtyDualGas_100: 0
-  });
-
+  // --- ПОДДЕРЖКА КНОПКИ "НАЗАД" НА ТЕЛЕФОНЕ ---
   useEffect(() => {
-    calculateResults();
-  }, [inputs, systemType]);
-
-  const calculateResults = () => {
-    // Вспомогательная функция для безопасного преобразования в число
-    const val = (v) => {
-        const parsed = parseFloat(v);
-        return isNaN(parsed) ? 0 : parsed;
+    const handlePopState = (event) => {
+      if (event.state) {
+        setView(event.state.view);
+        setStep(event.state.step);
+      } else {
+        setView('HOME');
+        setStep(1);
+      }
     };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
-    const substitutionPercent = val(inputs.substitutionRate) / 100;
-    const dieselRate = 1 - substitutionPercent;
-
-    const gasCoefficient = systemType === 'lng' ? val(inputs.lngCoefficient) : val(inputs.cngCoefficient);
-    const gasPrice = systemType === 'lng' ? val(inputs.lngPrice) : val(inputs.cngPrice);
-    const gasPriceDiscounted = gasPrice * 0.8; 
-
-    const qtyDieselOnly_100 = val(inputs.dieselConsumption); 
-    const qtyDualDiesel_100 = val(inputs.dieselConsumption) * dieselRate; 
-    const qtyDualGas_100 = (val(inputs.dieselConsumption) * substitutionPercent) * gasCoefficient;
-
-    const costDieselOnly_Km = (qtyDieselOnly_100 * val(inputs.dieselPrice)) / 100;
-    const costDualDiesel_Km = (qtyDualDiesel_100 * val(inputs.dieselPrice)) / 100;
-    
-    const costDualGas_Km = (qtyDualGas_100 * gasPrice) / 100;
-    const costDualTotal_Km = costDualDiesel_Km + costDualGas_Km;
-
-    const costDualGasDiscounted_Km = (qtyDualGas_100 * gasPriceDiscounted) / 100;
-    const costDualTotalDiscounted_Km = costDualDiesel_Km + costDualGasDiscounted_Km;
-
-    const totalMileage = val(inputs.monthlyMileage) * val(inputs.months);
-    const totalCostDiesel = totalMileage * costDieselOnly_Km;
-    
-    const totalCostDualDiesel = totalMileage * costDualDiesel_Km;
-    const totalCostDualGas = totalMileage * costDualGas_Km;
-    const totalCostDual = totalCostDualDiesel + totalCostDualGas;
-    const totalSavings = totalCostDiesel - totalCostDual;
-
-    const totalCostDualGasDiscounted = totalMileage * costDualGasDiscounted_Km;
-    const totalCostDualDiscounted = totalCostDualDiesel + totalCostDualGasDiscounted;
-    const totalSavingsDiscounted = totalCostDiesel - totalCostDualDiscounted;
-
-    const monthsDivider = val(inputs.months) || 1;
-
-    setSummary({
-      dieselOnlyTotal: Math.round(totalCostDiesel),
-      dualTotal: Math.round(totalCostDual),
-      dualDieselPart: Math.round(totalCostDualDiesel),
-      dualGasPart: Math.round(totalCostDualGas),
-      savings: Math.round(totalSavings),
-      costPerKmDiesel: costDieselOnly_Km,
-      costPerKmDual: costDualTotal_Km,
-      monthlySavings: Math.round(totalSavings / monthsDivider),
-      dualTotalDiscounted: Math.round(totalCostDualDiscounted),
-      dualGasPartDiscounted: Math.round(totalCostDualGasDiscounted),
-      savingsDiscounted: Math.round(totalSavingsDiscounted),
-      monthlySavingsDiscounted: Math.round(totalSavingsDiscounted / monthsDivider),
-      qtyDieselOnly_100: parseFloat(qtyDieselOnly_100.toFixed(1)),
-      qtyDualDiesel_100: parseFloat(qtyDualDiesel_100.toFixed(1)),
-      qtyDualGas_100: parseFloat(qtyDualGas_100.toFixed(1))
-    });
+  const navigateTo = (newView, newStep = 1) => {
+    setView(newView);
+    setStep(newStep);
+    window.history.pushState({ view: newView, step: newStep }, "");
   };
 
-  const handleInputChange = (e) => {
+  // --- СОСТОЯНИЕ ДАННЫХ ---
+  const [inputs, setInputs] = useState({
+    dieselConsumption: 36,    
+    dieselPrice: 75,          
+    lngCoefficient: 0.86,    
+    lngPrice: 45,           
+    cngCoefficient: 1.2,      
+    cngPrice: 28,           
+    monthlyMileage: 12000,    
+    substitutionRate: 60      
+  });
+
+  const [remotInputs, setRemotInputs] = useState({
+    dieselConsumption: 22,
+    dieselPrice: 75,
+    lngCoefficient: 0.86,
+    lngPrice: 45,
+    cngCoefficient: 1.2,
+    cngPrice: 28,
+    monthlyMileage: 12000
+  });
+
+  const [summary, setSummary] = useState({});
+  const CALC_MONTHS = 12; 
+
+  // --- ЛОГИКА РАСЧЕТОВ (ГАЗОДИЗЕЛЬ) ---
+  useEffect(() => {
+    if (view === 'GAS_DIESEL') {
+      const v = (val) => parseFloat(val) || 0;
+      const subRate = v(inputs.substitutionRate) / 100;
+      const gasCoef = systemType === 'lng' ? v(inputs.lngCoefficient) : v(inputs.cngCoefficient);
+      const gasPrice = systemType === 'lng' ? v(inputs.lngPrice) : v(inputs.cngPrice);
+      const gasPriceDiscounted = gasPrice * 0.8; 
+
+      const qDiesel_100 = v(inputs.dieselConsumption);
+      const qDualD_100 = qDiesel_100 * (1 - subRate);
+      const qDualG_100 = (qDiesel_100 * subRate) * gasCoef;
+
+      const costKmD = (qDiesel_100 * v(inputs.dieselPrice)) / 100;
+      const costKmDual = ((qDualD_100 * v(inputs.dieselPrice)) + (qDualG_100 * gasPrice)) / 100;
+      const costKmDualDiscounted = ((qDualD_100 * v(inputs.dieselPrice)) + (qDualG_100 * gasPriceDiscounted)) / 100;
+
+      const totalM = v(inputs.monthlyMileage) * CALC_MONTHS;
+      const totalCostD = totalM * costKmD;
+      const totalCostDual = totalM * costKmDual;
+      const totalCostDualDiscounted = totalM * costKmDualDiscounted;
+
+      setSummary({
+        totalD: Math.round(totalCostD),
+        totalG: Math.round(totalCostDual),
+        totalGDiscounted: Math.round(totalCostDualDiscounted),
+        savings: Math.round(totalCostD - totalCostDual),
+        savingsDiscounted: Math.round(totalCostD - totalCostDualDiscounted),
+        kmD: costKmD,
+        kmG: costKmDual,
+        kmGDiscounted: costKmDualDiscounted,
+        qD_100: qDiesel_100,
+        qDualD_100: qDualD_100.toFixed(1),
+        qDualG_100: qDualG_100.toFixed(1),
+        monthlySav: Math.round((totalCostD - totalCostDual) / CALC_MONTHS),
+        monthlySavDiscounted: Math.round((totalCostD - totalCostDualDiscounted) / CALC_MONTHS),
+        gasCoef: gasCoef
+      });
+    }
+  }, [inputs, systemType, view]);
+
+  // --- ЛОГИКА РЕМОТОРИЗАЦИИ ---
+  useEffect(() => {
+    if (view === 'REMOT') {
+      const v = (val) => parseFloat(val) || 0;
+      const dCons = v(remotInputs.dieselConsumption);
+      const gasCoef = systemType === 'lng' ? v(remotInputs.lngCoefficient) : v(remotInputs.cngCoefficient);
+      const gasPrice = systemType === 'lng' ? v(remotInputs.lngPrice) : v(remotInputs.cngPrice);
+      const gasPriceDiscounted = gasPrice * 0.8;
+
+      const qD_100 = dCons;
+      const qG_100 = dCons * gasCoef;
+
+      const costKmD = (qD_100 * v(remotInputs.dieselPrice)) / 100;
+      const costKmG = (qG_100 * gasPrice) / 100;
+      const costKmGDiscounted = (qG_100 * gasPriceDiscounted) / 100;
+
+      const totalM = v(remotInputs.monthlyMileage) * CALC_MONTHS;
+      const totalCostD = totalM * costKmD;
+      const totalCostG = totalM * costKmG;
+      const totalCostGDiscounted = totalM * costKmGDiscounted;
+
+      setSummary({
+        totalD: Math.round(totalCostD),
+        totalG: Math.round(totalCostG),
+        totalGDiscounted: Math.round(totalCostGDiscounted),
+        savings: Math.round(totalCostD - totalCostG),
+        savingsDiscounted: Math.round(totalCostD - totalCostGDiscounted),
+        kmD: costKmD,
+        kmG: costKmG,
+        kmGDiscounted: costKmGDiscounted,
+        qD_100: qD_100,
+        qG_100: qG_100.toFixed(1),
+        monthlySav: Math.round((totalCostD - totalCostG) / CALC_MONTHS),
+        monthlySavDiscounted: Math.round((totalCostD - totalCostGDiscounted) / CALC_MONTHS),
+        gasCoef: gasCoef
+      });
+    }
+  }, [remotInputs, systemType, view]);
+
+  const handleInputChange = (e, isRemot = false) => {
     const { name, value } = e.target;
-    
-    if (value === '') {
-        setInputs(prev => ({ ...prev, [name]: '' }));
-        return;
+    if (isRemot) {
+      setRemotInputs(prev => ({ ...prev, [name]: value }));
+    } else {
+      setInputs(prev => ({ ...prev, [name]: value }));
     }
-
-    let finalValue = parseFloat(value);
-    
-    if (!isNaN(finalValue) && name === 'substitutionRate') {
-      if (finalValue > 100) finalValue = 100;
-      if (finalValue < 0) finalValue = 0;
-    }
-
-    setInputs(prev => ({
-      ...prev,
-      [name]: finalValue
-    }));
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const formatMoney = (num) => {
-    return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(num);
-  };
-  
-  const getVal = (val) => val === '' ? 0 : val;
-
-  const isLng = systemType === 'lng';
-  const gasName = isLng ? 'СПГ (LNG)' : 'КПГ (CNG)';
-  const gasUnit = isLng ? 'кг' : 'м³';
-  
-  // Расчет процентов для диаграммы
-  const dieselPercent = summary.dualTotal > 0 ? (summary.dualDieselPart / summary.dualTotal) * 100 : 0;
-  const gasPercent = summary.dualTotal > 0 ? (summary.dualGasPart / summary.dualTotal) * 100 : 0;
+  const formatMoney = (num) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(num || 0);
 
   const themeStyles = {
-    text: isLng ? 'text-blue-600' : 'text-green-600',
-    textDark: isLng ? 'text-blue-900' : 'text-green-900',
-    bg: isLng ? 'bg-blue-50' : 'bg-green-50',
-    border: isLng ? 'border-blue-200' : 'border-green-200',
-    ring: isLng ? 'focus:ring-blue-500' : 'focus:ring-green-500',
-    gradient: isLng ? 'from-blue-600 to-blue-700' : 'from-green-600 to-green-700',
-    button: isLng ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700',
-    subtleBg: isLng ? 'bg-blue-50/50' : 'bg-green-50/50',
-    separatorBg: isLng ? 'bg-blue-900' : 'bg-green-900', 
+    text: systemType === 'lng' ? 'text-blue-600' : 'text-green-600',
+    textDark: systemType === 'lng' ? 'text-blue-900' : 'text-green-900',
+    bg: systemType === 'lng' ? 'bg-blue-50' : 'bg-green-50',
+    border: systemType === 'lng' ? 'border-blue-200' : 'border-green-200',
+    ring: systemType === 'lng' ? 'focus:ring-blue-500' : 'focus:ring-green-500',
+    button: systemType === 'lng' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700',
+    gradient: systemType === 'lng' ? 'from-blue-600 to-blue-700' : 'from-green-600 to-green-700',
   };
 
-  const printStyles = `
-    @media print {
-      @page {
-        size: A4;
-        margin: 5mm;
-      }
-      body {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background-color: white !important;
-        font-size: 11px;
-      }
-      .print-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        zoom: 0.9;
-      }
-      .print-hidden {
-        display: none !important;
-      }
-      .bg-gradient-to-br {
-        background: ${isLng ? 'linear-gradient(to bottom right, #2563eb, #1d4ed8)' : 'linear-gradient(to bottom right, #16a34a, #15803d)'} !important;
-      }
-      .break-inside-avoid {
-        break-inside: avoid;
-        page-break-inside: avoid;
-      }
-    }
-  `;
+  const gasName = systemType === 'lng' ? 'СПГ' : 'КПГ';
+  const gasUnit = systemType === 'lng' ? 'кг' : 'м³';
 
-  if (step === 1) {
+  // --- ЭКРАН 1: ГЛАВНЫЙ ---
+  if (view === 'HOME') {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
-        <style>{printStyles}</style>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-4xl w-full animate-fade-in">
-            <div className="text-center mb-6"> 
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Калькулятор Эффективности</h1> 
-              <p className="text-lg text-slate-600">Выберите тип оборудования</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
+        <div className="max-w-4xl w-full">
+          <div className="text-center mb-10">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Выберите тип расчета</h1>
+            <p className="text-slate-500 font-medium">Экономическая эффективность использования метана на ТС</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div 
+              onClick={() => navigateTo('GAS_DIESEL')}
+              className="bg-white p-8 rounded-[2rem] border border-slate-200 hover:border-blue-500 cursor-pointer transition-all hover:shadow-xl group relative overflow-hidden flex flex-col"
+            >
+              <div className="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform">
+                <Settings2 size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 font-sans">Газодизельный режим</h3>
+              <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                Расчет экономии при частичном замещении дизельного топлива природным газом (Метаном).
+              </p>
+              <div className="mt-auto flex items-center text-blue-600 font-bold text-sm uppercase tracking-wider">
+                Открыть калькулятор <ChevronRight size={18} className="ml-1" />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"> 
-              <div onClick={() => setSystemType('cng')} className={`cursor-pointer group relative p-6 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${systemType === 'cng' ? 'border-green-500 bg-white shadow-lg ring-4 ring-green-500/10' : 'border-slate-200 bg-white hover:border-green-300'}`}>
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-2xl ${systemType === 'cng' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400 group-hover:bg-green-50 group-hover:text-green-500'}`}><Gauge className="w-8 h-8" /></div>
-                  {systemType === 'cng' && <CheckCircle2 className="w-6 h-6 text-green-500" />}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Метан КПГ</h3>
-                <p className="text-slate-500 text-sm">Компримированный газ (CNG)</p>
+            <div 
+              onClick={() => navigateTo('REMOT')}
+              className="bg-white p-8 rounded-[2rem] border border-slate-200 hover:border-amber-400 cursor-pointer transition-all hover:shadow-xl group relative overflow-hidden flex flex-col"
+            >
+              <div className="bg-amber-50 w-16 h-16 rounded-2xl flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
+                <Truck size={32} />
               </div>
-              <div onClick={() => setSystemType('lng')} className={`cursor-pointer group relative p-6 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${systemType === 'lng' ? 'border-blue-500 bg-white shadow-lg ring-4 ring-blue-500/10' : 'border-slate-200 bg-white hover:border-blue-300'}`}>
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-2xl ${systemType === 'lng' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500'}`}><Flame className="w-8 h-8" /></div>
-                  {systemType === 'lng' && <CheckCircle2 className="w-6 h-6 text-blue-500" />}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Метан СПГ</h3>
-                <p className="text-slate-500 text-sm">Сжиженный газ (LNG)</p>
+              <h3 className="text-2xl font-bold mb-3 font-sans text-slate-800">Ремоторизация ТС</h3>
+              <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                Расчет при полной замене дизельного двигателя на газовый (100% работа на метане).
+              </p>
+              <div className="mt-auto flex items-center text-amber-600 font-bold text-sm uppercase tracking-wider">
+                Открыть калькулятор <ChevronRight size={18} className="ml-1" />
               </div>
-            </div>
-            <div className="flex justify-center">
-              <button onClick={() => setStep(2)} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-lg font-bold py-3 px-10 rounded-2xl transition-all transform hover:scale-105 shadow-lg shadow-slate-900/20">Начать расчет <ChevronRight className="w-5 h-5" /></button>
             </div>
           </div>
         </div>
-        <footer className="text-center text-slate-400 text-xs py-2 flex items-center justify-center gap-1">
-          <Copyright className="w-3 h-3" />
-          <span>ООО "Элитгаз". Все права защищены.</span>
-        </footer>
       </div>
     );
   }
 
-  if (step === 2) {
+  // --- ЭКРАН 2: ВВОД ДАННЫХ ---
+  if (step === 1) {
+    const isRem = view === 'REMOT';
+    const currentInputs = isRem ? remotInputs : inputs;
+
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4">
-        <style>{printStyles}</style>
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="max-w-xl w-full">
-              <button 
-                onClick={() => setStep(1)} 
-                className="flex items-center gap-3 mb-3 w-full text-left group hover:opacity-80 transition-opacity"
-              >
-                  <div className="p-1.5 bg-white border border-slate-200 rounded-full text-slate-500 shadow-sm">
-                    <ChevronLeft className="w-5 h-5" />
-                  </div>
-                  <h1 className="text-lg font-bold text-slate-900">Ввод параметров</h1>
-              </button>
+      <div className="min-h-screen bg-slate-50 flex flex-col p-4 font-sans">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
+          <button 
+            onClick={() => navigateTo('HOME')} 
+            className="flex items-center gap-2 mb-6 self-start text-slate-400 hover:text-slate-800 transition-colors font-medium text-sm"
+          >
+            <ChevronLeft size={18} /> На главную
+          </button>
 
-              <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-5">
-                <div className="space-y-4">
-                  
-                  {/* Дизель */}
-                  <div className="p-3 bg-red-50 rounded-2xl border border-red-200">
-                    <div className="flex items-center gap-2 mb-2 text-red-800 font-bold uppercase tracking-wide border-b border-red-200 pb-1 text-sm">
-                      <Fuel className="w-4 h-4 text-red-600" /> Дизель (Базовый)
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold text-red-900/70">Расход (л/100км)</label>
-                        <input type="number" name="dieselConsumption" value={inputs.dieselConsumption} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" />
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold text-red-900/70">Стоимость (₽/л)</label>
-                        <input type="number" name="dieselPrice" value={inputs.dieselPrice} onChange={handleInputChange} className="w-20 px-2 py-1 bg-white border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-bold text-right text-red-900 text-sm" />
-                      </div>
-                    </div>
-                  </div>
+          <h1 className="text-xl font-bold text-slate-900 mb-8 text-center uppercase tracking-tight">
+            {isRem ? 'Ремоторизация ТС' : 'Газодизель ТС'}
+          </h1>
 
-                  {/* Газ */}
-                  <div className={`p-3 rounded-2xl border ${themeStyles.bg} ${themeStyles.border}`}>
-                    <div className={`flex items-center gap-2 mb-2 text-sm font-bold uppercase tracking-wide border-b ${themeStyles.border} pb-1 ${themeStyles.textDark}`}>
-                      {isLng ? <Flame className="w-4 h-4" /> : <Gauge className="w-4 h-4" />} {gasName}
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <label className={`text-xs font-semibold ${themeStyles.textDark}`}>Коэф. расхода</label>
-                        <input type="number" step="0.001" name={isLng ? "lngCoefficient" : "cngCoefficient"} value={isLng ? inputs.lngCoefficient : inputs.cngCoefficient} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} />
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className={`text-xs font-semibold ${themeStyles.textDark}`}>Стоимость (₽/{gasUnit})</label>
-                        <input type="number" step="0.1" name={isLng ? "lngPrice" : "cngPrice"} value={isLng ? inputs.lngPrice : inputs.cngPrice} onChange={handleInputChange} className={`w-20 px-2 py-1 bg-white border rounded-lg outline-none font-bold text-right text-sm ${themeStyles.border} ${themeStyles.ring} ${themeStyles.textDark}`} />
-                      </div>
-                    </div>
-                  </div>
+          <div className="bg-white rounded-[2rem] shadow-xl p-6 w-full border border-slate-200">
+            <div className="space-y-5">
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setSystemType('cng')}
+                  className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'cng' ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' : 'border-slate-100 text-slate-400'}`}
+                >КПГ (Метан)</button>
+                <button 
+                  onClick={() => setSystemType('lng')}
+                  className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'lng' ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-100 text-slate-400'}`}
+                >СПГ (Метан)</button>
+              </div>
 
-                  {/* Общие (низ) */}
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Пробег (км/мес)</label>
-                        <input type="number" name="monthlyMileage" value={inputs.monthlyMileage} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase">% замещения ДТ</label>
-                        <input type="number" name="substitutionRate" min="0" max="100" value={inputs.substitutionRate} onChange={handleInputChange} className={`w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg outline-none font-bold text-sm ${themeStyles.ring}`} />
-                      </div>
+              {/* ДИЗЕЛЬ */}
+              <div className="p-4 bg-red-50 rounded-2xl border border-red-100">
+                <div className="flex items-center gap-2 mb-4 text-red-800 font-bold uppercase text-[10px]">
+                  <Fuel size={14} /> Дизельное топливо
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-red-900/50 mb-1 uppercase">Расход (л/100км)</label>
+                    <input 
+                      type="number" name="dieselConsumption" 
+                      value={currentInputs.dieselConsumption} 
+                      onChange={(e) => handleInputChange(e, isRem)}
+                      className="w-full p-3 bg-white border border-red-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
+                    />
                   </div>
-
-                  <button onClick={() => setStep(3)} className={`w-full flex items-center justify-center gap-2 text-white text-base font-bold py-2.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg ${themeStyles.button}`}>
-                    Рассчитать экономию <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-red-900/40 mb-1 uppercase">Цена (₽/л)</label>
+                    <input 
+                      type="number" name="dieselPrice" 
+                      value={currentInputs.dieselPrice} 
+                      onChange={(e) => handleInputChange(e, isRem)}
+                      className="w-full p-3 bg-white border border-red-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* ГАЗ */}
+              <div className={`p-4 rounded-2xl border ${themeStyles.bg} ${themeStyles.border}`}>
+                <div className={`flex items-center gap-2 mb-4 ${themeStyles.textDark} font-bold uppercase text-[10px]`}>
+                  <Flame size={14} /> Параметры газа
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-[10px] font-semibold ${themeStyles.textDark} opacity-50 mb-1 uppercase`}>Цена (₽/{gasUnit})</label>
+                    <input 
+                      type="number" 
+                      name={systemType === 'lng' ? 'lngPrice' : 'cngPrice'} 
+                      value={systemType === 'lng' ? currentInputs.lngPrice : currentInputs.cngPrice} 
+                      onChange={(e) => handleInputChange(e, isRem)}
+                      className={`w-full p-3 bg-white border rounded-xl font-bold text-sm outline-none focus:ring-2 ${themeStyles.ring}`} 
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-[10px] font-semibold ${themeStyles.textDark} opacity-50 mb-1 uppercase`}>Коэф. расхода</label>
+                    <input 
+                      type="number" step="0.01"
+                      name={systemType === 'lng' ? 'lngCoefficient' : 'cngCoefficient'} 
+                      value={systemType === 'lng' ? currentInputs.lngCoefficient : currentInputs.cngCoefficient} 
+                      onChange={(e) => handleInputChange(e, isRem)}
+                      className={`w-full p-3 bg-white border rounded-xl font-bold text-sm outline-none focus:ring-2 ${themeStyles.ring}`} 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="w-full">
+                  <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Средний пробег (км/мес)</label>
+                  <input type="number" name="monthlyMileage" value={currentInputs.monthlyMileage} onChange={(e) => handleInputChange(e, isRem)} className="w-full p-3 border border-slate-200 rounded-xl font-bold text-sm" />
+                </div>
+                {!isRem && (
+                  <div className="w-full">
+                    <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">% замещения ДТ</label>
+                    <input type="number" name="substitutionRate" value={inputs.substitutionRate} onChange={(e) => handleInputChange(e, false)} className="w-full p-3 border border-slate-200 rounded-xl font-bold text-sm text-blue-600" />
+                  </div>
+                )}
+              </div>
+
+              <button 
+                onClick={() => navigateTo(view, 2)}
+                className={`w-full py-4 rounded-2xl text-white text-base font-bold shadow-lg transition-all active:scale-95 uppercase tracking-wider ${themeStyles.button}`}
+              >Рассчитать экономию</button>
+            </div>
           </div>
         </div>
-        <footer className="text-center text-slate-400 text-sm py-4 flex items-center justify-center gap-1">
-          <Copyright className="w-4 h-4" />
-          <span>ООО "Элитгаз". Все права защищены.</span>
-        </footer>
       </div>
     );
   }
 
   // --- ЭКРАН 3: РЕЗУЛЬТАТЫ ---
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-8 relative flex flex-col justify-between">
-      <style>{printStyles}</style>
-      <div className="max-w-6xl mx-auto w-full print-container">
-        
-        <header className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-2 print-hidden">
-          <div className="flex items-center gap-2">
-            <button onClick={() => setStep(2)} className="group flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors font-medium text-sm"><ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Назад</button>
-          </div>
-          <div className="flex items-center gap-2">
-             {/* Кнопка Печать теперь скрыта на мобильных (hidden) и видна начиная с md (md:flex) */}
-             <button onClick={handlePrint} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium"><Printer className="w-4 h-4" /> Печать</button>
-          </div>
+    <div className="min-h-screen bg-slate-50 p-2 md:p-8 font-sans">
+      <div className="max-w-6xl mx-auto">
+        <header className="mb-4 flex items-center justify-between print-hidden">
+          <button onClick={() => navigateTo(view, 1)} className="flex items-center gap-1 px-4 py-2 bg-white border rounded-xl text-xs font-bold text-slate-500 shadow-sm">
+            <ChevronLeft size={16} /> Назад
+          </button>
+          <button onClick={() => window.print()} className="hidden md:flex items-center gap-2 px-5 py-2 bg-white border rounded-xl text-sm font-bold text-slate-700 shadow-sm">
+            <Printer size={16} /> Печать
+          </button>
         </header>
 
-        {/* Контейнер отчета */}
-        <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm relative overflow-hidden">
-            
-            <div className="relative z-10">
-                <div className="mb-2 md:mb-4 text-center border-b border-slate-100 pb-2">
-                    <h1 className="text-lg md:text-2xl font-bold text-slate-900 leading-none">Отчет по эффективности газодизеля</h1>
-                </div>
+        <div className="bg-white p-4 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+          <div className="mb-8 text-center border-b border-slate-50 pb-6">
+            <h1 className="text-lg md:text-2xl font-bold text-slate-900 uppercase tracking-tight">
+              {view === 'REMOT' ? (
+                  `Отчет: Ремоторизация (100% ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'})`
+              ) : (
+                  `Отчет: Газодизельный режим (ДТ ${100 - inputs.substitutionRate}% + ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'} ${inputs.substitutionRate}%)`
+              )}
+            </h1>
+            <p className="text-[10px] md:text-xs text-slate-400 mt-2 font-medium">Период расчета: 12 месяцев</p>
+          </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 md:p-4 mb-2 md:mb-4 print:shadow-none print:border print:mb-2 print:p-2 break-inside-avoid">
-                    <h3 className="text-sm md:text-base font-bold text-slate-800 mb-2 flex items-center gap-2 leading-none">
-                        <FileText className="w-4 h-4 text-slate-500" />
-                        Исходные данные для расчета
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-1.5 md:gap-3 text-xs print:grid-cols-3 print:gap-2">
-                        <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-slate-200">
-                            {/* УВЕЛИЧЕННЫЕ ШРИФТЫ */}
-                            <div className="text-slate-500 text-xs md:text-sm mb-0.5 leading-none">Пробег в месяц</div>
-                            <div className="font-bold text-slate-900 text-sm md:text-lg leading-none">{getVal(inputs.monthlyMileage).toLocaleString()} км</div>
-                        </div>
-                        <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Расход Дизеля (Норма)</div>
-                            <div className="font-bold text-red-900 text-sm md:text-lg leading-none">{getVal(inputs.dieselConsumption)} л/100км</div>
-                        </div>
-                        <div className="p-1.5 md:p-2 bg-slate-50 rounded-lg border border-red-100">
-                            <div className="text-red-800/60 text-xs md:text-sm mb-0.5 leading-none">Цена ДТ</div>
-                            <div className="font-bold text-red-900 text-sm md:text-lg leading-none">{getVal(inputs.dieselPrice)} ₽/л</div>
-                        </div>
-
-                        <div className={`p-1.5 md:p-2 rounded-lg ${themeStyles.subtleBg} border ${themeStyles.border}`}>
-                            <div className={`${themeStyles.textDark} text-xs md:text-sm mb-0.5 leading-none`}>Процент замещения</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-lg leading-none`}>{getVal(inputs.substitutionRate)}% Газ</div>
-                        </div>
-                        
-                        <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg} flex items-center justify-between`}>
-                            <div>
-                                <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Коэффициент</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-sm md:text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient)}</div>
-                            </div>
-                            <div className={`w-px h-6 ${isLng ? 'bg-blue-200' : 'bg-green-200'}`}></div>
-                            <div className="text-right">
-                                <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Расход Газа</div>
-                                <div className={`font-bold ${themeStyles.textDark} text-sm md:text-lg leading-none`}>
-                                    {((getVal(inputs.dieselConsumption) * getVal(inputs.substitutionRate) / 100) * (systemType === 'lng' ? getVal(inputs.lngCoefficient) : getVal(inputs.cngCoefficient))).toFixed(1)} {gasUnit}/100км
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={`p-1.5 md:p-2 rounded-lg border ${themeStyles.border} ${themeStyles.bg}`}>
-                            <div className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm mb-0.5 leading-none`}>Цена {gasName}</div>
-                            <div className={`font-bold ${themeStyles.textDark} text-sm md:text-lg leading-none`}>{systemType === 'lng' ? getVal(inputs.lngPrice) : getVal(inputs.cngPrice)} ₽/{gasUnit}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-2 md:space-y-4 print:space-y-3">
-                    <div className={`grid grid-cols-1 ${!isLng ? 'md:grid-cols-2 print:grid-cols-2' : ''} gap-2 md:gap-4 items-stretch break-inside-avoid print:gap-3`}>
-                        
-                        {/* КАРТОЧКА: Базовый расчет */}
-                        <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-3 md:p-4 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between h-full print:p-4`}>
-                            <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-                            {isLng ? <Flame size={200} /> : <Gauge size={200} />}
-                            </div>
-                            
-                            <div className="relative z-10 flex-1">
-                                <h2 className="text-base md:text-xl font-bold text-white mb-1 md:mb-2 leading-tight">Базовый расчет</h2>
-                                <div className="flex items-center gap-1.5 bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px] font-medium w-fit mb-2 md:mb-3 backdrop-blur-sm leading-none">
-                                    <Fuel className="w-3 h-3" />
-                                    Стандартные условия
-                                </div>
-
-                                <div className="text-sm md:text-lg text-white/80 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия</div>
-                                <div className="text-3xl md:text-5xl font-bold tracking-tight mb-2 md:mb-3 leading-none">{formatMoney(summary.savings)}</div>
-                            </div>
-                            
-                            <div className="relative z-10 flex gap-2 flex-wrap">
-                                <div className="inline-flex items-center gap-1 px-2 py-0.5 md:py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm border border-white/10 leading-none">
-                                <Wallet className="w-3 h-3" />
-                                <span>{formatMoney(summary.monthlySavings)} в месяц</span>
-                                </div>
-                                <div className="inline-flex items-center gap-1 px-2 py-0.5 md:py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm border border-white/10 leading-none">
-                                <TrendingDown className="w-3 h-3" />
-                                <span>- {((summary.savings / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {!isLng && (
-                        <div className="bg-white rounded-2xl shadow-lg relative overflow-hidden border border-blue-200 p-3 md:p-4 flex flex-col justify-between h-full print:p-4">
-                            <div className="relative z-10 flex-1">
-                                <h2 className="text-base md:text-xl font-bold text-blue-900 mb-1 md:mb-2 leading-tight">Программа ООО "ГГМТ"</h2>
-                                <div className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full text-[10px] font-medium w-fit mb-2 md:mb-3 leading-none">
-                                    <Tag className="w-3 h-3" />
-                                    Скидка на метан 20%
-                                </div>
-                                
-                                <div className="text-sm md:text-lg text-slate-600 font-medium mb-0.5 md:mb-1 leading-none">Итоговая экономия со скидкой</div>
-                                <div className="text-3xl md:text-5xl font-bold tracking-tight text-blue-900 mb-2 md:mb-3 leading-none">{formatMoney(summary.savingsDiscounted)}</div>
-                            </div>
-                            
-                            <div className="relative z-10 flex gap-2 flex-wrap">
-                                <div className="inline-flex items-center gap-1 px-2 py-0.5 md:py-1 bg-blue-50 rounded-full text-[10px] text-blue-800 border border-blue-100 leading-none">
-                                <Wallet className="w-3 h-3" />
-                                <span>{formatMoney(summary.monthlySavingsDiscounted)} в месяц</span>
-                                </div>
-                                <div className="inline-flex items-center gap-1 px-2 py-0.5 md:py-1 bg-blue-50 rounded-full text-[10px] text-blue-800 border border-blue-100 leading-none">
-                                <TrendingDown className="w-3 h-3" />
-                                <span>- {((summary.savingsDiscounted / summary.dieselOnlyTotal) * 100).toFixed(1)}% расходов</span>
-                                </div>
-                            </div>
-                        </div>
-                        )}
-
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 print:grid-cols-2 print:gap-3 break-inside-avoid">
-                        
-                        {/* КАРТОЧКА: ТОЛЬКО ДИЗЕЛЬ */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-3 relative overflow-hidden print:p-3">
-                            <div className="absolute top-0 right-0 w-16 h-16 md:w-20 md:h-20 bg-red-50 rounded-bl-full -mr-4 -mt-4 md:-mr-6 md:-mt-6 z-0"></div>
-                            <h3 className="text-sm md:text-xl font-bold text-red-900 mb-2 relative z-10 flex items-center gap-1.5 md:gap-2 leading-none">
-                                <Fuel className="w-4 h-4 md:w-5 md:h-5" />
-                                Только Дизель (100%)
-                            </h3>
-                            
-                            <div className="space-y-1 relative z-10">
-                                
-                                {/* Ряд 1: Расход */}
-                                <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                    <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap">Расход топлива на 100км</span>
-                                    <span className="text-base md:text-xl font-bold text-red-900 leading-none">{summary.qtyDieselOnly_100} л</span>
-                                </div>
-
-                                {/* Ряд 2: Стоимость 1 км */}
-                                <div className="flex justify-between items-end border-b border-red-100 pb-1 h-10 md:h-14">
-                                    <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Стоимость 1 км</span>
-                                    <div className="text-right">
-                                        <span className="text-base md:text-xl font-bold text-red-900 leading-none block">{summary.costPerKmDiesel.toFixed(2)} ₽</span>
-                                        <span className="text-[10px] text-transparent block font-medium mt-0.5 leading-none">.</span>
-                                    </div>
-                                </div>
-
-                                {/* Ряд 3: Затраты в месяц */}
-                                <div className="flex justify-between items-end border-b border-red-100 pb-1 h-9 md:h-12">
-                                    <span className="text-red-900/60 text-xs md:text-sm leading-none mb-0.5">Затраты в месяц</span>
-                                    <span className="text-base md:text-xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal / inputs.months)}</span>
-                                </div>
-
-                                {/* Ряд 4: Итого */}
-                                <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                    <span className="text-red-900/60 text-xs md:text-sm font-medium leading-none mb-0.5">ИТОГО за период</span>
-                                    <span className="text-lg md:text-4xl font-bold text-red-900 leading-none">{formatMoney(summary.dieselOnlyTotal)}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* КАРТОЧКА: ГАЗОДИЗЕЛЬ */}
-                        <div className={`bg-white rounded-2xl shadow-sm border ${themeStyles.border} p-3 relative overflow-hidden print:p-3`}>
-                            <div className={`absolute top-0 right-0 w-16 h-16 md:w-20 md:h-20 ${themeStyles.bg} rounded-bl-full -mr-4 -mt-4 md:-mr-6 md:-mt-6 z-0`}></div>
-                            <h3 className={`text-sm md:text-xl font-bold ${themeStyles.textDark} mb-2 relative z-10 flex items-center gap-1.5 md:gap-2 leading-none`}>
-                                {isLng ? <Flame className="w-4 h-4 md:w-5 md:h-5" /> : <Gauge className="w-4 h-4 md:w-5 md:h-5" />}
-                                Газодизель ({gasName})
-                            </h3>
-                            
-                            <div className="space-y-1 relative z-10">
-                                
-                                {/* Ряд 1: Расход */}
-                                <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                    <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5 whitespace-nowrap`}>Расход топлива на 100км</span>
-                                    <div className="flex items-center">
-                                        <span className="text-base md:text-xl font-bold text-red-900 whitespace-nowrap leading-none">
-                                            {summary.qtyDualDiesel_100} л
-                                        </span>
-                                        <div className={`h-6 w-px mx-2 ${themeStyles.separatorBg} opacity-20`}></div>
-                                        <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} whitespace-nowrap leading-none`}>
-                                            {summary.qtyDualGas_100} {gasUnit}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Ряд 2: Стоимость 1 км */}
-                                <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-10 md:h-14`}>
-                                    <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Стоимость 1 км</span>
-                                    <div className="text-right">
-                                        <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none block`}>{summary.costPerKmDual.toFixed(2)} ₽</span>
-                                        <span className="text-[9px] md:text-[10px] text-green-600 block font-medium mt-0.5 leading-none">Выгоднее на {(summary.costPerKmDiesel - summary.costPerKmDual).toFixed(2)} ₽</span>
-                                    </div>
-                                </div>
-
-                                {/* Ряд 3: Затраты в месяц */}
-                                <div className={`flex justify-between items-end border-b ${themeStyles.border} pb-1 h-9 md:h-12`}>
-                                    <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm leading-none mb-0.5`}>Затраты в месяц</span>
-                                    <span className={`text-base md:text-xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal / inputs.months)}</span>
-                                </div>
-
-                                {/* Ряд 4: Итого */}
-                                <div className="flex justify-between items-end pt-1 h-9 md:h-12">
-                                    <span className={`${themeStyles.textDark} opacity-60 text-xs md:text-sm font-medium leading-none mb-0.5`}>ИТОГО за период</span>
-                                    <span className={`text-lg md:text-4xl font-bold ${themeStyles.textDark} leading-none`}>{formatMoney(summary.dualTotal)}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 print:p-3 break-inside-avoid">
-                        <h4 className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2 leading-none">
-                            <BarChart3 className="w-3 h-3" />
-                            Структура затрат в газодизельном режиме (Без учета скидки)
-                        </h4>
-                        
-                        <div className="flex h-8 md:h-10 rounded-lg overflow-hidden mb-1.5">
-                            <div 
-                                className="bg-red-500 flex items-center justify-center text-white font-bold text-xs md:text-base relative group" 
-                                style={{ width: `${dieselPercent}%` }}
-                            >
-                                <span className="z-10 truncate px-2">Дизель</span>
-                                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-                            <div 
-                                className={`${isLng ? 'bg-blue-600' : 'bg-green-600'} flex items-center justify-center text-white font-bold text-xs md:text-base relative group`} 
-                                style={{ width: `${gasPercent}%` }}
-                            >
-                                <span className="z-10 truncate px-2">Газ</span>
-                                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-                        </div>
-                        
-                        <div className="flex justify-between text-[10px] md:text-xs leading-none">
-                            <div className="text-red-700 font-medium">
-                                Дизельное топливо: {formatMoney(summary.dualDieselPart)} <span className="text-slate-400">({dieselPercent.toFixed(0)}%)</span>
-                            </div>
-                            <div className={`${themeStyles.text} font-medium`}>
-                                {gasName}: {formatMoney(summary.dualGasPart)} <span className="text-slate-400">({gasPercent.toFixed(0)}%)</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="flex justify-center pt-2">
-                        <p className="text-slate-400 text-[10px] max-w-2xl text-center leading-tight">
-                        * Расчет носит информационный характер. Реальная экономия зависит от фактического процента замещения, который может варьироваться в зависимости от нагрузки двигателя и манеры вождения.
-                        </p>
-                    </div>
-
-                    {/* Moved Footer inside the report area */}
-                    <div className="text-center text-slate-400 text-[10px] pt-3 flex items-center justify-center gap-1">
-                        <Copyright className="w-3 h-3" />
-                        <span>ООО "Элитгаз". Все права защищены.</span>
-                    </div>
-
-                </div>
+          {/* СЕТКА ПЛАШЕК */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="text-slate-400 text-[10px] uppercase mb-1 font-medium">Пробег</div>
+              <div className="font-bold text-slate-900 text-xs md:text-base">{(view === 'REMOT' ? remotInputs.monthlyMileage : inputs.monthlyMileage).toLocaleString()} км/мес</div>
             </div>
-        </div>
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="text-slate-400 text-[10px] uppercase mb-1 font-medium">Расход ДТ</div>
+              <div className="font-bold text-slate-900 text-xs md:text-base">{summary.qD_100} л/100км</div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="text-slate-400 text-[10px] uppercase mb-1 font-medium">Цена ДТ</div>
+              <div className="font-bold text-slate-900 text-xs md:text-base">{view === 'REMOT' ? remotInputs.dieselPrice : inputs.dieselPrice} ₽</div>
+            </div>
+            <div className={`p-3 rounded-2xl border ${themeStyles.border} ${themeStyles.bg}`}>
+              <div className={`${themeStyles.textDark} text-[10px] opacity-60 uppercase mb-1 font-medium`}>Цена {gasName}</div>
+              <div className={`font-bold ${themeStyles.textDark} text-xs md:text-base`}>
+                {systemType === 'lng' ? (view === 'REMOT' ? remotInputs.lngPrice : inputs.lngPrice) : (view === 'REMOT' ? remotInputs.cngPrice : inputs.cngPrice)} ₽
+              </div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+               <div className="text-slate-400 text-[10px] uppercase mb-1 font-medium tracking-tight">Коэф. расхода</div>
+               <div className="font-bold text-slate-900 text-xs md:text-base">{summary.gasCoef}</div>
+            </div>
+          </div>
 
+          {/* ГЛАВНЫЕ КАРТОЧКИ ЭКОНОМИИ */}
+          <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-6 mb-8`}>
+            <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-8 rounded-[2rem] shadow-xl flex flex-col justify-between relative overflow-hidden`}>
+               <div className="absolute right-0 bottom-0 opacity-10 translate-x-1/4 translate-y-1/4"><TrendingDown size={200}/></div>
+               <div className="relative z-10">
+                  <div className="text-xs font-medium opacity-80 mb-1 uppercase tracking-wider">Экономия (Базовый расчет)</div>
+                  <div className="text-3xl md:text-5xl font-bold mb-4 leading-tight">{formatMoney(summary.savings)}</div>
+               </div>
+               <div className="relative z-10 flex gap-3 flex-wrap">
+                  <div className="bg-white/20 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">
+                    {formatMoney(summary.monthlySav)} / мес
+                  </div>
+                  <div className="bg-white/20 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">
+                    - {Math.round((summary.savings / (summary.totalD || 1)) * 100)}% затрат
+                  </div>
+               </div>
+            </div>
+
+            {systemType === 'cng' && (
+              <div className="bg-white border-2 border-blue-50 p-8 rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden font-sans">
+                 <div className="absolute top-0 right-0 p-3 bg-blue-600 text-white rounded-bl-3xl font-bold text-[10px] uppercase">Программа ГГМТ</div>
+                 <div>
+                    <div className="text-xs font-medium text-slate-400 mb-1 flex items-center gap-1 uppercase tracking-wider"><Tag size={12} className="text-blue-500" /> Со скидкой на метан 20%</div>
+                    <div className="text-3xl md:text-5xl font-bold text-blue-900 mb-4 leading-tight">{formatMoney(summary.savingsDiscounted)}</div>
+                 </div>
+                 <div className="flex gap-3 flex-wrap">
+                    <div className="bg-blue-50 text-blue-800 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-blue-100 uppercase">
+                      {formatMoney(summary.monthlySavDiscounted)} / мес
+                    </div>
+                    <div className="bg-blue-50 text-blue-800 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-blue-100 uppercase">
+                      - {Math.round((summary.savingsDiscounted / (summary.totalD || 1)) * 100)}% затрат
+                    </div>
+                 </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="border border-red-100 rounded-[2rem] p-6 bg-red-50/20">
+              <div className="text-red-800 font-bold text-xs uppercase mb-4 flex items-center gap-2"><Fuel size={14}/> На дизеле (100%)</div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs md:text-sm">
+                  <span className="text-slate-400 font-medium uppercase text-[10px]">Расход на 100км:</span>
+                  <span className="font-bold text-red-900">{summary.qD_100} л</span>
+                </div>
+                <div className="flex justify-between text-xs md:text-sm">
+                  <span className="text-slate-400 font-medium uppercase text-[10px]">Стоимость 1 км:</span>
+                  <span className="font-bold text-red-900">{summary.kmD?.toFixed(2)} ₽</span>
+                </div>
+                <div className="border-t border-red-100 pt-3 flex justify-between font-bold text-red-600 text-base md:text-2xl leading-none">
+                  <span className="text-xs uppercase self-center opacity-60">ИТОГО ЗА ГОД:</span>
+                  <span>{formatMoney(summary.totalD)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={`border ${themeStyles.border} rounded-[2rem] p-6 ${themeStyles.bg}/20`}>
+              <div className={`${themeStyles.textDark} font-bold text-xs uppercase mb-4 flex items-center gap-2`}>
+                {systemType === 'lng' ? <Flame size={14}/> : <Gauge size={14}/>} 
+                {view === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${inputs.substitutionRate}% замещения)`}
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs md:text-sm">
+                  <span className="text-slate-400 font-medium uppercase text-[10px]">Расход на 100км:</span>
+                  <span className={`font-bold ${themeStyles.textDark}`}>
+                    {view === 'REMOT' ? `${summary.qG_100} ${gasUnit}` : `${summary.qDualD_100}л + ${summary.qDualG_100}${gasUnit}`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs md:text-sm">
+                  <span className="text-slate-400 font-medium uppercase text-[10px]">Стоимость 1 км:</span>
+                  <span className={`font-bold ${themeStyles.textDark}`}>{summary.kmG?.toFixed(2)} ₽</span>
+                </div>
+                <div className={`border-t ${themeStyles.border} pt-3 flex justify-between font-bold ${themeStyles.textDark} text-base md:text-2xl leading-none`}>
+                  <span className="text-xs uppercase self-center opacity-60">ИТОГО ЗА ГОД:</span>
+                  <span>{formatMoney(summary.totalG)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-6 rounded-[2rem]">
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase mb-6 flex items-center gap-2 tracking-widest">
+              <BarChart3 size={14}/> Доля затрат в {view === 'REMOT' ? 'газовом' : 'газодизельном'} режиме
+            </h4>
+            <div className="h-10 w-full bg-slate-200 rounded-2xl overflow-hidden flex shadow-inner">
+              {view === 'REMOT' ? (
+                <div className={`${themeStyles.button} h-full transition-all duration-1000`} style={{ width: '100%' }}></div>
+              ) : (
+                <>
+                  <div className="bg-red-500 h-full transition-all duration-1000" style={{ width: `${(100 - inputs.substitutionRate)}%` }}></div>
+                  <div className={`${themeStyles.button} h-full transition-all duration-1000`} style={{ width: `${inputs.substitutionRate}%` }}></div>
+                </>
+              )}
+            </div>
+            <div className="flex justify-between mt-4 text-[10px] font-bold uppercase tracking-tight">
+              {view === 'REMOT' ? (
+                 <span className={themeStyles.text}>100% {gasName} Метан</span>
+              ) : (
+                <>
+                  <span className="text-red-600">ДИЗЕЛЬ: {formatMoney(summary.totalG * (1 - inputs.substitutionRate/100))}</span>
+                  <span className={themeStyles.text}>{gasName}: {formatMoney(summary.totalG * (inputs.substitutionRate/100))}</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <footer className="mt-10 text-center text-[10px] text-slate-400 font-medium flex items-center justify-center gap-2 opacity-60">
+            <Copyright size={12} /> <span>ООО "ЭЛИТГАЗ" — 2025. Расчет носит справочный характер.</span>
+          </footer>
+        </div>
       </div>
     </div>
   );
