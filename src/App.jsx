@@ -209,7 +209,7 @@ const App = () => {
     const currentInputs = isRem ? remotInputs : inputs;
 
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col p-2 font-sans text-slate-900">
+      <div className="min-h-screen bg-slate-50 flex flex-col p-2 font-sans">
         <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
           <button 
             onClick={() => navigateTo('HOME')} 
@@ -408,7 +408,6 @@ const App = () => {
 
               {systemType === 'cng' && (
                 <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden font-sans text-slate-900">
-                  {/* ИЗМЕНЕНИЕ: Надпись перемещена вправо вверх */}
                   <div className="absolute top-0 right-0 p-1.5 md:p-3 bg-blue-700 text-white rounded-bl-xl md:rounded-bl-3xl font-bold text-[8px] md:text-[10px] uppercase z-20">Программа ГГМТ</div>
                   
                   {/* Контент: Текст и цифры */}
@@ -427,16 +426,14 @@ const App = () => {
                       </div>
                   </div>
 
-                  {/* Логотип ГГМТ: позиционирование внизу справа с отступами 10px */}
+                  {/* Логотип ГГМТ: оригинальный цвет с прозрачностью 50% */}
                   <div className="absolute right-[10px] bottom-[10px] flex items-end justify-end pointer-events-none select-none max-h-[35%] w-2/5">
                       <img 
                         src="/logoGGMT.png" 
                         alt="GGMT Logo" 
                         className="h-auto max-h-full w-auto object-contain object-right-bottom"
                         style={{ 
-                          mixBlendMode: 'luminosity', 
-                          opacity: 0.35,
-                          filter: 'grayscale(1) contrast(1.1) brightness(0.9)',
+                          opacity: 0.5
                         }}
                         onError={(e) => { e.target.style.display = 'none'; }} 
                       />
