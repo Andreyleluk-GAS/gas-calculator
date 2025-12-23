@@ -315,7 +315,7 @@ const App = () => {
 
   // --- ЭКРАН 3: РЕЗУЛЬТАТЫ ---
   return (
-    <div className="min-h-screen bg-slate-50 p-1.5 md:p-8 font-sans">
+    <div className="min-h-screen bg-slate-50 p-1.5 md:p-8 font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
         <header className="mb-2 md:mb-4 flex items-center justify-between print-hidden">
           <button onClick={() => navigateTo(view, 1)} className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-[10px] md:text-xs font-bold text-slate-700 shadow-sm">
@@ -326,20 +326,8 @@ const App = () => {
           </button>
         </header>
 
-        {/* Контейнер отчета с водяным знаком */}
         <div className="bg-white p-3 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-200 relative overflow-hidden">
           
-          {/* --- ВОДЯНОЙ ЗНАК --- */}
-          {/* ИЗМЕНЕНИЕ: Увеличена непрозрачность с 0.03 до 0.08 */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.08] select-none">
-                 <img 
-                    src="/logo.png" 
-                    alt="Watermark" 
-                    className="w-3/4 md:w-1/2 object-contain transform -rotate-12"
-                    onError={(e) => { e.target.style.display = 'none'; }} 
-                 />
-          </div>
-
           <div className="relative z-10">
             <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6">
               <h1 className="text-sm md:text-2xl font-bold text-slate-900 uppercase tracking-tight leading-tight">
@@ -353,18 +341,18 @@ const App = () => {
             </div>
 
             {/* СЕТКА ПЛАШЕК */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-3 md:mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-3 md:mb-8 text-slate-900">
               <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Пробег</div>
-                <div className="font-bold text-slate-900 text-[10px] md:text-base">{(view === 'REMOT' ? remotInputs.monthlyMileage : inputs.monthlyMileage).toLocaleString()} км/мес</div>
+                <div className="font-bold text-[10px] md:text-base">{(view === 'REMOT' ? remotInputs.monthlyMileage : inputs.monthlyMileage).toLocaleString()} км/мес</div>
               </div>
               <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Расход ДТ</div>
-                <div className="font-bold text-slate-900 text-[10px] md:text-base">{summary.qD_100} л/100км</div>
+                <div className="font-bold text-[10px] md:text-base">{summary.qD_100} л/100км</div>
               </div>
               <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Цена ДТ</div>
-                <div className="font-bold text-slate-900 text-[10px] md:text-base">{view === 'REMOT' ? remotInputs.dieselPrice : inputs.dieselPrice} ₽</div>
+                <div className="font-bold text-[10px] md:text-base">{view === 'REMOT' ? remotInputs.dieselPrice : inputs.dieselPrice} ₽</div>
               </div>
               <div className={`p-2 md:p-3 rounded-xl border ${themeStyles.border} ${themeStyles.bg}`}>
                 <div className={`${themeStyles.textDark} text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold`}>Цена {gasName}</div>
@@ -375,25 +363,40 @@ const App = () => {
               {/* СКРЫТА НА МОБИЛЬНЫХ */}
               <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight">Коэф. расхода</div>
-                <div className="font-bold text-slate-900 text-[10px] md:text-base">{summary.gasCoef}</div>
+                <div className="font-bold text-[10px] md:text-base">{summary.gasCoef}</div>
               </div>
             </div>
 
             {/* ГЛАВНЫЕ КАРТОЧКИ ЭКОНОМИИ */}
             <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8`}>
-              <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-col justify-between relative overflow-hidden`}>
-                <div className="absolute right-0 bottom-0 opacity-10 translate-x-1/4 translate-y-1/4"><TrendingDown size={140}/></div>
-                <div className="relative z-10">
-                    <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider">Экономия (Базовый расчет)</div>
-                    <div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight">{formatMoney(summary.savings)}</div>
+              
+              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ЛОГОТИПОМ */}
+              <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden`}>
+                
+                {/* Левая часть с текстом */}
+                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4">
+                  <div>
+                      <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90">Экономия (Базовый расчет)</div>
+                      <div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight">{formatMoney(summary.savings)}</div>
+                  </div>
+                  <div className="flex gap-2 md:gap-3 flex-wrap">
+                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                        {formatMoney(summary.monthlySav)} / мес
+                      </div>
+                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                        - {Math.round((summary.savings / (summary.totalD || 1)) * 100)}% затрат
+                      </div>
+                  </div>
                 </div>
-                <div className="relative z-10 flex gap-2 md:gap-3 flex-wrap">
-                    <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
-                      {formatMoney(summary.monthlySav)} / мес
-                    </div>
-                    <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
-                      - {Math.round((summary.savings / (summary.totalD || 1)) * 100)}% затрат
-                    </div>
+
+                {/* Правая часть с логотипом */}
+                <div className="relative z-10 w-1/3 md:w-1/4 flex items-center justify-end">
+                   <img 
+                      src="/logo.png" 
+                      alt="Logo" 
+                      className="max-h-12 md:max-h-24 w-auto object-contain drop-shadow-lg"
+                      onError={(e) => { e.target.style.display = 'none'; }} 
+                   />
                 </div>
               </div>
 
