@@ -330,7 +330,8 @@ const App = () => {
         <div className="bg-white p-3 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-200 relative overflow-hidden">
           
           {/* --- ВОДЯНОЙ ЗНАК --- */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03] select-none">
+          {/* ИЗМЕНЕНИЕ: Увеличена непрозрачность с 0.03 до 0.08 */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.08] select-none">
                  <img 
                     src="/logo.png" 
                     alt="Watermark" 
