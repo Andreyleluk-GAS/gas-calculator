@@ -209,7 +209,7 @@ const App = () => {
     const currentInputs = isRem ? remotInputs : inputs;
 
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col p-2 font-sans">
+      <div className="min-h-screen bg-slate-50 flex flex-col p-2 font-sans text-slate-900">
         <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
           <button 
             onClick={() => navigateTo('HOME')} 
@@ -246,7 +246,7 @@ const App = () => {
                       type="number" name="dieselConsumption" 
                       value={currentInputs.dieselConsumption} 
                       onChange={(e) => handleInputChange(e, isRem)}
-                      className="w-full p-2 md:p-3 bg-white border border-red-200 rounded-lg md:rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
+                      className="w-full p-2 md:p-3 bg-white border border-red-100 rounded-lg md:rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
                     />
                   </div>
                   <div>
@@ -337,31 +337,31 @@ const App = () => {
                     `Отчет: Газодизельный режим (ДТ ${100 - inputs.substitutionRate}% + ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'} ${inputs.substitutionRate}%)`
                 )}
               </h1>
-              <p className="text-[8px] md:text-xs text-slate-700 mt-1 font-semibold uppercase">Период расчета: 12 месяцев</p>
+              <p className="text-[8px] md:text-xs text-slate-700 mt-1 font-semibold uppercase font-sans">Период расчета: 12 месяцев</p>
             </div>
 
             {/* СЕТКА ПЛАШЕК */}
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-3 md:mb-8 text-slate-900">
-              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Пробег</div>
-                <div className="font-bold text-[10px] md:text-base">{(view === 'REMOT' ? remotInputs.monthlyMileage : inputs.monthlyMileage).toLocaleString()} км/мес</div>
+              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900">
+                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold font-sans">Пробег</div>
+                <div className="font-bold text-[10px] md:text-base font-sans">{(view === 'REMOT' ? remotInputs.monthlyMileage : inputs.monthlyMileage).toLocaleString()} км/мес</div>
               </div>
-              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Расход ДТ</div>
-                <div className="font-bold text-[10px] md:text-base">{summary.qD_100} л/100км</div>
+              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900">
+                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold font-sans">Расход ДТ</div>
+                <div className="font-bold text-[10px] md:text-base font-sans">{summary.qD_100} л/100км</div>
               </div>
-              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Цена ДТ</div>
-                <div className="font-bold text-[10px] md:text-base">{view === 'REMOT' ? remotInputs.dieselPrice : inputs.dieselPrice} ₽</div>
+              <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900">
+                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold font-sans">Цена ДТ</div>
+                <div className="font-bold text-[10px] md:text-base font-sans">{view === 'REMOT' ? remotInputs.dieselPrice : inputs.dieselPrice} ₽</div>
               </div>
-              <div className={`p-2 md:p-3 rounded-xl border ${themeStyles.border} ${themeStyles.bg}`}>
-                <div className={`${themeStyles.textDark} text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold`}>Цена {gasName}</div>
-                <div className={`font-bold ${themeStyles.textDark} text-[10px] md:text-base`}>
+              <div className={`p-2 md:p-3 rounded-xl border ${themeStyles.border} ${themeStyles.bg} font-sans`}>
+                <div className={`${themeStyles.textDark} text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold font-sans`}>Цена {gasName}</div>
+                <div className={`font-bold ${themeStyles.textDark} text-[10px] md:text-base font-sans`}>
                   {systemType === 'lng' ? (view === 'REMOT' ? remotInputs.lngPrice : inputs.lngPrice) : (view === 'REMOT' ? remotInputs.cngPrice : inputs.cngPrice)} ₽
                 </div>
               </div>
               {/* СКРЫТА НА МОБИЛЬНЫХ */}
-              <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans">
+              <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900">
                 <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight font-sans">Коэф. расхода</div>
                 <div className="font-bold text-[10px] md:text-base font-sans">{summary.gasCoef}</div>
               </div>
@@ -370,62 +370,82 @@ const App = () => {
             {/* ГЛАВНЫЕ КАРТОЧКИ ЭКОНОМИИ */}
             <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
               
-              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ИНТЕГРИРОВАННЫМ ЛОГОТИПОМ */}
-              <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden`}>
+              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ЛОГОТИПОМ */}
+              <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden font-sans`}>
                 
                 {/* Левая часть с текстом */}
-                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4">
+                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 font-sans text-white">
                   <div>
-                      <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90">Экономия (Базовый расчет)</div>
-                      <div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight">{formatMoney(summary.savings)}</div>
+                      <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый расчет)</div>
+                      <div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(summary.savings)}</div>
                   </div>
                   <div className="flex gap-2 md:gap-3 flex-wrap">
-                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">
                         {formatMoney(summary.monthlySav)} / мес
                       </div>
-                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                      <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">
                         - {Math.round((summary.savings / (summary.totalD || 1)) * 100)}% затрат
                       </div>
                   </div>
                 </div>
 
-                {/* Правая часть с логотипом: Увеличенный логотип с отступами 10px */}
-                <img 
-                  src="/logo.png" 
-                  alt="Company Logo" 
-                  className="absolute right-[10px] top-[10px] bottom-[10px] w-auto max-w-[45%] object-contain object-right transition-opacity duration-300 select-none z-0"
-                  style={{ 
-                    mixBlendMode: 'luminosity', 
-                    opacity: 0.4,
-                    filter: 'grayscale(1) contrast(1.2) brightness(1.2)',
-                    pointerEvents: 'none'
-                  }}
-                  onError={(e) => { e.target.style.display = 'none'; }} 
-                />
+                {/* Правая часть: logo.png с авто-масштабированием и отступами 10px */}
+                <div className="absolute right-[10px] top-[10px] bottom-[10px] flex items-center justify-end w-2/5 md:w-1/3">
+                   <img 
+                      src="/logo.png" 
+                      alt="Company Logo" 
+                      className="h-full w-auto object-contain object-right select-none"
+                      style={{ 
+                        mixBlendMode: 'luminosity', 
+                        opacity: 0.45,
+                        filter: 'grayscale(1) contrast(1.3) brightness(1.2)',
+                        pointerEvents: 'none'
+                      }}
+                      onError={(e) => { e.target.style.display = 'none'; }} 
+                   />
+                </div>
               </div>
 
               {systemType === 'cng' && (
-                <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden font-sans">
-                  <div className="absolute top-0 right-0 p-1.5 md:p-3 bg-blue-700 text-white rounded-bl-xl md:rounded-bl-3xl font-bold text-[8px] md:text-[10px] uppercase">Программа ГГМТ</div>
-                  <div>
-                      <div className="text-[9px] md:text-xs font-bold text-slate-700 mb-0.5 md:mb-1 flex items-center gap-1 uppercase tracking-wider"><Tag size={10} className="text-blue-600" /> Со скидкой на метан 20%</div>
-                      <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight">{formatMoney(summary.savingsDiscounted)}</div>
+                <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden font-sans text-slate-900">
+                  {/* Контент: Текст и цифры */}
+                  <div className="relative z-10 w-2/3 md:w-3/4">
+                      <div className="absolute -top-4 -left-4 md:-top-8 md:-left-8 p-1.5 md:p-3 bg-blue-700 text-white rounded-br-xl md:rounded-br-3xl font-bold text-[8px] md:text-[10px] uppercase">Программа ГГМТ</div>
+                      <div className="mt-2">
+                          <div className="text-[9px] md:text-xs font-bold text-slate-700 mb-0.5 md:mb-1 flex items-center gap-1 uppercase tracking-wider font-sans"><Tag size={10} className="text-blue-600 font-sans" /> Со скидкой на метан 20%</div>
+                          <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight font-sans">{formatMoney(summary.savingsDiscounted)}</div>
+                      </div>
+                      <div className="flex gap-2 md:gap-3 flex-wrap">
+                          <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
+                            {formatMoney(summary.monthlySavDiscounted)} / мес
+                          </div>
+                          <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
+                            - {Math.round((summary.savingsDiscounted / (summary.totalD || 1)) * 100)}% затрат
+                          </div>
+                      </div>
                   </div>
-                  <div className="flex gap-2 md:gap-3 flex-wrap">
-                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
-                        {formatMoney(summary.monthlySavDiscounted)} / мес
-                      </div>
-                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
-                        - {Math.round((summary.savingsDiscounted / (summary.totalD || 1)) * 100)}% затрат
-                      </div>
+
+                  {/* Логотип ГГМТ: позиционирование внизу справа с отступами 10px */}
+                  <div className="absolute right-[10px] bottom-[10px] flex items-end justify-end pointer-events-none select-none max-h-[35%] w-2/5">
+                      <img 
+                        src="/logoGGMT.png" 
+                        alt="GGMT Logo" 
+                        className="h-auto max-h-full w-auto object-contain object-right-bottom"
+                        style={{ 
+                          mixBlendMode: 'luminosity', 
+                          opacity: 0.35,
+                          filter: 'grayscale(1) contrast(1.1) brightness(0.9)',
+                        }}
+                        onError={(e) => { e.target.style.display = 'none'; }} 
+                      />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans">
-              <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
-                <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 tracking-tighter"><Fuel size={12}/> На дизеле (100%)</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans text-slate-900">
+              <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans text-slate-900">
+                <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 tracking-tighter font-sans"><Fuel size={12} className="font-sans" /> На дизеле (100%)</div>
                 <div className="space-y-1.5 md:space-y-3 font-sans">
                   <div className="flex justify-between text-[10px] md:text-sm font-sans">
                     <span className="text-red-800 font-bold uppercase text-[8px] md:text-[10px] font-sans">Расход на 100км:</span>
@@ -442,9 +462,9 @@ const App = () => {
                 </div>
               </div>
 
-              <div className={`border ${themeStyles.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${themeStyles.bg}/30 font-sans`}>
+              <div className={`border ${themeStyles.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${themeStyles.bg}/30 font-sans text-slate-900`}>
                 <div className={`${themeStyles.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 tracking-tighter font-sans`}>
-                  {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
+                  {systemType === 'lng' ? <Flame size={12} className="font-sans" /> : <Gauge size={12} className="font-sans" />} 
                   {view === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${inputs.substitutionRate}% замещения)`}
                 </div>
                 <div className="space-y-1.5 md:space-y-3 font-sans">
@@ -466,17 +486,17 @@ const App = () => {
               </div>
             </div>
 
-            <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200 font-sans">
+            <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200 font-sans text-slate-900">
               <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans">
-                <BarChart3 size={12}/> Доля затрат в {view === 'REMOT' ? 'газовом' : 'газодизельном'} режиме
+                <BarChart3 size={12} className="font-sans" /> Доля затрат в {view === 'REMOT' ? 'газовом' : 'газодизельном'} режиме
               </h4>
               <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner font-sans">
                 {view === 'REMOT' ? (
-                  <div className={`${themeStyles.button} h-full transition-all duration-1000`} style={{ width: '100%' }}></div>
+                  <div className={`${themeStyles.button} h-full transition-all duration-1000 font-sans`} style={{ width: '100%' }}></div>
                 ) : (
                   <>
-                    <div className="bg-red-600 h-full transition-all duration-1000" style={{ width: `${(100 - inputs.substitutionRate)}%` }}></div>
-                    <div className={`${themeStyles.button} h-full transition-all duration-1000`} style={{ width: `${inputs.substitutionRate}%` }}></div>
+                    <div className="bg-red-600 h-full transition-all duration-1000 font-sans" style={{ width: `${(100 - inputs.substitutionRate)}%` }}></div>
+                    <div className={`${themeStyles.button} h-full transition-all duration-1000 font-sans`} style={{ width: `${inputs.substitutionRate}%` }}></div>
                   </>
                 )}
               </div>
@@ -493,7 +513,7 @@ const App = () => {
             </div>
 
             <footer className="mt-4 md:mt-10 text-center text-[8px] md:text-[10px] text-slate-800 font-bold flex items-center justify-center gap-2 opacity-80 font-sans">
-              <Copyright size={10} /> <span>ООО "ЭЛИТГАЗ" — 2025. Расчет носит справочный характер.</span>
+              <Copyright size={10} className="font-sans" /> <span>ООО "ЭЛИТГАЗ" — 2025. Расчет носит справочный характер.</span>
             </footer>
           </div>
         </div>
