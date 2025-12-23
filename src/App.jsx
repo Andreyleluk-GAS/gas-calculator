@@ -184,7 +184,7 @@ const App = () => {
 
             <div 
               onClick={() => navigateTo('REMOT')}
-              className="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-300 hover:border-amber-500 cursor-pointer transition-all hover:shadow-xl group flex flex-col"
+              className="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-300 hover:border-amber-400 cursor-pointer transition-all hover:shadow-xl group flex flex-col"
             >
               <div className="bg-amber-100 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-700 mb-3 md:mb-6 group-hover:scale-105 transition-transform">
                 <Truck className="w-6 h-6 md:w-8 md:h-8" />
@@ -218,7 +218,7 @@ const App = () => {
             <ChevronLeft size={16} /> На главную
           </button>
 
-          <h1 className="text-lg md:text-xl font-bold text-slate-900 mb-3 md:mb-8 text-center uppercase tracking-tight">
+          <h1 className="text-lg md:text-xl font-bold text-slate-900 mb-3 md:mb-8 text-center uppercase tracking-tight font-sans">
             {isRem ? 'Ремоторизация ТС' : 'Газодизель ТС'}
           </h1>
 
@@ -329,7 +329,7 @@ const App = () => {
         <div className="bg-white p-3 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-200 relative overflow-hidden">
           
           <div className="relative z-10">
-            <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6">
+            <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6 font-sans">
               <h1 className="text-sm md:text-2xl font-bold text-slate-900 uppercase tracking-tight leading-tight">
                 {view === 'REMOT' ? (
                     `Отчет: Ремоторизация (100% ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'})`
@@ -361,16 +361,16 @@ const App = () => {
                 </div>
               </div>
               {/* СКРЫТА НА МОБИЛЬНЫХ */}
-              <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight">Коэф. расхода</div>
-                <div className="font-bold text-[10px] md:text-base">{summary.gasCoef}</div>
+              <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans">
+                <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight font-sans">Коэф. расхода</div>
+                <div className="font-bold text-[10px] md:text-base font-sans">{summary.gasCoef}</div>
               </div>
             </div>
 
             {/* ГЛАВНЫЕ КАРТОЧКИ ЭКОНОМИИ */}
-            <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8`}>
+            <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
               
-              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ЛОГОТИПОМ */}
+              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ИНТЕГРИРОВАННЫМ ЛОГОТИПОМ */}
               <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden`}>
                 
                 {/* Левая часть с текстом */}
@@ -389,12 +389,20 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Правая часть с логотипом */}
-                <div className="relative z-10 w-1/3 md:w-1/4 flex items-center justify-end">
+                {/* Правая часть с логотипом: ЭФФЕКТ "СПАЙКИ" С ФОНОМ */}
+                <div className="relative z-10 w-1/3 md:w-1/4 flex items-center justify-end pr-1 md:pr-4">
                    <img 
                       src="/logo.png" 
-                      alt="Logo" 
-                      className="max-h-12 md:max-h-24 w-auto object-contain drop-shadow-lg"
+                      alt="Company Logo" 
+                      className="max-h-14 md:max-h-24 w-auto object-contain transition-opacity duration-300 select-none"
+                      style={{ 
+                        // Смешивание слоев: логотип принимает оттенок фона (luminosity) 
+                        // и выглядит как часть текстуры (soft-light/overlay)
+                        mixBlendMode: 'luminosity', 
+                        opacity: 0.25,
+                        filter: 'grayscale(1) contrast(1.2) brightness(1.1)',
+                        pointerEvents: 'none'
+                      }}
                       onError={(e) => { e.target.style.display = 'none'; }} 
                    />
                 </div>
@@ -408,10 +416,10 @@ const App = () => {
                       <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight">{formatMoney(summary.savingsDiscounted)}</div>
                   </div>
                   <div className="flex gap-2 md:gap-3 flex-wrap">
-                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase">
+                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
                         {formatMoney(summary.monthlySavDiscounted)} / мес
                       </div>
-                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase">
+                      <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">
                         - {Math.round((summary.savingsDiscounted / (summary.totalD || 1)) * 100)}% затрат
                       </div>
                   </div>
@@ -419,54 +427,54 @@ const App = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8">
-              <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30">
-                <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2"><Fuel size={12}/> На дизеле (100%)</div>
-                <div className="space-y-1.5 md:space-y-3">
-                  <div className="flex justify-between text-[10px] md:text-sm">
-                    <span className="text-red-800 font-bold uppercase text-[8px] md:text-[10px]">Расход на 100км:</span>
-                    <span className="font-bold text-red-900">{summary.qD_100} л</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans">
+              <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
+                <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 tracking-tighter"><Fuel size={12}/> На дизеле (100%)</div>
+                <div className="space-y-1.5 md:space-y-3 font-sans">
+                  <div className="flex justify-between text-[10px] md:text-sm font-sans">
+                    <span className="text-red-800 font-bold uppercase text-[8px] md:text-[10px] font-sans">Расход на 100км:</span>
+                    <span className="font-bold text-red-900 font-sans">{summary.qD_100} л</span>
                   </div>
-                  <div className="flex justify-between text-[10px] md:text-sm">
-                    <span className="text-red-800 font-bold uppercase text-[8px] md:text-[10px]">Стоимость 1 км:</span>
-                    <span className="font-bold text-red-900">{summary.kmD?.toFixed(2)} ₽</span>
+                  <div className="flex justify-between text-[10px] md:text-sm font-sans">
+                    <span className="text-red-800 font-bold uppercase text-[8px] md:text-[10px] font-sans">Стоимость 1 км:</span>
+                    <span className="font-bold text-red-900 font-sans">{summary.kmD?.toFixed(2)} ₽</span>
                   </div>
-                  <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none">
-                    <span className="text-[8px] md:text-xs uppercase self-center font-bold text-red-600">ИТОГО ЗА ГОД:</span>
-                    <span className="font-black text-red-800">{formatMoney(summary.totalD)}</span>
+                  <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none font-sans">
+                    <span className="text-[8px] md:text-xs uppercase self-center font-bold text-red-600 font-sans">ИТОГО ЗА ГОД:</span>
+                    <span className="font-black text-red-800 font-sans">{formatMoney(summary.totalD)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className={`border ${themeStyles.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${themeStyles.bg}/30`}>
-                <div className={`${themeStyles.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2`}>
+              <div className={`border ${themeStyles.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${themeStyles.bg}/30 font-sans`}>
+                <div className={`${themeStyles.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 tracking-tighter font-sans`}>
                   {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
                   {view === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${inputs.substitutionRate}% замещения)`}
                 </div>
-                <div className="space-y-1.5 md:space-y-3">
-                  <div className="flex justify-between text-[10px] md:text-sm">
-                    <span className={`${themeStyles.textDark} font-bold uppercase text-[8px] md:text-[10px]`}>Расход на 100км:</span>
-                    <span className={`font-bold ${themeStyles.textDark}`}>
+                <div className="space-y-1.5 md:space-y-3 font-sans">
+                  <div className="flex justify-between text-[10px] md:text-sm font-sans">
+                    <span className={`${themeStyles.textDark} font-bold uppercase text-[8px] md:text-[10px] font-sans`}>Расход на 100км:</span>
+                    <span className={`font-bold ${themeStyles.textDark} font-sans`}>
                       {view === 'REMOT' ? `${summary.qG_100} ${gasUnit}` : `${summary.qDualD_100}л + ${summary.qDualG_100}${gasUnit}`}
                     </span>
                   </div>
-                  <div className="flex justify-between text-[10px] md:text-sm">
-                    <span className={`${themeStyles.textDark} font-bold uppercase text-[8px] md:text-[10px]`}>Стоимость 1 км:</span>
-                    <span className={`font-bold ${themeStyles.textDark}`}>{summary.kmG?.toFixed(2)} ₽</span>
+                  <div className="flex justify-between text-[10px] md:text-sm font-sans">
+                    <span className={`${themeStyles.textDark} font-bold uppercase text-[8px] md:text-[10px] font-sans`}>Стоимость 1 км:</span>
+                    <span className={`font-bold ${themeStyles.textDark} font-sans`}>{summary.kmG?.toFixed(2)} ₽</span>
                   </div>
-                  <div className={`border-t ${themeStyles.border} pt-2 md:pt-3 flex justify-between font-bold ${themeStyles.textDark} text-sm md:text-2xl leading-none`}>
-                    <span className="text-[8px] md:text-xs uppercase self-center font-bold">ИТОГО ЗА ГОД:</span>
-                    <span className="font-black">{formatMoney(summary.totalG)}</span>
+                  <div className={`border-t ${themeStyles.border} pt-2 md:pt-3 flex justify-between font-bold ${themeStyles.textDark} text-sm md:text-2xl leading-none font-sans`}>
+                    <span className="text-[8px] md:text-xs uppercase self-center font-bold font-sans">ИТОГО ЗА ГОД:</span>
+                    <span className="font-black font-sans">{formatMoney(summary.totalG)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200">
-              <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest">
+            <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200 font-sans">
+              <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans">
                 <BarChart3 size={12}/> Доля затрат в {view === 'REMOT' ? 'газовом' : 'газодизельном'} режиме
               </h4>
-              <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner">
+              <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner font-sans">
                 {view === 'REMOT' ? (
                   <div className={`${themeStyles.button} h-full transition-all duration-1000`} style={{ width: '100%' }}></div>
                 ) : (
@@ -476,19 +484,19 @@ const App = () => {
                   </>
                 )}
               </div>
-              <div className="flex justify-between mt-2 text-[8px] md:text-[10px] font-bold uppercase tracking-tight">
+              <div className="flex justify-between mt-2 text-[8px] md:text-[10px] font-bold uppercase tracking-tight font-sans">
                 {view === 'REMOT' ? (
-                  <span className={`${themeStyles.textDark} font-bold`}>100% {gasName} Метан</span>
+                  <span className={`${themeStyles.textDark} font-bold font-sans`}>100% {gasName} Метан</span>
                 ) : (
                   <>
-                    <span className="text-red-700 font-bold">ДИЗЕЛЬ: {formatMoney(summary.totalG * (1 - inputs.substitutionRate/100))}</span>
-                    <span className={`${themeStyles.textDark} font-bold`}>{gasName}: {formatMoney(summary.totalG * (inputs.substitutionRate/100))}</span>
+                    <span className="text-red-700 font-bold font-sans">ДИЗЕЛЬ: {formatMoney(summary.totalG * (1 - inputs.substitutionRate/100))}</span>
+                    <span className={`${themeStyles.textDark} font-bold font-sans`}>{gasName}: {formatMoney(summary.totalG * (inputs.substitutionRate/100))}</span>
                   </>
                 )}
               </div>
             </div>
 
-            <footer className="mt-4 md:mt-10 text-center text-[8px] md:text-[10px] text-slate-800 font-bold flex items-center justify-center gap-2">
+            <footer className="mt-4 md:mt-10 text-center text-[8px] md:text-[10px] text-slate-800 font-bold flex items-center justify-center gap-2 opacity-80 font-sans">
               <Copyright size={10} /> <span>ООО "ЭЛИТГАЗ" — 2025. Расчет носит справочный характер.</span>
             </footer>
           </div>
