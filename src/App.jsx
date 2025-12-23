@@ -246,7 +246,7 @@ const App = () => {
                       type="number" name="dieselConsumption" 
                       value={currentInputs.dieselConsumption} 
                       onChange={(e) => handleInputChange(e, isRem)}
-                      className="w-full p-2 md:p-3 bg-white border border-red-100 rounded-lg md:rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
+                      className="w-full p-2 md:p-3 bg-white border border-red-200 rounded-lg md:rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-red-500" 
                     />
                   </div>
                   <div>
@@ -370,7 +370,7 @@ const App = () => {
             {/* ГЛАВНЫЕ КАРТОЧКИ ЭКОНОМИИ */}
             <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
               
-              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ЛОГОТИПОМ */}
+              {/* КАРТОЧКА: БАЗОВЫЙ РАСЧЕТ С ИНТЕГРИРОВАННЫМ ЛОГОТИПОМ */}
               <div className={`bg-gradient-to-br ${themeStyles.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden font-sans`}>
                 
                 {/* Левая часть с текстом */}
@@ -408,9 +408,11 @@ const App = () => {
 
               {systemType === 'cng' && (
                 <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden font-sans text-slate-900">
+                  {/* ИЗМЕНЕНИЕ: Надпись перемещена вправо вверх */}
+                  <div className="absolute top-0 right-0 p-1.5 md:p-3 bg-blue-700 text-white rounded-bl-xl md:rounded-bl-3xl font-bold text-[8px] md:text-[10px] uppercase z-20">Программа ГГМТ</div>
+                  
                   {/* Контент: Текст и цифры */}
                   <div className="relative z-10 w-2/3 md:w-3/4">
-                      <div className="absolute -top-4 -left-4 md:-top-8 md:-left-8 p-1.5 md:p-3 bg-blue-700 text-white rounded-br-xl md:rounded-br-3xl font-bold text-[8px] md:text-[10px] uppercase">Программа ГГМТ</div>
                       <div className="mt-2">
                           <div className="text-[9px] md:text-xs font-bold text-slate-700 mb-0.5 md:mb-1 flex items-center gap-1 uppercase tracking-wider font-sans"><Tag size={10} className="text-blue-600 font-sans" /> Со скидкой на метан 20%</div>
                           <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight font-sans">{formatMoney(summary.savingsDiscounted)}</div>
