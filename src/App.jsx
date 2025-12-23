@@ -389,23 +389,19 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Правая часть с логотипом: ЭФФЕКТ "СПАЙКИ" С ФОНОМ */}
-                <div className="relative z-10 w-1/3 md:w-1/4 flex items-center justify-end pr-1 md:pr-4">
-                   <img 
-                      src="/logo.png" 
-                      alt="Company Logo" 
-                      className="max-h-14 md:max-h-24 w-auto object-contain transition-opacity duration-300 select-none"
-                      style={{ 
-                        // Смешивание слоев: логотип принимает оттенок фона (luminosity) 
-                        // и выглядит как часть текстуры (soft-light/overlay)
-                        mixBlendMode: 'luminosity', 
-                        opacity: 0.25,
-                        filter: 'grayscale(1) contrast(1.2) brightness(1.1)',
-                        pointerEvents: 'none'
-                      }}
-                      onError={(e) => { e.target.style.display = 'none'; }} 
-                   />
-                </div>
+                {/* Правая часть с логотипом: Масштабированный логотип с отступами 15px */}
+                <img 
+                  src="/logo.png" 
+                  alt="Company Logo" 
+                  className="absolute right-[15px] top-[15px] bottom-[15px] w-auto max-w-[35%] object-contain object-right transition-opacity duration-300 select-none z-0"
+                  style={{ 
+                    mixBlendMode: 'luminosity', 
+                    opacity: 0.35,
+                    filter: 'grayscale(1) contrast(1.2) brightness(1.1)',
+                    pointerEvents: 'none'
+                  }}
+                  onError={(e) => { e.target.style.display = 'none'; }} 
+                />
               </div>
 
               {systemType === 'cng' && (
