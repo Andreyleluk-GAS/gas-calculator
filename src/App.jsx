@@ -389,15 +389,15 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Правая часть с логотипом: Масштабированный логотип с отступами 15px */}
+                {/* Правая часть с логотипом: Увеличенный логотип с отступами 10px */}
                 <img 
                   src="/logo.png" 
                   alt="Company Logo" 
-                  className="absolute right-[15px] top-[15px] bottom-[15px] w-auto max-w-[35%] object-contain object-right transition-opacity duration-300 select-none z-0"
+                  className="absolute right-[10px] top-[10px] bottom-[10px] w-auto max-w-[45%] object-contain object-right transition-opacity duration-300 select-none z-0"
                   style={{ 
                     mixBlendMode: 'luminosity', 
-                    opacity: 0.35,
-                    filter: 'grayscale(1) contrast(1.2) brightness(1.1)',
+                    opacity: 0.4,
+                    filter: 'grayscale(1) contrast(1.2) brightness(1.2)',
                     pointerEvents: 'none'
                   }}
                   onError={(e) => { e.target.style.display = 'none'; }} 
