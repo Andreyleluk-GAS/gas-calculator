@@ -227,7 +227,7 @@ const App = () => {
               <div className="grid grid-cols-2 gap-2">
                 <button 
                   onClick={() => setSystemType('cng')}
-                  className={`py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-bold border-2 transition-all uppercase ${systemType === 'cng' ? 'border-green-500 bg-green-50 text-green-800 shadow-sm' : 'border-slate-200 text-slate-500'}`}
+                  className={`py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-bold border-2 transition-all uppercase ${systemType === 'cng' ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' : 'border-slate-200 text-slate-500'}`}
                 >КПГ (Метан)</button>
                 <button 
                   onClick={() => setSystemType('lng')}
@@ -426,8 +426,8 @@ const App = () => {
                       </div>
                   </div>
 
-                  {/* Логотип ГГМТ: оригинальный цвет с прозрачностью 50% */}
-                  <div className="absolute right-[10px] bottom-[10px] flex items-end justify-end pointer-events-none select-none max-h-[35%] w-2/5">
+                  {/* Логотип ГГМТ: оригинальный цвет с прозрачностью 50%, размер уменьшен на 30% */}
+                  <div className="absolute right-[10px] bottom-[10px] flex items-end justify-end pointer-events-none select-none max-h-[24.5%] w-[28%]">
                       <img 
                         src="/logoGGMT.png" 
                         alt="GGMT Logo" 
