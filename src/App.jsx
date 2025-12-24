@@ -177,45 +177,48 @@ const App = () => {
 
   if (currentScreen === 'MAIN_SELECTION') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
-        <div className="max-w-xl w-full">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative overflow-hidden">
+        {/* ФОНОВЫЙ ЛОГОТИП (ПОДЛОЖКА) - Прозрачность 40% */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-40 select-none">
+          <img 
+            src="/logo.png" 
+            alt="Background Logo" 
+            className="w-full max-w-[90%] md:max-w-[65%] h-auto object-contain transition-all duration-700"
+            onError={(e) => { e.target.style.display = 'none'; }} 
+          />
+        </div>
+
+        <div className="max-w-xl w-full relative z-10">
           <div className="text-center mb-10">
-             {/* Интеграция логотипа на стартовую страницу */}
-             <div className="flex justify-center mb-6">
-               <img 
-                 src="/logo.png" 
-                 alt="ЭлитГаз Логотип" 
-                 className="h-20 md:h-28 w-auto object-contain transition-all duration-500 select-none"
-                 onError={(e) => { e.target.style.display = 'none'; }} 
-               />
+            <h1 className="text-2xl md:text-4xl font-extrabold mb-3 text-slate-900 drop-shadow-sm">Калькулятор Экономии</h1>
+            <div className="inline-block px-4 py-1.5 bg-white/60 backdrop-blur-md border border-white/40 rounded-full shadow-sm">
+              <p className="text-slate-600 text-sm md:text-base font-bold">Рассчитайте выгоду перехода на газ</p>
             </div>
-            <h1 className="text-2xl md:text-4xl font-extrabold mb-3 text-slate-900">Калькулятор Экономии</h1>
-            <p className="text-slate-500 text-sm md:text-base font-medium">Рассчитайте выгоду перехода на газ</p>
           </div>
           <div className="grid grid-cols-1 gap-4">
             <button 
               onClick={() => navigateTo('TRUCK_HOME')}
-              className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-blue-500 shadow-sm hover:shadow-xl transition-all group flex items-center gap-6 text-left"
+              className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border-2 border-white/50 hover:border-blue-500 shadow-sm hover:shadow-xl transition-all group flex items-center gap-6 text-left"
             >
               <div className="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform shrink-0">
                 <Truck size={32} />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-900 mb-1">Для грузового ТС</h3>
-                <p className="text-slate-500 text-xs">Газодизель и Ремоторизация</p>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter">Газодизель и Ремоторизация</p>
               </div>
               <ChevronRight className="ml-auto text-slate-300" />
             </button>
             <button 
               onClick={() => navigateTo('PASSENGER_CALC')}
-              className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all group flex items-center gap-6 text-left"
+              className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border-2 border-white/50 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all group flex items-center gap-6 text-left"
             >
               <div className="bg-emerald-50 w-16 h-16 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform shrink-0">
                 <Car size={32} />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-900 mb-1">Для легкового ТС</h3>
-                <p className="text-slate-500 text-xs">Пропан и Метан (ГБО)</p>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter">Пропан и Метан (ГБО)</p>
               </div>
               <ChevronRight className="ml-auto text-slate-300" />
             </button>
@@ -314,7 +317,7 @@ const App = () => {
                     <h3 className="text-xs font-bold text-slate-800 uppercase">Метан</h3>
                 </div>
                 <div className="space-y-1.5 md:space-y-3 text-slate-900">
-                    <div className="flex justify-between items-center bg-white p-1.5 md:p-2 rounded-xl border border-blue-100">
+                    <div className="flex justify-between items-center bg-white p-1.5 md:p-2 rounded-xl border border-emerald-100">
                         <label className="text-[9px] md:text-[10px] font-bold text-blue-800 uppercase">Цена / м³</label>
                         <div className="flex items-baseline gap-1">
                              <input type="number" name="priceMethane" value={passInputs.priceMethane} onChange={handlePassInputChange} className="w-14 bg-transparent text-right font-bold text-base md:text-lg outline-none" />
@@ -472,8 +475,8 @@ const App = () => {
               </div>
               <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
                 <div className={`bg-gradient-to-br ${truckTheme.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden font-sans`}>
-                  <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4">
-                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savings)}</div></div>
+                  <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 text-white">
+                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый расчет)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savings)}</div></div>
                     <div className="flex gap-2 md:gap-3 flex-wrap">
                         <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">{formatMoney(truckSummary.monthlySav)} / мес</div>
                         <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">- {Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат</div>
