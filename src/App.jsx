@@ -180,8 +180,14 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
         <div className="max-w-xl w-full">
           <div className="text-center mb-10">
-             <div className="inline-flex p-4 bg-white rounded-3xl shadow-sm border border-slate-200 mb-6">
-               <Flame className="w-10 h-10 text-blue-600" />
+             {/* Интеграция логотипа на стартовую страницу */}
+             <div className="flex justify-center mb-6">
+               <img 
+                 src="/logo.png" 
+                 alt="ЭлитГаз Логотип" 
+                 className="h-20 md:h-28 w-auto object-contain transition-all duration-500 select-none"
+                 onError={(e) => { e.target.style.display = 'none'; }} 
+               />
             </div>
             <h1 className="text-2xl md:text-4xl font-extrabold mb-3 text-slate-900">Калькулятор Экономии</h1>
             <p className="text-slate-500 text-sm md:text-base font-medium">Рассчитайте выгоду перехода на газ</p>
@@ -458,19 +464,19 @@ const App = () => {
                 <p className="text-[8px] md:text-xs text-slate-700 mt-1 font-semibold uppercase">Период расчета: 12 месяцев</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-3 md:mb-8 text-slate-900 font-bold">
-                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Пробег</div><div className="font-bold text-[10px] md:text-base">{(truckSubMode === 'REMOT' ? remotInputs.monthlyMileage : truckInputs.monthlyMileage).toLocaleString()} км/мес</div></div>
-                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Расход ДТ</div><div className="font-bold text-[10px] md:text-base">{truckSummary.qD_base} л/100км</div></div>
-                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Цена ДТ</div><div className="font-bold text-[10px] md:text-base">{truckSubMode === 'REMOT' ? remotInputs.dieselPrice : truckInputs.dieselPrice} ₽</div></div>
+                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Пробег</div><div className="font-bold text-[10px] md:text-base">{(truckSubMode === 'REMOT' ? remotInputs.monthlyMileage : truckInputs.monthlyMileage).toLocaleString()} км/мес</div></div>
+                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Расход ДТ</div><div className="font-bold text-[10px] md:text-base">{truckSummary.qD_base} л/100км</div></div>
+                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold">Цена ДТ</div><div className="font-bold text-[10px] md:text-base">{truckSubMode === 'REMOT' ? remotInputs.dieselPrice : truckInputs.dieselPrice} ₽</div></div>
                 <div className={`p-2 md:p-3 rounded-xl border ${truckTheme.border} ${truckTheme.bg}`}><div className={`${truckTheme.textDark} text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold`}>Цена {gasName}</div><div className={`font-bold ${truckTheme.textDark} text-[10px] md:text-base`}>{isLng ? (truckSubMode === 'REMOT' ? remotInputs.lngPrice : truckInputs.lngPrice) : (truckSubMode === 'REMOT' ? remotInputs.cngPrice : truckInputs.cngPrice)} ₽</div></div>
-                <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight">Коэф. расхода</div><div className="font-bold text-[10px] md:text-base">{truckSummary.gasCoef}</div></div>
+                <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight">Коэф. расхода</div><div className="font-bold text-[10px] md:text-base">{truckSummary.gasCoef}</div></div>
               </div>
               <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
-                <div className={`bg-gradient-to-br ${truckTheme.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden`}>
+                <div className={`bg-gradient-to-br ${truckTheme.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden font-sans`}>
                   <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4">
-                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90">Экономия (Базовый)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight">{formatMoney(truckSummary.savings)}</div></div>
+                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savings)}</div></div>
                     <div className="flex gap-2 md:gap-3 flex-wrap">
-                        <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">{formatMoney(truckSummary.monthlySav)} / мес</div>
-                        <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">- {Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат</div>
+                        <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">{formatMoney(truckSummary.monthlySav)} / мес</div>
+                        <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">- {Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат</div>
                     </div>
                   </div>
                   <div className="absolute right-[10px] top-[10px] bottom-[10px] flex items-center justify-end w-2/5 md:w-1/3 select-none">
@@ -478,16 +484,16 @@ const App = () => {
                   </div>
                 </div>
                 {systemType === 'cng' && (
-                  <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden text-slate-900">
-                    <div className="absolute top-0 right-0 p-1.5 md:p-3 bg-blue-700 text-white rounded-bl-xl md:rounded-bl-3xl font-bold text-[8px] md:text-[10px] uppercase z-20">Программа ГГМТ</div>
+                  <div className="bg-white border-2 border-blue-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden text-slate-900 font-sans">
+                    <div className="absolute top-0 right-0 p-1.5 md:p-3 bg-blue-700 text-white rounded-bl-xl md:rounded-bl-3xl font-bold text-[8px] md:text-[10px] uppercase z-20 font-sans">Программа ГГМТ</div>
                     <div className="relative z-10 w-2/3 md:w-3/4 mt-2 font-bold">
                         <div>
-                            <div className="text-[9px] md:text-xs font-bold text-slate-700 mb-0.5 md:mb-1 flex items-center gap-1 uppercase tracking-wider font-sans"><Tag size={10} className="text-blue-600" /> Со скидкой на метан 20%</div>
-                            <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight">{formatMoney(truckSummary.savingsDiscounted)}</div>
+                            <div className="text-[9px] md:text-xs font-bold text-slate-700 mb-0.5 md:mb-1 flex items-center gap-1 uppercase tracking-wider font-sans"><Tag size={10} className="text-blue-600 font-sans" /> Со скидкой на метан 20%</div>
+                            <div className="text-xl md:text-5xl font-bold text-blue-900 mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savingsDiscounted)}</div>
                         </div>
                         <div className="flex gap-2 md:gap-3 flex-wrap">
-                            <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase">{formatMoney(truckSummary.monthlySavDiscounted)} / мес</div>
-                            <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase">- {Math.round((truckSummary.savingsDiscounted / (truckSummary.totalD || 1)) * 100)}% затрат</div>
+                            <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">{formatMoney(truckSummary.monthlySavDiscounted)} / мес</div>
+                            <div className="bg-blue-50 text-blue-900 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold border border-blue-200 uppercase font-sans">- {Math.round((truckSummary.savingsDiscounted / (truckSummary.totalD || 1)) * 100)}% затрат</div>
                         </div>
                     </div>
                     <div className="absolute right-[10px] bottom-[10px] flex items-end justify-end max-h-[35%] w-[28%] select-none">
@@ -497,26 +503,26 @@ const App = () => {
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold text-slate-900">
-                <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30">
-                  <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2"><Fuel size={12}/> На дизеле (100%)</div>
-                  <div className="space-y-1.5 md:space-y-3">
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>Расход на 100км:</span><span>{truckSummary.qD_base} л</span></div>
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>Стоимость 1 км:</span><span>{truckSummary.kmD?.toFixed(2)} ₽</span></div>
-                    <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none">
+                <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
+                  <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans"><Fuel size={12}/> На дизеле (100%)</div>
+                  <div className="space-y-1.5 md:space-y-3 font-sans">
+                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80 font-sans"><span>Расход на 100км:</span><span>{truckSummary.qD_base} л</span></div>
+                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80 font-sans"><span>Стоимость 1 км:</span><span>{truckSummary.kmD?.toFixed(2)} ₽</span></div>
+                    <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none font-sans">
                       <span className="text-[8px] md:text-xs uppercase self-center font-bold text-red-600 tracking-tighter">ИТОГО ЗА ГОД:</span>
                       <span className="font-black text-red-800">{formatMoney(truckSummary.totalD)}</span>
                     </div>
                   </div>
                 </div>
-                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30`}>
-                  <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2`}>
+                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30 font-sans`}>
+                  <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans`}>
                     {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
                     {truckSubMode === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
                   </div>
                   <div className="space-y-1.5 md:space-y-3 font-bold">
-                    <div className="flex justify-between text-[10px] md:text-sm opacity-80"><span>На 100км:</span><span>{truckSubMode === 'REMOT' ? `${truckSummary.qG_result} ${gasUnit}` : `${truckSummary.qD_result}л + ${truckSummary.qG_result}${gasUnit}`}</span></div>
-                    <div className="flex justify-between text-[10px] md:text-sm opacity-80"><span>Стоимость 1 км:</span><span>{truckSummary.kmG?.toFixed(2)} ₽</span></div>
-                    <div className={`border-t ${truckTheme.border} pt-2 md:pt-3 flex justify-between font-bold ${truckTheme.textDark} text-sm md:text-2xl leading-none`}>
+                    <div className="flex justify-between text-[10px] md:text-sm opacity-80 font-sans"><span>На 100км:</span><span>{truckSubMode === 'REMOT' ? `${truckSummary.qG_result} ${gasUnit}` : `${truckSummary.qD_result}л + ${truckSummary.qG_result}${gasUnit}`}</span></div>
+                    <div className="flex justify-between text-[10px] md:text-sm opacity-80 font-sans"><span>Стоимость 1 км:</span><span>{truckSummary.kmG?.toFixed(2)} ₽</span></div>
+                    <div className={`border-t ${truckTheme.border} pt-2 md:pt-3 flex justify-between font-bold ${truckTheme.textDark} text-sm md:text-2xl leading-none font-sans`}>
                       <span className="text-[8px] md:text-xs uppercase self-center font-bold tracking-tighter">ИТОГО ЗА ГОД:</span>
                       <span className="font-black">{formatMoney(truckSummary.totalG)}</span>
                     </div>
@@ -533,7 +539,7 @@ const App = () => {
                     </>
                   )}
                 </div>
-                <div className="flex justify-between mt-2 text-[8px] md:text-[10px] font-bold uppercase tracking-tight">
+                <div className="flex justify-between mt-2 text-[8px] md:text-[10px] font-bold uppercase tracking-tight font-sans">
                   {truckSubMode === 'REMOT' ? (<span className={`${truckTheme.textDark} font-bold`}>100% {gasName} Метан</span>) : (
                     <>
                       <span className="text-red-700 font-bold">ДИЗЕЛЬ: {formatMoney(truckSummary.totalG * (1 - truckInputs.substitutionRate/100))}</span>
