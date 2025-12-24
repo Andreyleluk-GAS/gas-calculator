@@ -181,12 +181,12 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center">
           
-          {/* ПЛАШКА С ЛОГОТИПОМ (ПО ЦЕНТРУ СВЕРХУ) С КРАСНОЙ ОБОДКОЙ И ВЫСОКОЙ ВИДИМОСТЬЮ */}
-          <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-600 shadow-sm flex items-center justify-center mb-8 w-full">
+          {/* ПЛАШКА С ЛОГОТИПОМ С МЯГКОЙ КРАСНОЙ ОБОДКОЙ И ПРОЗРАЧНОСТЬЮ 10% */}
+          <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-8 w-full">
             <img 
               src="/logo-start.png" 
               alt="EliteGas Logo" 
-              className="h-auto w-full max-h-16 md:max-h-24 object-contain select-none pointer-events-none"
+              className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-10 select-none pointer-events-none"
               onError={(e) => { e.target.style.display = 'none'; }} 
             />
           </div>
@@ -347,7 +347,7 @@ const App = () => {
 
         {/* MODAL SETTINGS PASSENGER */}
         {isPassSettingsOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900 text-slate-900">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900">
             <div className="bg-white rounded-3xl p-6 w-full max-sm shadow-2xl relative">
                <button onClick={() => setIsPassSettingsOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><X size={20}/></button>
               <h2 className="text-xl font-bold mb-6">Настройки ГБО</h2>
@@ -424,14 +424,14 @@ const App = () => {
                   <div><label className="block text-[10px] font-bold text-red-900/70 mb-1 uppercase tracking-tighter font-sans">Цена (₽/л)</label><input type="number" name="dieselPrice" value={activeInp.dieselPrice} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-2 bg-white border border-red-100 rounded-lg font-bold text-sm outline-none shadow-inner" /></div>
                 </div>
               </div>
-              <div className={`p-4 rounded-2xl border ${truckTheme.bg} ${truckTheme.border} text-slate-900`}>
+              <div className={`p-4 rounded-2xl border ${truckTheme.bg} ${truckTheme.border}`}>
                 <div className={`flex items-center gap-2 mb-3 ${truckTheme.textDark} font-bold uppercase text-[10px]`}><Flame size={14} /> Параметры газа</div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><label className={`block text-[10px] font-bold ${truckTheme.textDark} opacity-60 mb-1 uppercase`}>Цена (₽/{gasUnit})</label><input type="number" name={isLng ? 'lngPrice' : 'cngPrice'} value={isLng ? activeInp.lngPrice : activeInp.cngPrice} onChange={(e) => handleTruckInputChange(e, isRem)} className={`w-full p-2 bg-white border rounded-lg font-bold text-sm outline-none focus:ring-2 ${truckTheme.ring}`} /></div>
                   <div><label className={`block text-[10px] font-bold ${truckTheme.textDark} opacity-60 mb-1 uppercase`}>Коэф. расхода</label><input type="number" step="0.01" name={isLng ? 'lngCoefficient' : 'cngCoefficient'} value={isLng ? activeInp.lngCoefficient : activeInp.cngCoefficient} onChange={(e) => handleTruckInputChange(e, isRem)} className={`w-full p-2 bg-white border rounded-lg font-bold text-sm outline-none focus:ring-2 ${truckTheme.ring}`} /></div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">Пробег (км/мес)</label><input type="number" name="monthlyMileage" value={activeInp.monthlyMileage} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm" /></div>
                 {!isRem && (
                   <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">% замещения ДТ</label><input type="number" name="substitutionRate" value={truckInputs.substitutionRate} onChange={(e) => handleTruckInputChange(e, false)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm text-blue-700" /></div>
@@ -521,7 +521,7 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30 font-sans`}>
+                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30`}>
                   <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans`}>
                     {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
                     {truckSubMode === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
@@ -537,7 +537,7 @@ const App = () => {
                 </div>
               </div>
               <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200 font-bold text-slate-900">
-                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans font-sans"><BarChart3 size={12}/> Структура затрат</h4>
+                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans"><BarChart3 size={12}/> Структура затрат</h4>
                 <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner">
                   {truckSubMode === 'REMOT' ? (<div className={`${truckTheme.button} h-full w-full`}></div>) : (
                     <>
