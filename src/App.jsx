@@ -186,7 +186,7 @@ const App = () => {
             <img 
               src="/logo-start.png" 
               alt="EliteGas Logo" 
-              className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-10 select-none pointer-events-none"
+              className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-50 select-none pointer-events-none"
               onError={(e) => { e.target.style.display = 'none'; }} 
             />
           </div>
