@@ -181,12 +181,12 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center">
           
-          {/* ПЛАШКА С ЛОГОТИПОМ (ПО ЦЕНТРУ СВЕРХУ) */}
-          <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm flex items-center justify-center mb-8 w-full">
+          {/* ПЛАШКА С ЛОГОТИПОМ (ПО ЦЕНТРУ СВЕРХУ) С КРАСНОЙ ОБОДКОЙ И ВЫСОКОЙ ВИДИМОСТЬЮ */}
+          <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-600 shadow-sm flex items-center justify-center mb-8 w-full">
             <img 
               src="/logo-start.png" 
               alt="EliteGas Logo" 
-              className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-20 select-none pointer-events-none"
+              className="h-auto w-full max-h-16 md:max-h-24 object-contain select-none pointer-events-none"
               onError={(e) => { e.target.style.display = 'none'; }} 
             />
           </div>
@@ -348,7 +348,7 @@ const App = () => {
         {/* MODAL SETTINGS PASSENGER */}
         {isPassSettingsOpen && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900 text-slate-900">
-            <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl relative">
+            <div className="bg-white rounded-3xl p-6 w-full max-sm shadow-2xl relative">
                <button onClick={() => setIsPassSettingsOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><X size={20}/></button>
               <h2 className="text-xl font-bold mb-6">Настройки ГБО</h2>
               <div className="space-y-4">
@@ -434,7 +434,7 @@ const App = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900">
                 <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">Пробег (км/мес)</label><input type="number" name="monthlyMileage" value={activeInp.monthlyMileage} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm" /></div>
                 {!isRem && (
-                  <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">% замещения ДТ</label><input type="number" name="substitutionRate" value={truckInputs.substitutionRate} onChange={(e) => handleTruckInputChange(e, false)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm text-blue-800" /></div>
+                  <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">% замещения ДТ</label><input type="number" name="substitutionRate" value={truckInputs.substitutionRate} onChange={(e) => handleTruckInputChange(e, false)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm text-blue-700" /></div>
                 )}
               </div>
               <button onClick={() => navigateTo('TRUCK_REPORT')} className={`w-full py-4 rounded-2xl text-white text-sm md:text-base font-bold shadow-lg transition-all uppercase tracking-wider ${truckTheme.button}`}>Показать отчет</button>
@@ -480,7 +480,7 @@ const App = () => {
               <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-3 md:mb-8 font-sans`}>
                 <div className={`bg-gradient-to-br ${truckTheme.gradient} text-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl flex flex-row justify-between relative overflow-hidden font-sans`}>
                   <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4">
-                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый расчет)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savings)}</div></div>
+                    <div><div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-90 font-sans">Экономия (Базовый)</div><div className="text-xl md:text-5xl font-bold mb-2 md:mb-4 leading-tight font-sans">{formatMoney(truckSummary.savings)}</div></div>
                     <div className="flex gap-2 md:gap-3 flex-wrap">
                         <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">{formatMoney(truckSummary.monthlySav)} / мес</div>
                         <div className="bg-white/20 px-2 py-0.5 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[10px] font-bold uppercase font-sans">- {Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат</div>
@@ -509,27 +509,27 @@ const App = () => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold">
-                <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold text-slate-900">
+                <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
                   <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans"><Fuel size={12}/> На дизеле (100%)</div>
                   <div className="space-y-1.5 md:space-y-3 text-slate-900">
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>Расход на 100км:</span><span>{truckSummary.qD_base} л</span></div>
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>Стоимость 1 км:</span><span>{truckSummary.kmD?.toFixed(2)} ₽</span></div>
-                    <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none">
+                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80 font-sans"><span>Расход на 100км:</span><span>{truckSummary.qD_base} л</span></div>
+                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80 font-sans"><span>Стоимость 1 км:</span><span>{truckSummary.kmD?.toFixed(2)} ₽</span></div>
+                    <div className="border-t border-red-200 pt-2 md:pt-3 flex justify-between font-bold text-red-700 text-sm md:text-2xl leading-none font-sans">
                       <span className="text-[8px] md:text-xs uppercase self-center font-bold text-red-600 tracking-tighter">ИТОГО ЗА ГОД:</span>
                       <span className="font-black text-red-800">{formatMoney(truckSummary.totalD)}</span>
                     </div>
                   </div>
                 </div>
-                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30`}>
-                  <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2`}>
+                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30 font-sans`}>
+                  <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans`}>
                     {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
                     {truckSubMode === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
                   </div>
-                  <div className="space-y-1.5 md:space-y-3 text-slate-900">
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>На 100км:</span><span>{truckSubMode === 'REMOT' ? `${truckSummary.qG_result} ${gasUnit}` : `${truckSummary.qD_result}л + ${truckSummary.qG_result}${gasUnit}`}</span></div>
-                    <div className="flex justify-between text-[10px] md:text-sm font-bold opacity-80"><span>Стоимость 1 км:</span><span>{truckSummary.kmG?.toFixed(2)} ₽</span></div>
-                    <div className={`border-t ${truckTheme.border} pt-2 md:pt-3 flex justify-between font-bold ${truckTheme.textDark} text-sm md:text-2xl leading-none`}>
+                  <div className="space-y-1.5 md:space-y-3 font-bold text-slate-900">
+                    <div className="flex justify-between text-[10px] md:text-sm opacity-80"><span>На 100км:</span><span>{truckSubMode === 'REMOT' ? `${truckSummary.qG_result} ${gasUnit}` : `${truckSummary.qD_result}л + ${truckSummary.qG_result}${gasUnit}`}</span></div>
+                    <div className="flex justify-between text-[10px] md:text-sm opacity-80"><span>Стоимость 1 км:</span><span>{truckSummary.kmG?.toFixed(2)} ₽</span></div>
+                    <div className={`border-t ${truckTheme.border} pt-2 md:pt-3 flex justify-between font-bold ${truckTheme.textDark} text-sm md:text-2xl leading-none font-sans`}>
                       <span className="text-[8px] md:text-xs uppercase self-center font-bold tracking-tighter">ИТОГО ЗА ГОД:</span>
                       <span className="font-black">{formatMoney(truckSummary.totalG)}</span>
                     </div>
@@ -537,7 +537,7 @@ const App = () => {
                 </div>
               </div>
               <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2rem] border border-slate-200 font-bold text-slate-900">
-                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans"><BarChart3 size={12}/> Структура затрат</h4>
+                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-800 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans font-sans"><BarChart3 size={12}/> Структура затрат</h4>
                 <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner">
                   {truckSubMode === 'REMOT' ? (<div className={`${truckTheme.button} h-full w-full`}></div>) : (
                     <>
