@@ -181,6 +181,7 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center">
           
+          {/* ПЛАШКА С ЛОГОТИПОМ С МЯГКОЙ КРАСНОЙ ОБОДКОЙ И ПРОЗРАЧНОСТЬЮ 50% */}
           <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-8 w-full">
             <img 
               src="/logo-start.png" 
@@ -235,15 +236,14 @@ const App = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center p-1 md:p-8 font-sans overflow-x-hidden text-slate-900">
         <div className="w-full max-w-lg lg:max-w-4xl flex flex-col gap-2 md:gap-3">
-          <header className="flex flex-col items-center text-center bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-slate-200 w-full relative mt-2 text-slate-900">
-            {/* Кнопка "Назад" скрыта на мобильных (hidden md:block) */}
+          {/* ОПТИМИЗИРОВАННАЯ ШАПКА БЕЗ ИКОНКИ МАШИНКИ */}
+          <header className="flex flex-col items-center text-center bg-white py-4 md:py-6 px-4 rounded-2xl shadow-sm border border-slate-200 w-full relative mt-2 text-slate-900">
             <button 
                 onClick={() => window.history.back()} 
                 className="hidden md:block absolute left-2 top-2 md:left-3 md:top-4 p-2 text-slate-600 hover:bg-slate-50 rounded-full"
             >
                 <ChevronLeft size={20} className="md:w-6 md:h-6" />
             </button>
-            <div className="p-1.5 md:p-2 bg-slate-100 rounded-xl mb-1 md:mb-2"><Car className="w-5 h-5 md:w-6 md:h-6 text-slate-700" /></div>
             <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">Топливный калькулятор</h1>
             <div className="flex items-center gap-2 mt-1 md:mt-2">
                 <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Свердловскстат</span>
@@ -269,6 +269,7 @@ const App = () => {
           </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-3 w-full mb-3 text-slate-900">
+            {/* БЕНЗИН */}
             <div className="bg-white rounded-2xl p-2.5 md:p-5 shadow-sm border-t-4 border-amber-400">
                 <div className="flex items-center gap-2 mb-1.5 md:mb-4">
                     <Fuel size={16} className="text-amber-500 md:w-5 md:h-5" />
@@ -290,6 +291,7 @@ const App = () => {
                 </div>
             </div>
 
+            {/* ПРОПАН */}
             <div className="bg-white rounded-2xl p-2.5 md:p-5 shadow-sm border-t-4 border-emerald-500 bg-emerald-50/30">
                 <div className="flex items-center gap-2 mb-1.5 md:mb-4">
                     <Flame size={16} className="text-emerald-500 md:w-5 md:h-5" />
@@ -311,6 +313,7 @@ const App = () => {
                 </div>
             </div>
 
+            {/* МЕТАН */}
             <div className="bg-white rounded-2xl p-2.5 md:p-5 shadow-sm border-t-4 border-blue-500 bg-blue-50/30">
                 <div className="flex items-center gap-2 mb-1.5 md:mb-4">
                     <Gauge size={16} className="text-blue-500 md:w-5 md:h-5" />
@@ -342,6 +345,7 @@ const App = () => {
           </div>
         </div>
 
+        {/* MODAL SETTINGS PASSENGER */}
         {isPassSettingsOpen && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900 text-slate-900">
             <div className="bg-white rounded-3xl p-6 w-full max-sm shadow-2xl relative">
@@ -370,10 +374,7 @@ const App = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans text-slate-900">
         <div className="max-w-4xl w-full">
-          {/* Кнопка "Назад" скрыта на мобильных (hidden md:flex) */}
-          <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 mb-6 text-slate-900 font-bold text-sm hover:opacity-70">
-            <ChevronLeft size={20} /> Назад
-          </button>
+          <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 mb-6 text-slate-900 font-bold text-sm hover:opacity-70"><ChevronLeft size={20} /> Назад</button>
           <div className="text-center mb-8">
             <h1 className="text-2xl md:text-4xl font-bold mb-2">Грузовой транспорт</h1>
             <p className="text-slate-600 font-medium">Выберите технологию переоборудования</p>
@@ -408,16 +409,13 @@ const App = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col p-2 font-sans text-slate-900">
         <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
-          {/* Кнопка "Назад" скрыта на мобильных (hidden md:flex) */}
-          <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 mb-4 self-start text-slate-900 font-bold text-xs">
-            <ChevronLeft size={18} /> Назад
-          </button>
+          <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 mb-4 self-start text-slate-900 font-bold text-xs"><ChevronLeft size={18} /> Назад</button>
           <h1 className="text-xl font-bold mb-6 text-center uppercase tracking-tight font-sans">{isRem ? 'Ремоторизация ТС' : 'Газодизель ТС'}</h1>
           <div className="bg-white rounded-[2rem] shadow-xl p-5 w-full border border-slate-200">
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2 text-slate-900">
                 <button onClick={() => setSystemType('cng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'cng' ? 'border-green-500 bg-green-50 text-green-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>КПГ (Метан)</button>
-                <button onClick={() => setSystemType('lng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'lng' ? 'border-blue-500 bg-blue-50 text-blue-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>СПГ (Метан)</button>
+                <button onClick={() => setSystemType('lng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'lng' ? 'border-blue-500 bg-blue-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>СПГ (Метан)</button>
               </div>
               <div className="p-4 bg-red-50 rounded-2xl border border-red-100 text-slate-900">
                 <div className="flex items-center gap-2 mb-3 text-red-900 font-bold uppercase text-[10px]"><Fuel size={14} /> Дизельное топливо</div>
@@ -453,19 +451,16 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 p-1.5 md:p-8 font-sans text-slate-900 overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <header className="mb-2 md:mb-4 flex items-center justify-between print-hidden">
-            {/* Кнопка "Назад" скрыта на мобильных (hidden md:flex) */}
-            <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 shadow-sm font-sans text-slate-900">
-              <ChevronLeft size={14} /> Назад
-            </button>
+            <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 shadow-sm font-sans text-slate-900"><ChevronLeft size={14} /> Назад</button>
             <button onClick={() => window.print()} className="hidden md:flex items-center gap-2 px-5 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 shadow-sm font-sans"><Printer size={16} /> Печать</button>
           </header>
 
-          <div className="bg-white p-3 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-200 relative overflow-hidden">
+          <div className="bg-white p-3 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-200 relative overflow-hidden text-slate-900">
              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03] select-none">
                  <img src="/logo.png" alt="Watermark" className="w-3/4 md:w-1/2 object-contain transform -rotate-12" onError={(e) => { e.target.style.display = 'none'; }} />
             </div>
             <div className="relative z-10 text-slate-900">
-              <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6 font-sans">
+              <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6 font-sans text-slate-900">
                 <h1 className="text-sm md:text-2xl font-bold uppercase tracking-tight leading-tight">
                   {truckSubMode === 'REMOT' ? (
                       `Отчет: Ремоторизация (100% ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'})`
@@ -514,7 +509,7 @@ const App = () => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold text-slate-900">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold">
                 <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
                   <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans"><Fuel size={12}/> На дизеле (100%)</div>
                   <div className="space-y-1.5 md:space-y-3">
