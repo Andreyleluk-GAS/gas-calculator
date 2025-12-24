@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
   FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, 
-  TrendingDown, Truck, Settings2, Layers, Car, Settings, X
+  TrendingDown, Truck, Settings2, Layers, Car, Settings, X, Phone, MapPin
 } from 'lucide-react';
 
 const App = () => {
@@ -137,6 +137,31 @@ const App = () => {
     setPassInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // --- КОМПОНЕНТ ПОДВАЛА ---
+  const AppFooter = ({ showDisclaimer = false }) => (
+    <footer className="mt-8 mb-4 flex flex-col items-center text-center gap-1.5 font-sans">
+      {showDisclaimer && (
+        <p className="text-[10px] text-slate-400 max-w-md mb-2 italic">
+          * Расчет носит справочный характер. Реальная экономия зависит от манеры вождения и состояния ТС.
+        </p>
+      )}
+      <p className="text-slate-900 font-bold text-xs md:text-sm uppercase tracking-tight">Установочный центр «ЭлитГаз»</p>
+      <div className="flex items-center gap-1.5 text-slate-600 text-[10px] md:text-xs">
+        <MapPin size={12} className="text-slate-400" />
+        <span>г. Екатеринбург, ул. Шефская, 3АВ</span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-0.5 text-slate-800 font-bold text-[10px] md:text-xs">
+        <a href="tel:+73432532888" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+          <Phone size={12} className="text-blue-500" /> +7 (343) 253-28-88
+        </a>
+        <a href="tel:+73433289888" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+          <Phone size={12} className="text-blue-500" /> +7 (343) 328-98-88
+        </a>
+      </div>
+      <p className="text-slate-400 text-[9px] mt-2 uppercase tracking-widest font-medium opacity-60">© {new Date().getFullYear()}</p>
+    </footer>
+  );
+
   const isLng = systemType === 'lng';
   const gasName = isLng ? 'СПГ' : 'КПГ';
   const gasUnit = isLng ? 'кг' : 'м³';
@@ -189,9 +214,7 @@ const App = () => {
               <ChevronRight className="ml-auto text-slate-300" />
             </button>
           </div>
-          <footer className="mt-12 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
-             <span>ООО "ЭЛИТГАЗ"</span>
-          </footer>
+          <AppFooter />
         </div>
       </div>
     );
@@ -301,15 +324,16 @@ const App = () => {
             </div>
           </div>
 
-          <footer className="flex flex-col items-center gap-2 py-4 md:py-6 mt-auto">
-            <div className="flex items-center gap-2 text-[10px] md:text-[11px] text-slate-900 font-bold bg-white px-4 py-2 rounded-full border shadow-sm">
+          <div className="mt-auto">
+            <div className="flex items-center justify-center gap-2 text-[10px] md:text-[11px] text-slate-900 font-bold bg-white px-4 py-2 rounded-full border shadow-sm mx-auto w-fit mb-4">
                 <p>Коэф.: Пропан ×{passCoeffs.propane}, Метан ×{passCoeffs.methane}</p>
                 <button onClick={() => setIsPassSettingsOpen(true)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-900"><Settings size={14} /></button>
             </div>
-            <p className="text-slate-900 text-[10px] font-bold uppercase opacity-60">ООО "ЭЛИТГАЗ" — 2025</p>
-          </footer>
+            <AppFooter />
+          </div>
         </div>
 
+        {/* MODAL SETTINGS PASSENGER */}
         {isPassSettingsOpen && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900">
             <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl relative">
@@ -324,7 +348,7 @@ const App = () => {
                   <label className="block text-[10px] font-bold uppercase text-slate-700 mb-1">Коэффициент Метан</label>
                   <input type="number" step="0.1" value={passCoeffs.methane} onChange={(e)=>setPassCoeffs({...passCoeffs, methane: parseFloat(e.target.value)||0})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-                <button onClick={()=>setIsPassSettingsOpen(false)} className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl mt-4 shadow-lg uppercase tracking-wider text-xs">Сохранить</button>
+                <button onClick={()=>setIsPassSettingsOpen(false)} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-4 shadow-lg uppercase tracking-wider text-xs">Сохранить</button>
               </div>
             </div>
           </div>
@@ -335,7 +359,7 @@ const App = () => {
 
   if (currentScreen === 'TRUCK_HOME') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans text-slate-900">
         <div className="max-w-4xl w-full">
           <button onClick={() => window.history.back()} className="flex items-center gap-1 mb-6 text-slate-900 font-bold text-sm hover:opacity-70"><ChevronLeft size={20} /> Назад</button>
           <div className="text-center mb-8">
@@ -360,6 +384,7 @@ const App = () => {
               <p className="text-slate-500 text-sm">Полная замена двигателя на газовый</p>
             </div>
           </div>
+          <AppFooter />
         </div>
       </div>
     );
@@ -382,8 +407,8 @@ const App = () => {
               <div className="p-4 bg-red-50 rounded-2xl border border-red-100">
                 <div className="flex items-center gap-2 mb-3 text-red-900 font-bold uppercase text-[10px]"><Fuel size={14} /> Дизельное топливо</div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-[10px] font-bold text-red-900/70 mb-1 uppercase tracking-tighter">Расход (л/100км)</label><input type="number" name="dieselConsumption" value={activeInp.dieselConsumption} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-2 bg-white border border-red-100 rounded-lg font-bold text-sm outline-none shadow-inner" /></div>
-                  <div><label className="block text-[10px] font-bold text-red-900/70 mb-1 uppercase tracking-tighter">Цена (₽/л)</label><input type="number" name="dieselPrice" value={activeInp.dieselPrice} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-2 bg-white border border-red-100 rounded-lg font-bold text-sm outline-none shadow-inner" /></div>
+                  <div><label className="block text-[10px] font-bold text-red-900/70 mb-1 uppercase tracking-tighter font-sans">Расход (л/100км)</label><input type="number" name="dieselConsumption" value={activeInp.dieselConsumption} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-2 bg-white border border-red-100 rounded-lg font-bold text-sm outline-none shadow-inner" /></div>
+                  <div><label className="block text-[10px] font-bold text-red-900/70 mb-1 uppercase tracking-tighter font-sans">Цена (₽/л)</label><input type="number" name="dieselPrice" value={activeInp.dieselPrice} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-2 bg-white border border-red-100 rounded-lg font-bold text-sm outline-none shadow-inner" /></div>
                 </div>
               </div>
               <div className={`p-4 rounded-2xl border ${truckTheme.bg} ${truckTheme.border}`}>
@@ -394,13 +419,14 @@ const App = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight">Пробег (км/мес)</label><input type="number" name="monthlyMileage" value={activeInp.monthlyMileage} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm" /></div>
+                <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">Пробег (км/мес)</label><input type="number" name="monthlyMileage" value={activeInp.monthlyMileage} onChange={(e) => handleTruckInputChange(e, isRem)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm" /></div>
                 {!isRem && (
-                  <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight">% замещения ДТ</label><input type="number" name="substitutionRate" value={truckInputs.substitutionRate} onChange={(e) => handleTruckInputChange(e, false)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm text-blue-700" /></div>
+                  <div><label className="block text-[10px] font-bold text-slate-800 uppercase block mb-1 tracking-tight font-sans">% замещения ДТ</label><input type="number" name="substitutionRate" value={truckInputs.substitutionRate} onChange={(e) => handleTruckInputChange(e, false)} className="w-full p-3 border border-slate-300 rounded-xl font-bold text-sm text-blue-700" /></div>
                 )}
               </div>
               <button onClick={() => navigateTo('TRUCK_REPORT')} className={`w-full py-4 rounded-2xl text-white text-sm md:text-base font-bold shadow-lg transition-all uppercase tracking-wider ${truckTheme.button}`}>Показать отчет</button>
             </div>
+            <AppFooter />
           </div>
         </div>
       </div>
@@ -516,9 +542,7 @@ const App = () => {
                   )}
                 </div>
               </div>
-              <footer className="mt-4 md:mt-10 text-center text-[8px] md:text-[10px] text-slate-800 font-bold flex items-center justify-center gap-2 opacity-80">
-                <Copyright size={10} /> <span>ООО "ЭЛИТГАЗ" — 2025. Расчет носит справочный характер.</span>
-              </footer>
+              <AppFooter showDisclaimer />
             </div>
           </div>
         </div>
