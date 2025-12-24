@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ArrowRight, 
   FileText, Wallet, BarChart3, Copyright, Tag, Printer, CheckCircle2, 
-  TrendingDown, Truck, Settings2, Layers, Car, Settings, X, Phone, MapPin
+  TrendingDown, Truck, Settings2, Layers, Car, Settings, X, Phone, MapPin, Send
 } from 'lucide-react';
 
 const App = () => {
@@ -158,6 +158,18 @@ const App = () => {
           <Phone size={12} className="text-blue-500" /> +7 (343) 328-98-88
         </a>
       </div>
+      
+      {/* ЯРЛЫЧЕК TELEGRAM */}
+      <a 
+        href="https://t.me/Le_luk" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-[#0088cc] text-white rounded-full text-[10px] md:text-xs font-bold hover:bg-[#0077b3] transition-all shadow-sm active:scale-95"
+      >
+        <Send size={12} fill="white" />
+        Написать в Telegram
+      </a>
+
       <p className="text-slate-400 text-[9px] mt-2 uppercase tracking-widest font-medium opacity-60">© {new Date().getFullYear()}</p>
     </footer>
   );
@@ -181,7 +193,6 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center">
           
-          {/* ПЛАШКА С ЛОГОТИПОМ С МЯГКОЙ КРАСНОЙ ОБОДКОЙ И ПРОЗРАЧНОСТЬЮ 50% */}
           <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-8 w-full">
             <img 
               src="/logo-start.png" 
@@ -236,7 +247,6 @@ const App = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center p-1 md:p-8 font-sans overflow-x-hidden text-slate-900">
         <div className="w-full max-w-lg lg:max-w-4xl flex flex-col gap-2 md:gap-3">
-          {/* ОПТИМИЗИРОВАННАЯ ШАПКА БЕЗ ИКОНКИ МАШИНКИ */}
           <header className="flex flex-col items-center text-center bg-white py-4 md:py-6 px-4 rounded-2xl shadow-sm border border-slate-200 w-full relative mt-2 text-slate-900">
             <button 
                 onClick={() => window.history.back()} 
@@ -415,7 +425,7 @@ const App = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2 text-slate-900">
                 <button onClick={() => setSystemType('cng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'cng' ? 'border-green-500 bg-green-50 text-green-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>КПГ (Метан)</button>
-                <button onClick={() => setSystemType('lng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'lng' ? 'border-blue-500 bg-blue-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>СПГ (Метан)</button>
+                <button onClick={() => setSystemType('lng')} className={`py-3 rounded-2xl text-xs font-bold border-2 transition-all uppercase ${systemType === 'lng' ? 'border-blue-500 bg-blue-50 text-blue-800 shadow-sm' : 'border-slate-100 text-slate-500'}`}>СПГ (Метан)</button>
               </div>
               <div className="p-4 bg-red-50 rounded-2xl border border-red-100 text-slate-900">
                 <div className="flex items-center gap-2 mb-3 text-red-900 font-bold uppercase text-[10px]"><Fuel size={14} /> Дизельное топливо</div>
@@ -460,7 +470,7 @@ const App = () => {
                  <img src="/logo.png" alt="Watermark" className="w-3/4 md:w-1/2 object-contain transform -rotate-12" onError={(e) => { e.target.style.display = 'none'; }} />
             </div>
             <div className="relative z-10 text-slate-900">
-              <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6 font-sans text-slate-900">
+              <div className="mb-3 md:mb-8 text-center border-b border-slate-100 pb-2 md:pb-6 font-sans">
                 <h1 className="text-sm md:text-2xl font-bold uppercase tracking-tight leading-tight">
                   {truckSubMode === 'REMOT' ? (
                       `Отчет: Ремоторизация (100% ${systemType === 'cng' ? 'КПГ Метан' : 'СПГ Метан'})`
@@ -509,7 +519,7 @@ const App = () => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-3 md:mb-8 font-sans font-bold text-slate-900">
                 <div className="border border-red-200 rounded-xl md:rounded-[2rem] p-3 md:p-6 bg-red-50/30 font-sans">
                   <div className="text-red-900 font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans"><Fuel size={12}/> На дизеле (100%)</div>
                   <div className="space-y-1.5 md:space-y-3">
@@ -521,7 +531,7 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30`}>
+                <div className={`border ${truckTheme.border} rounded-xl md:rounded-[2rem] p-3 md:p-6 ${truckTheme.bg}/30 font-sans`}>
                   <div className={`${truckTheme.textDark} font-bold text-[10px] md:text-xs uppercase mb-2 md:mb-4 flex items-center gap-2 font-sans`}>
                     {systemType === 'lng' ? <Flame size={12}/> : <Gauge size={12}/>} 
                     {truckSubMode === 'REMOT' ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
