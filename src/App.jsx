@@ -270,7 +270,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[10px] md:text-[11px] font-semibold text-amber-700/60 pt-1.5 border-t border-amber-100 mt-2.5 md:mt-4 text-center italic leading-none">Эталон для сравнения</p>
+                <p className="text-[10px] md:text-[13px] font-semibold text-amber-700/60 pt-1.5 border-t border-amber-100 mt-2.5 md:mt-4 text-center italic leading-none">Эталон для сравнения</p>
             </div>
 
             {/* ПРОПАН */}
@@ -300,7 +300,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[10px] md:text-[12px] font-bold text-emerald-600 pt-1.5 border-t border-emerald-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-center">Экономия в год: +{formatMoney(passResults.saveYearP)}</p>
+                <p className="text-[10px] md:text-[13px] font-bold text-emerald-600 pt-1.5 border-t border-emerald-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-center">Экономия в год: +{formatMoney(passResults.saveYearP)}</p>
             </div>
 
             {/* МЕТАН */}
@@ -330,7 +330,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[10px] md:text-[12px] font-bold text-blue-600 pt-1.5 border-t border-blue-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-center text-blue-600">Экономия в год: +{formatMoney(passResults.saveYearM)}</p>
+                <p className="text-[10px] md:text-[13px] font-bold text-blue-600 pt-1.5 border-t border-blue-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-center text-blue-600">Экономия в год: +{formatMoney(passResults.saveYearM)}</p>
             </div>
           </div>
 
