@@ -294,7 +294,7 @@ const App = () => {
                             <p className="text-2xl md:text-3xl font-black leading-none text-emerald-900 text-emerald-900">{formatMoney(passResults.costP)}</p>
                          </div>
                          <div className="flex flex-col text-right">
-                            <p className="text-[9px] md:text-[10px] font-bold text-emerald-800/60 uppercase mb-0.5 leading-none text-slate-900">1 км пробега</p>
+                            <p className="text-[9px] md:text-[10px] font-bold text-emerald-800/60 uppercase mb-0.5 leading-none">1 км пробега</p>
                             <p className="text-lg md:text-xl font-bold text-emerald-700 leading-none">{passResults.kmCostP} Р/км</p>
                          </div>
                       </div>
@@ -325,7 +325,7 @@ const App = () => {
                          </div>
                          <div className="flex flex-col text-right">
                             <p className="text-[9px] md:text-[10px] font-bold text-blue-800/60 uppercase mb-0.5 leading-none text-blue-800 text-blue-800">1 км пробега</p>
-                            <p className="text-lg md:text-xl font-bold text-blue-700 text-blue-700 leading-none">{formatMoney(passResults.kmCostM)} Р/км</p>
+                            <p className="text-lg md:text-xl font-bold text-blue-700 text-blue-700 leading-none">{passResults.kmCostM} Р/км</p>
                          </div>
                       </div>
                   </div>
@@ -471,7 +471,10 @@ const App = () => {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-3 md:mb-8 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">
                 <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900 text-slate-900 text-slate-900"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900">Пробег</div><div className="font-bold text-[10px] md:text-base text-slate-900 text-slate-900 text-slate-900">{(truckSubMode === 'REMOT' ? remotInputs.monthlyMileage : truckInputs.monthlyMileage).toLocaleString()} км/мес</div></div>
-                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">{truckSummary.qD_base} л/100км</div></div>
+                <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">
+                  <div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">Расход ДТ</div>
+                  <div className="font-bold text-[10px] md:text-base text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">{truckSummary.qD_base} л/100км</div>
+                </div>
                 <div className="p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">Цена ДТ</div><div className="font-bold text-[10px] md:text-base text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">{truckSubMode === 'REMOT' ? remotInputs.dieselPrice : truckInputs.dieselPrice} ₽</div></div>
                 <div className={`p-2 md:p-3 rounded-xl border ${truckTheme.border} ${truckTheme.bg} font-sans text-slate-900 text-slate-900 text-slate-900 text-slate-900`}><div className={`${truckTheme.textDark} text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold text-slate-900 text-slate-900 text-slate-900 text-slate-900`}>Цена {gasNameStr}</div><div className={`font-bold ${truckTheme.textDark} text-[10px] md:text-base`}>{isLngMode ? (truckSubMode === 'REMOT' ? remotInputs.lngPrice : truckInputs.lngPrice) : (truckSubMode === 'REMOT' ? remotInputs.cngPrice : truckInputs.cngPrice)} ₽</div></div>
                 <div className="hidden md:block p-2 md:p-3 bg-slate-50 rounded-xl border border-slate-200 font-sans text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900"><div className="text-slate-700 text-[8px] md:text-[10px] uppercase mb-0.5 md:mb-1 font-bold tracking-tight text-slate-900 text-slate-900 text-slate-900">Коэф. расхода</div><div className="font-bold text-[10px] md:text-base text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">{truckSummary.gasCoef}</div></div>
