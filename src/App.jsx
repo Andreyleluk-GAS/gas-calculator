@@ -270,7 +270,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[12px] md:text-[15px] font-semibold text-amber-700/60 pt-1.5 border-t border-amber-100 mt-2.5 md:mt-4 text-center italic leading-none">Эталон для сравнения</p>
+                <p className="text-[15px] md:text-[15px] font-semibold text-amber-700/60 pt-1.5 border-t border-amber-100 mt-2.5 md:mt-4 text-center italic leading-none">Эталон для сравнения</p>
             </div>
 
             {/* ПРОПАН */}
