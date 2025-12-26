@@ -300,7 +300,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[12px] md:text-[15px] font-bold text-emerald-600 pt-1.5 border-t border-emerald-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none">Экономия в год: +{formatMoney(passResults.saveYearP)}</p>
+                <p className="text-[15px] md:text-[15px] font-bold text-emerald-600 pt-1.5 border-t border-emerald-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none">Экономия в год: +{formatMoney(passResults.saveYearP)}</p>
             </div>
 
             {/* МЕТАН */}
@@ -330,7 +330,7 @@ const App = () => {
                       </div>
                   </div>
                 </div>
-                <p className="text-[12px] md:text-[15px] font-bold text-blue-600 pt-1.5 border-t border-blue-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-blue-600">Экономия в год: +{formatMoney(passResults.saveYearM)}</p>
+                <p className="text-[15px] md:text-[15px] font-bold text-blue-600 pt-1.5 border-t border-blue-200 mt-2.5 md:mt-4 text-center tracking-tight leading-none text-blue-600">Экономия в год: +{formatMoney(passResults.saveYearM)}</p>
             </div>
           </div>
 
