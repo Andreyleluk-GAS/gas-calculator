@@ -12,6 +12,8 @@ const App = () => {
   // --- СОСТОЯНИЯ ГРУЗОВОГО ---
   const [truckSubMode, setTruckSubMode] = useState('GAS_DIESEL'); 
   const [systemType, setSystemType] = useState('cng'); 
+  const [ggmtDiscount, setGgmtDiscount] = useState(20);
+  const [isTruckSettingsOpen, setIsTruckSettingsOpen] = useState(false);
   
   const [truckInputs, setTruckInputs] = useState({
     dieselConsumption: 36, dieselPrice: 75,
@@ -84,7 +86,7 @@ const App = () => {
       costG = (qG_res * gasPrice) / 100;
     }
 
-    const gasPriceDisc = gasPrice * 0.8;
+    const gasPriceDisc = gasPrice * (1 - (v(ggmtDiscount) / 100));
     const costGDisc = isRem ? (qG_res * gasPriceDisc) / 100 : (qD_res * dPrice + qG_res * gasPriceDisc) / 100;
 
     return {
@@ -94,7 +96,7 @@ const App = () => {
       monthlySav: Math.round((totalM * (costD - costG)) / 12), monthlySavDiscounted: Math.round((totalM * (costD - costGDisc)) / 12),
       gasCoef: gasCoef
     };
-  }, [truckInputs, remotInputs, systemType, truckSubMode]);
+  }, [truckInputs, remotInputs, systemType, truckSubMode, ggmtDiscount]);
 
   const handleTruckInputChange = (e, isRemot) => {
     const { name, value } = e.target;
@@ -230,14 +232,14 @@ const App = () => {
                 <label className="block text-[9px] md:text-[10px] font-bold text-slate-700 uppercase mb-0.5 tracking-tight">Пробег (мес)</label>
                 <div className="relative text-slate-900">
                    <input type="number" name="mileage" value={passInputs.mileage} onChange={handlePassInputChange} className="w-full text-base md:text-xl font-bold p-1 bg-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-200" />
-                   <span className="absolute right-2 top-1.5 text-[9px] text-slate-400 font-bold">км</span>
+                   <span className="absolute right-2 top-1.5 text-[15px] text-slate-400 font-bold">км</span>
                 </div>
             </div>
             <div className="bg-white p-1.5 md:p-4 rounded-xl shadow-sm border border-slate-200 text-slate-900">
                 <label className="block text-[9px] md:text-[10px] font-bold text-slate-700 uppercase mb-0.5 tracking-tight">Расход бензина</label>
                 <div className="relative text-slate-900">
                     <input type="number" name="fuelNorm" value={passInputs.fuelNorm} onChange={handlePassInputChange} className="w-full text-base md:text-xl font-bold p-1 bg-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-200" />
-                    <span className="absolute right-2 top-1.5 text-[9px] text-slate-400 font-bold">л/100</span>
+                    <span className="absolute right-2 top-1.5 text-[15px] text-slate-400 font-bold">л/100</span>
                 </div>
             </div>
           </section>
@@ -371,7 +373,7 @@ const App = () => {
   if (currentScreen === 'TRUCK_HOME') {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans text-slate-900 text-slate-900 text-slate-900">
-        <div className="max-w-4xl w-full text-slate-900 text-slate-900">
+        <div className="max-w-4xl w-full text-slate-900 text-slate-900 flex flex-col min-h-[80vh] md:justify-center">
           <button onClick={() => window.history.back()} className="hidden md:flex items-center gap-1 mb-6 text-slate-900 font-bold text-sm hover:opacity-70 text-slate-900"><ChevronLeft size={20} /> Назад</button>
           <div className="text-center mb-8">
             <h1 className="text-2xl md:text-4xl font-extrabold mb-2 text-slate-900">Грузовой транспорт</h1>
@@ -389,8 +391,31 @@ const App = () => {
               <p className="text-slate-500 text-sm text-slate-600">Полная замена двигателя на газовый</p>
             </div>
           </div>
-          <AppFooter />
+          <div className="md:mt-4 text-slate-900">
+            <div className="flex items-center justify-center gap-2 text-[10px] md:text-[11px] text-slate-900 font-bold bg-white px-4 py-2 rounded-full border shadow-sm mx-auto w-fit mb-4 text-slate-900">
+                <p>Скидка ГГМТ: {ggmtDiscount}%</p>
+                <button onClick={() => setIsTruckSettingsOpen(true)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-900 transition-colors"><Settings size={14} /></button>
+            </div>
+            <AppFooter />
+          </div>
         </div>
+
+        {/* MODAL SETTINGS TRUCK */}
+        {isTruckSettingsOpen && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-900">
+            <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative text-slate-900">
+               <button onClick={() => setIsTruckSettingsOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors"><X size={20}/></button>
+              <h2 className="text-xl font-bold mb-6 text-slate-900">% скидки на КПГ</h2>
+              <div className="space-y-4 text-slate-900">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-700 mb-1">Скидка ГГМТ (%)</label>
+                  <input type="number" value={ggmtDiscount} onChange={(e)=>setGgmtDiscount(e.target.value)} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-blue-500 text-slate-900" />
+                </div>
+                <button onClick={()=>setIsTruckSettingsOpen(false)} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-4 shadow-lg uppercase tracking-wider text-xs active:scale-95 transition-all text-white">Сохранить</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -539,7 +564,7 @@ const App = () => {
                     </>
                   )}
                 </div>
-                <div className="flex justify-between mt-2 text-[8px] md:text-[10px] font-bold uppercase tracking-tight text-slate-900 text-slate-900 text-slate-900 text-slate-900">
+                <div className="flex justify-between mt-2 text-[10px] md:text-[15px] font-bold uppercase tracking-tight text-slate-900 text-slate-900 text-slate-900 text-slate-900">
                   {truckSubMode === 'REMOT' ? (<span className={`${truckTheme.textDark} font-bold text-slate-900 text-slate-900`}>100% {gasNameStr} Метан</span>) : (
                     <><span className="text-red-700 font-bold text-red-700">ДИЗЕЛЬ: {formatMoney(truckSummary.totalG * (1 - truckInputs.substitutionRate/100))}</span><span className={`${truckTheme.textDark} font-bold text-slate-900`}>{gasNameStr}: {formatMoney(truckSummary.totalG * (truckInputs.substitutionRate/100))}</span></>
                   )}
