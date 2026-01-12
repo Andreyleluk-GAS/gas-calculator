@@ -33,9 +33,9 @@ const App = () => {
   const [passInputs, setPassInputs] = useState({
     mileage: 1600,
     fuelNorm: 10,
-    priceBenzin: 61.20,
-    pricePropane: 32.80,
-    priceMethane: 26.50
+    priceBenzin: 65.00,
+    pricePropane: 31.00,
+    priceMethane: 28.00
   });
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
