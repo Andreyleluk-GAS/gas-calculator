@@ -31,11 +31,11 @@ const App = () => {
 
   // --- СОСТОЯНИЯ ЛЕГКОВОГО ---
   const [passInputs, setPassInputs] = useState({
-    mileage: 1800,
-    fuelNorm: 11,
-    priceBenzin: 63.40,
-    pricePropane: 31.20,
-    priceMethane: 28.40
+    mileage: 1600,
+    fuelNorm: 10,
+    priceBenzin: 61.20,
+    pricePropane: 32.80,
+    priceMethane: 26.50
   });
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
@@ -166,9 +166,9 @@ const App = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-2 md:p-4 font-sans text-slate-900 relative overflow-hidden">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center text-slate-900">
-          <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-4 md:mb-8 w-full">
+          <a href="https://elitegas.ru" className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-4 md:mb-8 w-full">
             <img src="/logo-start.png" alt="EliteGas" className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-50 select-none pointer-events-none" onError={(e)=>e.target.style.display='none'} />
-          </div>
+          </a>
           <div className="text-center mb-6 md:mb-10 text-slate-900">
             <h1 className="text-2xl md:text-4xl font-extrabold mb-3">Калькулятор Экономии</h1>
             <p className="text-slate-500 text-sm md:text-base font-bold uppercase tracking-widest opacity-70">Рассчитайте выгоду перехода на газ</p>
@@ -471,6 +471,16 @@ const App = () => {
   }
 
   if (currentScreen === 'TRUCK_REPORT') {
+    // РАСЧЕТЫ ДЛЯ ГРАФИКА ЗАТРАТ (ГАЗОДИЗЕЛЬ)
+    const totalM_rep = truckInputs.monthlyMileage * 12;
+    const dPrice_rep = truckInputs.dieselPrice;
+    const gPrice_rep = isLngMode ? truckInputs.lngPrice : truckInputs.cngPrice;
+    const costD_rep = (parseFloat(truckSummary.qD_result) * dPrice_rep / 100) * totalM_rep;
+    const costG_rep = (parseFloat(truckSummary.qG_result) * gPrice_rep / 100) * totalM_rep;
+    const totalCost_rep = costD_rep + costG_rep;
+    const perD = totalCost_rep ? (costD_rep / totalCost_rep) * 100 : 0;
+    const perG = totalCost_rep ? (costG_rep / totalCost_rep) * 100 : 0;
+
     return (
       <div className="min-h-screen bg-slate-50 p-1.5 md:p-8 font-sans text-slate-900 overflow-x-hidden text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">
         <div className="max-w-6xl mx-auto text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">
@@ -555,18 +565,22 @@ const App = () => {
                 </div>
               </div>
               <div className="bg-slate-100 p-3 md:p-6 rounded-xl md:rounded-[2.5rem] border border-slate-200 font-bold text-slate-900 text-slate-900">
-                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans text-slate-500 text-slate-500"><BarChart3 size={12}/> Структура затрат</h4>
+                <h4 className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mb-2 md:mb-6 flex items-center gap-2 tracking-widest font-sans text-slate-500 text-slate-500">
+                  <BarChart3 size={12}/> 
+                  Структура затрат на топливо в год
+                  {truckSubMode !== 'REMOT' && <span className="normal-case ml-1 opacity-70">(замещение {truckInputs.substitutionRate}%)</span>}
+                </h4>
                 <div className="h-6 md:h-10 w-full bg-slate-300 rounded-lg md:rounded-2xl overflow-hidden flex shadow-inner text-slate-900">
                   {truckSubMode === 'REMOT' ? (<div className={`${truckTheme.button} h-full w-full text-slate-900`}></div>) : (
                     <>
-                      <div className="bg-red-600 h-full transition-all duration-1000 text-slate-900" style={{ width: `${(100 - truckInputs.substitutionRate)}%` }}></div>
-                      <div className={`${truckTheme.button} h-full transition-all duration-1000 text-slate-900`} style={{ width: `${truckInputs.substitutionRate}%` }}></div>
+                      <div className="bg-red-600 h-full transition-all duration-1000 text-slate-900" style={{ width: `${perD}%` }}></div>
+                      <div className={`${truckTheme.button} h-full transition-all duration-1000 text-slate-900`} style={{ width: `${perG}%` }}></div>
                     </>
                   )}
                 </div>
                 <div className="flex justify-between mt-2 text-[10px] md:text-[15px] font-bold uppercase tracking-tight text-slate-900 text-slate-900 text-slate-900 text-slate-900">
                   {truckSubMode === 'REMOT' ? (<span className={`${truckTheme.textDark} font-bold text-slate-900 text-slate-900`}>100% {gasNameStr} Метан</span>) : (
-                    <><span className="text-red-700 font-bold text-red-700">ДИЗЕЛЬ: {formatMoney(truckSummary.totalG * (1 - truckInputs.substitutionRate/100))}</span><span className={`${truckTheme.textDark} font-bold text-slate-900`}>{gasNameStr}: {formatMoney(truckSummary.totalG * (truckInputs.substitutionRate/100))}</span></>
+                    <><span className="text-red-700 font-bold text-red-700">ДИЗЕЛЬ: {formatMoney(costD_rep)}</span><span className={`${truckTheme.textDark} font-bold text-slate-900`}>{gasNameStr}: {formatMoney(costG_rep)}</span></>
                   )}
                 </div>
               </div>
