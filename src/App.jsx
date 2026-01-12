@@ -167,7 +167,7 @@ const App = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-2 md:p-4 font-sans text-slate-900 relative overflow-hidden">
         <div className="max-w-xl w-full relative z-10 flex flex-col items-center text-slate-900">
           <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-red-900/20 shadow-sm flex items-center justify-center mb-4 md:mb-8 w-full">
-            <img src="https://thumb.cloud.mail.ru/thumb/xw1/public/logo-start.png" alt="EliteGas" className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-50 select-none pointer-events-none" onError={(e)=>e.target.style.display='none'} />
+            <img src="https://raw.githubusercontent.com/Andreyleluk-GAS/PICT/refs/heads/main/logo-start.png" alt="EliteGas" className="h-auto w-full max-h-16 md:max-h-24 object-contain opacity-50 select-none pointer-events-none" onError={(e)=>e.target.style.display='none'} />
           </div>
           <div className="text-center mb-6 md:mb-10 text-slate-900">
             <h1 className="text-2xl md:text-4xl font-extrabold mb-3">Калькулятор Экономии</h1>
