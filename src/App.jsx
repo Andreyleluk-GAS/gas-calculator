@@ -31,11 +31,11 @@ const App = () => {
 
   // --- СОСТОЯНИЯ ЛЕГКОВОГО ---
   const [passInputs, setPassInputs] = useState({
-    mileage: 1600,
-    fuelNorm: 10,
-    priceBenzin: 65.00,
-    pricePropane: 31.00,
-    priceMethane: 28.00
+    mileage: 1800,
+    fuelNorm: 11,
+    priceBenzin: 63.40,
+    pricePropane: 31.20,
+    priceMethane: 28.40
   });
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
