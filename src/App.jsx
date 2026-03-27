@@ -142,6 +142,26 @@ const App = () => {
   // ── НАВИГАЦИЯ ─────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
 
+  // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
+  const handleSaveOldReportAsImage = () => {
+    const el = document.getElementById('old-report-table-container');
+    if (!el || !window.html2canvas) {
+      alert('Ошибка: библиотека для сохранения не загружена');
+      return;
+    }
+    window.html2canvas(el, { 
+      scale: 3, 
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `elitegas_report_${new Date().getTime()}.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.9);
+      link.click();
+    });
+  };
+
   // ── ГРУЗОВОЙ ──────────────────────────────
   const [truckSubMode, setTruckSubMode] = useState('GAS_DIESEL');
   const [systemType, setSystemType] = useState('cng');
@@ -1414,12 +1434,20 @@ const App = () => {
 
     return (
       <div className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0">
-        <div className="max-w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-4 md:p-10">
+        <div id="old-report-table-container" className="max-w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-4 md:p-10 bg-white">
           <header className="mb-8 flex items-center justify-between print:hidden">
             <BackBtn />
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-2.5 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
-              <Printer size={16} /> Печать отчёта
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={handleSaveOldReportAsImage}
+                className="flex items-center gap-2 px-6 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer"
+              >
+                Сохранить
+              </button>
+              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-2.5 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+                <Printer size={16} /> Печать отчёта
+              </button>
+            </div>
           </header>
 
           <table className="w-full border-collapse">
