@@ -12,15 +12,15 @@ import {
 const ds = {
   // Газовые темы: КПГ → secondary (green), СПГ → primary (blue)
   gas: (isLng) => ({
-    text:      isLng ? 'text-primary'        : 'text-secondary-700',
-    textDark:  isLng ? 'text-primary-800'    : 'text-secondary-700',
-    bg:        isLng ? 'bg-primary-50'       : 'bg-secondary-50',
-    border:    isLng ? 'border-primary-200'  : 'border-secondary-200',
-    ring:      isLng ? 'focus:ring-primary/30' : 'focus:ring-secondary/30',
-    btnSolid:  isLng ? 'bg-primary hover:bg-primary-600'
-                     : 'bg-secondary hover:bg-secondary-600',
-    gradient:  isLng ? 'from-primary-700 to-primary-900'
-                     : 'from-secondary-700 via-secondary-600 to-primary-700',
+    text: isLng ? 'text-primary' : 'text-secondary-700',
+    textDark: isLng ? 'text-primary-800' : 'text-secondary-700',
+    bg: isLng ? 'bg-primary-50' : 'bg-secondary-50',
+    border: isLng ? 'border-primary-200' : 'border-secondary-200',
+    ring: isLng ? 'focus:ring-primary/30' : 'focus:ring-secondary/30',
+    btnSolid: isLng ? 'bg-primary hover:bg-primary-600'
+      : 'bg-secondary hover:bg-secondary-600',
+    gradient: isLng ? 'from-primary-700 to-primary-900'
+      : 'from-secondary-700 via-secondary-600 to-primary-700',
   }),
 };
 
@@ -75,11 +75,11 @@ const AppFooter = ({ showDisclaimer = false }) => {
       </div>
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-0.5 text-graphite font-bold text-[10px] md:text-xs">
         <a href="tel:+73432532888"
-           className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
+          className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
           <Phone size={12} className="text-primary" /> +7 (343) 253-28-88
         </a>
         <a href="tel:+73433289888"
-           className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
+          className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
           <Phone size={12} className="text-primary" /> +7 (343) 328-98-88
         </a>
       </div>
@@ -151,14 +151,14 @@ const App = () => {
   const [truckInputs, setTruckInputs] = useState({
     dieselConsumption: 36, dieselPrice: 73.26,
     lngCoefficient: 0.86, lngPrice: 45,
-    cngCoefficient: 1.2,  cngPrice: 28.51,
-    monthlyMileage: 12000, substitutionRate: 60,
+    cngCoefficient: 1.2, cngPrice: 28.51,
+    monthlyMileage: 15000, substitutionRate: 60,
   });
   const [remotInputs, setRemotInputs] = useState({
     dieselConsumption: 22, dieselPrice: 73.26,
     lngCoefficient: 0.86, lngPrice: 45,
-    cngCoefficient: 1.2,  cngPrice: 28.51,
-    monthlyMileage: 12000,
+    cngCoefficient: 1.2, cngPrice: 28.51,
+    monthlyMileage: 15000,
   });
 
   // ── СПГ ↔ КПГ ─────────────────────────────────
@@ -172,7 +172,7 @@ const App = () => {
     cngConsumption: 42,           // м³ / 100 км
     cngPrice: 28.51,              // ₽ / м³
     // Обще
-    monthlyMileage: 12000,        // км / мес
+    monthlyMileage: 15000,        // км / мес
     equipmentCost: 1200000,       // стоимость переоборудования, ₽
   });
 
@@ -181,7 +181,7 @@ const App = () => {
     mileage: 1600, fuelNorm: 10,
     priceBenzin: 66.45, pricePropane: 26.08, priceMethane: 28.51,
   });
-  const [passCoeffs, setPassCoeffs]    = useState({ propane: 1.2, methane: 0.9 });
+  const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
 
   // ── НАВИГАЦИЯ history ─────────────────────
@@ -205,9 +205,9 @@ const App = () => {
   // ── РАСЧЁТЫ ГРУЗОВОГО ─────────────────────
   const truckSummary = useMemo(() => {
     const isRem = truckSubMode === 'REMOT';
-    const inp   = isRem ? remotInputs : truckInputs;
-    const gasCoef  = systemType === 'lng' ? v(inp.lngCoefficient) : v(inp.cngCoefficient);
-    const gasPrice = systemType === 'lng' ? v(inp.lngPrice)       : v(inp.cngPrice);
+    const inp = isRem ? remotInputs : truckInputs;
+    const gasCoef = systemType === 'lng' ? v(inp.lngCoefficient) : v(inp.cngCoefficient);
+    const gasPrice = systemType === 'lng' ? v(inp.lngPrice) : v(inp.cngPrice);
     const dCons = v(inp.dieselConsumption), dPrice = v(inp.dieselPrice);
     const totalM = v(inp.monthlyMileage) * 12;
 
@@ -216,15 +216,15 @@ const App = () => {
       const sub = v(truckInputs.substitutionRate) / 100;
       qD_res = dCons * (1 - sub);
       qG_res = dCons * sub * gasCoef;
-      costD  = (dCons * dPrice) / 100;
-      costG  = (qD_res * dPrice + qG_res * gasPrice) / 100;
+      costD = (dCons * dPrice) / 100;
+      costG = (qD_res * dPrice + qG_res * gasPrice) / 100;
     } else {
       qD_res = dCons; qG_res = dCons * gasCoef;
-      costD  = (dCons * dPrice) / 100;
-      costG  = (qG_res * gasPrice) / 100;
+      costD = (dCons * dPrice) / 100;
+      costG = (qG_res * gasPrice) / 100;
     }
     const gasPriceDisc = gasPrice * (1 - v(ggmtDiscount) / 100);
-    const costGDisc    = isRem
+    const costGDisc = isRem
       ? (qG_res * gasPriceDisc) / 100
       : (qD_res * dPrice + qG_res * gasPriceDisc) / 100;
 
@@ -258,7 +258,7 @@ const App = () => {
     const kmCostP = (v(fuelNorm) * v(passCoeffs.propane) / 100) * v(pricePropane);
     const kmCostM = (v(fuelNorm) * v(passCoeffs.methane) / 100) * v(priceMethane);
     const costB = (v(mileage) / 100) * v(fuelNorm) * v(priceBenzin);
-    const costP = (v(mileage) / 100) * v(fuelNorm) * v(passCoeffs.propane)  * v(pricePropane);
+    const costP = (v(mileage) / 100) * v(fuelNorm) * v(passCoeffs.propane) * v(pricePropane);
     const costM = (v(mileage) / 100) * v(fuelNorm) * v(passCoeffs.methane) * v(priceMethane);
     return {
       costB: Math.round(costB), costP: Math.round(costP), costM: Math.round(costM),
@@ -651,7 +651,7 @@ const App = () => {
                 <ArrowLeftRight size={30} />
               </div>
               <h3 className="text-lg font-bold text-graphite mb-1">СПГ ↔ КПГ</h3>
-              <p className="text-utility-muted text-sm">Оценка эффективности замены типа газа</p>
+              <p className="text-utility-muted text-sm">Оценка экономической эффективности замены типа емкостей газа</p>
             </div>
           </div>
 
@@ -705,19 +705,17 @@ const App = () => {
               {/* Тип газа */}
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => setSystemType('cng')}
-                  className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${
-                    systemType === 'cng'
-                      ? 'border-secondary bg-secondary-50 text-secondary-700 shadow-sm'
-                      : 'border-surface-200 text-utility-muted hover:border-secondary-200'
-                  }`}>
+                  className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${systemType === 'cng'
+                    ? 'border-secondary bg-secondary-50 text-secondary-700 shadow-sm'
+                    : 'border-surface-200 text-utility-muted hover:border-secondary-200'
+                    }`}>
                   КПГ (Метан)
                 </button>
                 <button onClick={() => setSystemType('lng')}
-                  className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${
-                    systemType === 'lng'
-                      ? 'border-primary bg-primary-50 text-primary-700 shadow-sm'
-                      : 'border-surface-200 text-utility-muted hover:border-primary-200'
-                  }`}>
+                  className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${systemType === 'lng'
+                    ? 'border-primary bg-primary-50 text-primary-700 shadow-sm'
+                    : 'border-surface-200 text-utility-muted hover:border-primary-200'
+                    }`}>
                   СПГ (Метан)
                 </button>
               </div>
@@ -791,9 +789,9 @@ const App = () => {
     const totalM_rep = truckInputs.monthlyMileage * 12;
     const dPrice_rep = truckInputs.dieselPrice;
     const gPrice_rep = isLng ? truckInputs.lngPrice : truckInputs.cngPrice;
-    const costD_rep  = (parseFloat(truckSummary.qD_result) * dPrice_rep / 100) * totalM_rep;
-    const costG_rep  = (parseFloat(truckSummary.qG_result) * gPrice_rep / 100) * totalM_rep;
-    const total_rep  = costD_rep + costG_rep;
+    const costD_rep = (parseFloat(truckSummary.qD_result) * dPrice_rep / 100) * totalM_rep;
+    const costG_rep = (parseFloat(truckSummary.qG_result) * gPrice_rep / 100) * totalM_rep;
+    const total_rep = costD_rep + costG_rep;
     const perD = total_rep ? (costD_rep / total_rep) * 100 : 0;
     const perG = total_rep ? (costG_rep / total_rep) * 100 : 0;
 
@@ -837,9 +835,8 @@ const App = () => {
                 { label: 'Коэф. расхода', val: truckSummary.gasCoef, hidden: true },
               ].map(({ label, val, accent, hidden }) => (
                 <div key={label}
-                  className={`${hidden ? 'hidden md:block' : ''} p-2 md:p-3 rounded-xl border ${
-                    accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
-                  }`}>
+                  className={`${hidden ? 'hidden md:block' : ''} p-2 md:p-3 rounded-xl border ${accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
+                    }`}>
                   <div className={`text-[8px] md:text-[10px] uppercase mb-1 font-bold tracking-tight ${accent ? gt.textDark : 'text-utility-muted'}`}>
                     {label}
                   </div>
@@ -1039,19 +1036,17 @@ const App = () => {
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button onClick={() => set('currentSystem', 'lng')}
-                    className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${
-                      inp.currentSystem === 'lng'
-                        ? 'border-primary bg-primary-50 text-primary-700 shadow-sm'
-                        : 'border-surface-200 text-utility-muted hover:border-primary-200'
-                    }`}>
+                    className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${inp.currentSystem === 'lng'
+                      ? 'border-primary bg-primary-50 text-primary-700 shadow-sm'
+                      : 'border-surface-200 text-utility-muted hover:border-primary-200'
+                      }`}>
                     Сейчас на СПГ
                   </button>
                   <button onClick={() => set('currentSystem', 'cng')}
-                    className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${
-                      inp.currentSystem === 'cng'
-                        ? 'border-secondary bg-secondary-50 text-secondary-700 shadow-sm'
-                        : 'border-surface-200 text-utility-muted hover:border-secondary-200'
-                    }`}>
+                    className={`py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 uppercase cursor-pointer ${inp.currentSystem === 'cng'
+                      ? 'border-secondary bg-secondary-50 text-secondary-700 shadow-sm'
+                      : 'border-surface-200 text-utility-muted hover:border-secondary-200'
+                      }`}>
                     Сейчас на КПГ
                   </button>
                 </div>
@@ -1134,27 +1129,27 @@ const App = () => {
   // ═══════════════════════════════════════════
   if (currentScreen === 'LNG_CNG_REPORT') {
     const inp = lngCngInputs;
-    const vi  = (x) => { const n = parseFloat(x); return isNaN(n) ? 0 : n; };
+    const vi = (x) => { const n = parseFloat(x); return isNaN(n) ? 0 : n; };
 
-    const annualKm   = vi(inp.monthlyMileage) * 12;
-    const kmCostLng  = (vi(inp.lngConsumption) * vi(inp.lngPrice)) / 100;
-    const kmCostCng  = (vi(inp.cngConsumption) * vi(inp.cngPrice)) / 100;
-    const annualLng  = Math.round(annualKm * kmCostLng);
-    const annualCng  = Math.round(annualKm * kmCostCng);
-    const diff       = annualLng - annualCng; // >0 => КПГ дешевле, <0 => СПГ дешевле
-    const savings    = Math.abs(diff);
-    const cheaperIs  = diff > 0 ? 'cng' : diff < 0 ? 'lng' : 'equal';
-    const equip      = vi(inp.equipmentCost);
-    const paybackMo  = savings > 0 ? (equip / (savings / 12)) : Infinity;
-    const paybackYr  = paybackMo / 12;
-    const isFromLng  = inp.currentSystem === 'lng';
-    const targetIs   = isFromLng ? 'cng' : 'lng';
-    const isWorthIt  = targetIs === cheaperIs;
+    const annualKm = vi(inp.monthlyMileage) * 12;
+    const kmCostLng = (vi(inp.lngConsumption) * vi(inp.lngPrice)) / 100;
+    const kmCostCng = (vi(inp.cngConsumption) * vi(inp.cngPrice)) / 100;
+    const annualLng = Math.round(annualKm * kmCostLng);
+    const annualCng = Math.round(annualKm * kmCostCng);
+    const diff = annualLng - annualCng; // >0 => КПГ дешевле, <0 => СПГ дешевле
+    const savings = Math.abs(diff);
+    const cheaperIs = diff > 0 ? 'cng' : diff < 0 ? 'lng' : 'equal';
+    const equip = vi(inp.equipmentCost);
+    const paybackMo = savings > 0 ? (equip / (savings / 12)) : Infinity;
+    const paybackYr = paybackMo / 12;
+    const isFromLng = inp.currentSystem === 'lng';
+    const targetIs = isFromLng ? 'cng' : 'lng';
+    const isWorthIt = targetIs === cheaperIs;
 
     // Проценты для диаграммы
     const maxCost = Math.max(annualLng, annualCng) || 1;
-    const barLng  = (annualLng / maxCost) * 100;
-    const barCng  = (annualCng / maxCost) * 100;
+    const barLng = (annualLng / maxCost) * 100;
+    const barCng = (annualCng / maxCost) * 100;
 
     return (
       <div className="min-h-screen bg-surface-50 p-2 md:p-6 overflow-x-hidden">
@@ -1207,9 +1202,8 @@ const App = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
 
               {/* КПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${
-                cheaperIs === 'cng' ? 'bg-secondary border-secondary shadow-lg' : 'bg-surface border-surface-200'
-              }`}>
+              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${cheaperIs === 'cng' ? 'bg-secondary border-secondary shadow-lg' : 'bg-surface border-surface-200'
+                }`}>
                 {cheaperIs === 'cng' && (
                   <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white
                     rounded-full text-[9px] font-bold uppercase">
@@ -1232,9 +1226,8 @@ const App = () => {
               </div>
 
               {/* СПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${
-                cheaperIs === 'lng' ? 'bg-primary border-primary shadow-lg' : 'bg-surface border-surface-200'
-              }`}>
+              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${cheaperIs === 'lng' ? 'bg-primary border-primary shadow-lg' : 'bg-surface border-surface-200'
+                }`}>
                 {cheaperIs === 'lng' && (
                   <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white
                     rounded-full text-[9px] font-bold uppercase">
@@ -1258,27 +1251,24 @@ const App = () => {
             </div>
 
             {/* Вывод: выгодно ли переходить */}
-            <div className={`rounded-2xl p-4 md:p-6 mb-6 border-2 ${
-              cheaperIs === 'equal'
-                ? 'bg-surface-50 border-surface-200'
-                : isWorthIt
-                  ? 'bg-secondary-50 border-secondary-200'
-                  : 'bg-red-50 border-danger/20'
-            }`}>
+            <div className={`rounded-2xl p-4 md:p-6 mb-6 border-2 ${cheaperIs === 'equal'
+              ? 'bg-surface-50 border-surface-200'
+              : isWorthIt
+                ? 'bg-secondary-50 border-secondary-200'
+                : 'bg-red-50 border-danger/20'
+              }`}>
               <div className="flex items-start gap-4">
-                <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${
-                  cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
+                <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
                   : isWorthIt ? 'bg-secondary text-white'
-                  : 'bg-danger text-white'
-                }`}>
+                    : 'bg-danger text-white'
+                  }`}>
                   {cheaperIs === 'equal' ? '=' : isWorthIt ? '✓' : '!'}
                 </div>
                 <div className="flex-1">
-                  <div className={`font-bold text-sm mb-1 ${
-                    cheaperIs === 'equal' ? 'text-graphite'
+                  <div className={`font-bold text-sm mb-1 ${cheaperIs === 'equal' ? 'text-graphite'
                     : isWorthIt ? 'text-secondary-700'
-                    : 'text-danger'
-                  }`}>
+                      : 'text-danger'
+                    }`}>
                     {cheaperIs === 'equal'
                       ? 'Системы равноценны по затратам'
                       : isWorthIt
@@ -1311,10 +1301,9 @@ const App = () => {
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5 whitespace-nowrap">Ежемес. разница</div>
-                  <div className={`text-xl font-black ${
-                    cheaperIs === 'equal' ? 'text-graphite'
+                  <div className={`text-xl font-black ${cheaperIs === 'equal' ? 'text-graphite'
                     : isWorthIt ? 'text-secondary-700' : 'text-danger'
-                  }`}>
+                    }`}>
                     {fmt(Math.round(savings / 12))}
                   </div>
                 </div>
