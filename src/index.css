@@ -1,3 +1,179 @@
+/* ── Google Fonts ──────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
+
+/* ── Tailwind layers ───────────────────────────────────────────── */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── CSS Design Tokens (mirrors tailwind.config.js) ───────────── */
+@layer base {
+  :root {
+    /* Primary – Digital Blue */
+    --color-primary-50:  #e6f0ff;
+    --color-primary-100: #bdd5ff;
+    --color-primary-200: #91b9ff;
+    --color-primary-300: #619eff;
+    --color-primary-400: #3a86ff;
+    --color-primary:     #0063CC;
+    --color-primary-600: #0055b3;
+    --color-primary-700: #00439a;
+    --color-primary-800: #003280;
+    --color-primary-900: #001f57;
+
+    /* Secondary – Savings Green */
+    --color-secondary-50:  #e0faf0;
+    --color-secondary:     #00C883;
+    --color-secondary-600: #00b073;
+    --color-secondary-700: #009561;
+
+    /* Graphite Dark */
+    --color-graphite:     #1F1F31;
+    --color-graphite-600: #2d2d45;
+    --color-graphite-700: #252538;
+
+    /* Danger */
+    --color-danger:       #FD2F2F;
+    --color-danger-dark:  #C32121;
+
+    /* Surface */
+    --color-surface:      #FFFFFF;
+    --color-surface-50:   #FAFBFF;
+    --color-surface-100:  #F4F5FB;
+    --color-surface-200:  #EAECF5;
+
+    /* Utility */
+    --color-utility:      #D5D9FF;
+    --color-muted:        #8B8FA8;
+
+    /* Typography */
+    --font-sans: 'Inter', system-ui, sans-serif;
+
+    /* Radii */
+    --radius-xs:   4px;
+    --radius-sm:   6px;
+    --radius:      8px;
+    --radius-md:   10px;
+    --radius-lg:   12px;
+    --radius-xl:   16px;
+    --radius-2xl:  20px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px 0 rgb(31 31 49 / 0.10), 0 1px 2px -1px rgb(31 31 49 / 0.06);
+    --shadow:    0 4px 6px -1px rgb(31 31 49 / 0.10), 0 2px 4px -2px rgb(31 31 49 / 0.06);
+    --shadow-md: 0 4px 16px -2px rgb(0 99 204 / 0.12), 0 2px 8px -2px rgb(31 31 49 / 0.08);
+    --shadow-lg: 0 10px 32px -4px rgb(0 99 204 / 0.16), 0 4px 16px -4px rgb(31 31 49 / 0.10);
+    --shadow-xl: 0 20px 48px -8px rgb(0 99 204 / 0.20), 0 8px 24px -4px rgb(31 31 49 / 0.12);
+
+    /* Transitions */
+    --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --duration-fast: 150ms;
+    --duration-base: 200ms;
+    --duration-slow: 300ms;
+  }
+
+  /* ── Base resets ─────────────────────────────────────────────── */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-surface-50);
+    color: var(--color-graphite);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── Focus ring (accessibility) ──────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* ── Selection color ─────────────────────────────────────────── */
+  ::selection {
+    background-color: rgb(0 99 204 / 0.15);
+    color: var(--color-primary-800);
+  }
+}
+
+/* ── Reusable component classes ───────────────────────────────── */
+@layer components {
+  /* Scrollbar */
+  .scrollbar-brand {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
+  }
+  .scrollbar-brand::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-brand::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-brand::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+  }
+
+  /* Gradient utilities */
+  .gradient-primary {
+    background: linear-gradient(135deg, #0063CC 0%, #0055b3 100%);
+  }
+  .gradient-brand {
+    background: linear-gradient(135deg, #0063CC 0%, #00C883 100%);
+  }
+  .gradient-dark {
+    background: linear-gradient(135deg, #1F1F31 0%, #2d2d45 100%);
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgb(255 255 255 / 0.30);
+  }
+  .glass-dark {
+    background: rgb(31 31 49 / 0.72);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+}
+
+/* ── Keyframe animations ──────────────────────────────────────── */
+@layer utilities {
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(0 99 204 / 0.4); }
+    50%       { box-shadow: 0 0 0 8px rgb(0 99 204 / 0); }
+  }
+
+  .animate-fade-in   { animation: fadeIn  0.3s var(--ease-brand) both; }
+  .animate-scale-in  { animation: scaleIn 0.25s var(--ease-bounce) both; }
+  .animate-pulse-glow { animation: pulse-glow 2s ease infinite; }
+  .animate-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
