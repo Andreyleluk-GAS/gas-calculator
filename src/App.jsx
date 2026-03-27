@@ -1392,7 +1392,7 @@ const App = () => {
 
     return (
       <div className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0">
-        <div className="max-w-5xl mx-auto min-w-[800px] border border-gray-100 shadow-sm print:shadow-none print:border-none p-4 md:p-10">
+        <div className="max-w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-4 md:p-10">
           <header className="mb-8 flex items-center justify-between print:hidden">
             <BackBtn />
             <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-2.5 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
@@ -1402,102 +1402,102 @@ const App = () => {
 
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-t border-black text-xs md:text-sm">
-                <th rowSpan="2" className="w-[28%] text-left p-4 pr-6 align-middle">
+              <tr className="text-xs md:text-sm">
+                <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
                   <h1 className="text-lg md:text-xl font-black text-black leading-tight">
                     Расчет экономической эффективности перевода с {source} на {target}
                   </h1>
                 </th>
-                <th className="bg-[#cfe2ff] p-2.5 text-center text-[12px] font-bold border-l border-white w-[24%]">
+                <th className="bg-[#cfe2ff] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
                   100% пробега<br />СПГ Метан
                 </th>
-                <th className="bg-[#d1f2eb] p-2.5 text-center text-[12px] font-bold border-l border-white w-[24%]">
+                <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
                   100% пробега<br />КПГ Метан
                 </th>
-                <th className="bg-white p-2 text-center text-[12px] font-bold border-l border-white w-[24%]">
+                <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
                   <div className="flex flex-col items-center">
-                    <span className="text-[11px] opacity-80 mb-0.5">100% пробега</span>
-                    <span className="text-black uppercase font-black text-[12px]">КПГ Метан</span>
-                    <span className="font-normal text-[9px] leading-tight mt-0.5 mb-1.5">со скидкой {disc}% на метан по программе</span>
-                    <img src="/logoGGMT.png" alt="Газпром" className="h-6 object-contain" onError={e => e.target.style.display='none'} />
+                    <span>100% пробега</span>
+                    <span>КПГ Метан</span>
+                    <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на метан по программе</span>
+                    <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display='none'} />
                   </div>
                 </th>
               </tr>
-              <tr className="border-b-2 border-black">
-                <th className="bg-[#cfe2ff] py-1 text-center text-[10px] font-bold border-l border-white">СПГ Метан, кг</th>
-                <th className="bg-[#d1f2eb] py-1 text-center text-[10px] font-bold border-l border-white">КПГ Метан, м³</th>
-                <th className="bg-white py-1 text-center text-[10px] font-bold border-l border-surface-100 uppercase tracking-tighter">КПГ Метан, м³</th>
+              <tr className="border-b border-black">
+                <th className="bg-[#cfe2ff] py-1 text-center text-[12px] font-bold border-l border-white">СПГ Метан, кг</th>
+                <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
+                <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
               </tr>
             </thead>
             <tbody className="text-[13px]">
-              <tr className="border-b border-surface-200">
-                <td className="py-1.5 px-3 pl-1 align-middle">Цена топлива, ₽</td>
-                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-bold align-middle">{fmtN(lP)}</td>
-                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-bold align-middle">{fmtN(cP)}</td>
-                <td className="text-right py-1.5 px-3 font-bold align-middle bg-white">{fmtN(cP_d)}</td>
+              <tr>
+                <td className="py-1 pr-3 pl-0 align-middle border-none">Цена топлива, ₽</td>
+                <td className="bg-[#cfe2ff] text-right py-1 px-3 font-bold align-middle border-none">{fmtN(lP)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1 px-3 font-bold align-middle border-none">{fmtN(cP)}</td>
+                <td className="text-right py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cP_d)}</td>
               </tr>
-              <tr className="border-b border-surface-200">
-                <td className="py-1.5 px-3 pl-1 align-middle">Расход топлива на 100 км</td>
-                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-bold align-middle">{fmtN(lC)}</td>
-                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-bold align-middle">{fmtN(cC)}</td>
-                <td className="text-right py-1.5 px-3 font-bold align-middle bg-white">{fmtN(cC)}</td>
+              <tr>
+                <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
+                <td className="bg-[#cfe2ff] text-right py-1 px-3 font-bold align-middle border-none">{fmtN(lC)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1 px-3 font-bold align-middle border-none">{fmtN(cC)}</td>
+                <td className="text-right py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cC)}</td>
               </tr>
-              <tr className="border-b border-surface-200">
-                <td className="py-1.5 px-3 pl-1 align-middle">Общий пробег в месяц, км</td>
-                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-bold align-middle">{fmtR(mMile)},00</td>
-                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-bold align-middle">{fmtR(mMile)},00</td>
-                <td className="text-right py-1.5 px-3 font-bold align-middle bg-white">{fmtR(mMile)},00</td>
+              <tr>
+                <td className="py-1 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
+                <td className="bg-[#cfe2ff] text-right py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                <td className="bg-[#d1f2eb] text-right py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                <td className="text-right py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
               </tr>
-              <tr className="border-b border-black md:border-b-2">
-                <td className="py-1.5 px-3 pl-1 align-middle">Расход топлива в месяц</td>
-                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-bold align-middle">{fmtR(lFuelM)}</td>
-                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-bold align-middle">{fmtR(cFuelM)}</td>
-                <td className="text-right py-1.5 px-3 font-bold align-middle bg-white">{fmtR(cFuelM)}</td>
+              <tr>
+                <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
+                <td className="bg-[#cfe2ff] text-right py-1 px-3 font-bold align-middle border-none">{fmtR(lFuelM)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1 px-3 font-bold align-middle border-none">{fmtR(cFuelM)}</td>
+                <td className="text-right py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(cFuelM)}</td>
               </tr>
-              <tr className="border-b-2 border-black">
-                <td className="py-2.5 px-3 pl-1 align-middle font-bold text-xs uppercase">Затраты на топливо в месяц, ₽</td>
-                <td className="bg-[#cfe2ff] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtR(lCostM)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtR(cCostM)}</td>
-                <td className="text-right py-2.5 px-3 font-black align-middle text-[15px] bg-white">{fmtR(cCostM_d)}</td>
+              <tr className="border-b border-black">
+                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
+                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(lCostM)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(cCostM)}</td>
+                <td className="text-right py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtR(cCostM_d)}</td>
               </tr>
-              <tr className="border-b-2 border-black">
-                <td className="py-2.5 px-3 pl-1 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
-                <td className="bg-[#cfe2ff] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtR(lCostM)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtR(cCostM)}</td>
-                <td className="text-right py-2.5 px-3 font-black align-middle text-[15px] bg-white">{fmtR(cCostM_d)}</td>
+              <tr className="border-none">
+                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
+                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(lCostM)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(cCostM)}</td>
+                <td className="text-right py-1.5 px-3 font-black align-middle text-[15px] bg-white">{fmtR(cCostM_d)}</td>
               </tr>
-              <tr className="border-b-4 border-black">
-                <td className="py-2.5 px-3 pl-1 align-middle font-bold text-xs uppercase">Затраты на км пробега, ₽</td>
-                <td className="bg-[#cfe2ff] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtN(lCostKm)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[15px]">{fmtN(cCostKm)}</td>
-                <td className="text-right py-2.5 px-3 font-black align-middle text-[15px] bg-white">{fmtN(cCostKm_d)}</td>
+              <tr className="border-b border-black">
+                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
+                <td className="bg-[#cfe2ff] text-right py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(lCostKm)}</td>
+                <td className="bg-[#d1f2eb] text-right py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(cCostKm)}</td>
+                <td className="text-right py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtN(cCostKm_d)}</td>
               </tr>
 
-              <tr className="h-4"><td></td></tr>
+              <tr className="h-10"><td></td></tr>
 
-              <tr className="border-t-2 border-black">
-                <td className="py-3 px-3 font-bold text-[14px]">Экономия в месяц на единицу техники, ₽</td>
-                <td className="bg-white border-l border-white"></td>
-                <td className="bg-[#d1f2eb] text-right py-3 px-3 font-black text-[17px] border-l border-white">{fmtR(savM)}</td>
-                <td className="text-right py-3 px-3 font-black text-[17px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
-              </tr>
-              <tr className="border-t border-black/20">
-                <td className="py-3 px-3 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
-                <td className="bg-white border-l border-white"></td>
-                <td className="bg-[#d1f2eb] text-right py-3 px-3 font-black text-[17px] border-l border-white">{fmtR(savM * 12)}</td>
-                <td className="text-right py-3 px-3 font-black text-[17px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
-              </tr>
               <tr className="border-t border-black">
-                <td className="py-3 px-3 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
-                <td className="bg-white border-l border-white"></td>
-                <td className="bg-[#d1f2eb] text-right py-3 px-3 font-black text-[20px] border-l border-white">{fmtR(savM * 36)}</td>
-                <td className="text-right py-3 px-3 font-black text-[20px] border-l border-surface-100 bg-white">{fmtR(savM_d * 36)}</td>
+                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
+                <td className="bg-white border-none"></td>
+                <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM)}</td>
+                <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
               </tr>
-              <tr className="border-t border-black/20">
-                <td className="py-1 px-3 text-[10px] uppercase font-bold text-black/60">Суммарная экономия, %</td>
-                <td className="bg-white border-l border-white"></td>
-                <td className="bg-[#d1f2eb] text-right px-3 py-1 text-[12px] font-bold border-l border-white">{lCostM ? (savM / lCostM * 100).toFixed(1) : 0}%</td>
-                <td className="text-right px-3 py-1 text-[12px] font-bold border-l border-surface-100 bg-white">{lCostM ? (savM_d / lCostM * 100).toFixed(1) : 0}%</td>
+              <tr className="border-none">
+                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
+                <td className="bg-white border-none"></td>
+                <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 12)}</td>
+                <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
+              </tr>
+              <tr className="border-none">
+                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
+                <td className="bg-white border-none"></td>
+                <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 36)}</td>
+                <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 36)}</td>
+              </tr>
+              <tr className="border-b border-black">
+                <td className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
+                <td className="bg-white border-none"></td>
+                <td className="bg-[#d1f2eb] text-right px-3 py-0.5 text-[12px] font-bold border-l border-white">{lCostM ? (savM / lCostM * 100).toFixed(1) : 0}%</td>
+                <td className="text-right px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{lCostM ? (savM_d / lCostM * 100).toFixed(1) : 0}%</td>
               </tr>
             </tbody>
           </table>
