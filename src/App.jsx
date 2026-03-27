@@ -126,7 +126,7 @@ const SaveBtn = ({ onClick }) => (
 );
 
 /* ── Кнопка «Назад» — единый стиль для всех экранов ── */
-const BackBtn = ({ onClick }) => (
+const BackBtn = ({ onClick, label = "Назад" }) => (
   <button
     onClick={onClick ?? (() => window.history.back())}
     className="flex items-center gap-1.5 px-4 py-2 bg-surface border border-surface-200
@@ -134,7 +134,7 @@ const BackBtn = ({ onClick }) => (
       hover:border-primary hover:text-primary
       active:scale-95 transition-all duration-200 cursor-pointer"
   >
-    <ChevronLeft size={14} /> Назад
+    <ChevronLeft size={14} /> {label}
   </button>
 );
 
@@ -152,8 +152,11 @@ const App = () => {
     dieselConsumption: 36, dieselPrice: 73.26,
     lngCoefficient: 0.86, lngPrice: 45,
     cngCoefficient: 1.2, cngPrice: 28.51,
-    monthlyMileage: 15000, substitutionRate: 60,
+    monthlyMileage: 15000,
   });
+  const [discountLimit, setDiscountLimit] = useState(2500);
+  const [isOldRepSettingsOpen, setIsOldRepSettingsOpen] = useState(false);
+
   const [remotInputs, setRemotInputs] = useState({
     dieselConsumption: 22, dieselPrice: 73.26,
     lngCoefficient: 0.86, lngPrice: 45,
@@ -375,7 +378,7 @@ const App = () => {
 
           {/* Навигация */}
           <div className="flex items-center mt-1 md:mt-2">
-            <BackBtn />
+            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
           </div>
 
           {/* Шапка */}
@@ -594,7 +597,7 @@ const App = () => {
       <div className="min-h-screen bg-surface-50 flex flex-col items-center justify-center p-4">
         <div className="max-w-4xl w-full flex flex-col min-h-[80vh] md:justify-center animate-fade-in">
           <div className="mb-6">
-            <BackBtn />
+            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
           </div>
 
           <div className="text-center mb-8">
@@ -1099,7 +1102,7 @@ const App = () => {
               </div>
 
               {/* Общие */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Пробег (км / мес)" name="monthlyMileage"
                   value={inp.monthlyMileage}
                   onChange={(e) => set('monthlyMileage', e.target.value)} />
@@ -1156,9 +1159,9 @@ const App = () => {
         <div className="max-w-3xl mx-auto">
 
           {/* Шапка */}
-          <header className="mb-3 md:mb-4 flex items-center justify-between print:hidden">
+          <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
             <BackBtn />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               <button onClick={() => navigateTo('LNG_CNG_REPORT_OLD')}
                 className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
                   rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
@@ -1265,12 +1268,22 @@ const App = () => {
                 ? 'bg-secondary-50 border-secondary-200'
                 : 'bg-red-50 border-danger/20'
               }`}>
-              <div className="flex items-start gap-4">
-                <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
-                  : isWorthIt ? 'bg-secondary text-white'
-                    : 'bg-danger text-white'
-                  }`}>
-                  {cheaperIs === 'equal' ? '=' : isWorthIt ? '✓' : '!'}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                  <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
+                    : isWorthIt ? 'bg-secondary text-white'
+                      : 'bg-danger text-white'
+                    }`}>
+                    {cheaperIs === 'equal' ? '=' : isWorthIt ? '✓' : '!'}
+                  </div>
+                  <div className="sm:hidden flex-1 text-right">
+                    <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5">Ежемес. разница</div>
+                    <div className={`text-lg font-black ${cheaperIs === 'equal' ? 'text-graphite'
+                      : isWorthIt ? 'text-secondary-700' : 'text-danger'
+                      }`}>
+                      {fmt(Math.round(savings / 12))}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex-1">
                   <div className={`font-bold text-sm mb-1 ${cheaperIs === 'equal' ? 'text-graphite'
@@ -1291,15 +1304,15 @@ const App = () => {
                         <strong>{fmt(savings)}</strong>
                         {equip > 0 && (
                           <>
-                            &nbsp;•&nbsp;
+                            <br className="sm:hidden" />
+                            <span className="hidden sm:inline">&nbsp;•&nbsp;</span>
                             {isWorthIt ? (
                               <>
-                                Окупаемость переоборудования:
+                                Окупаемость:
                                 <strong> {isFinite(paybackYr) ? `${paybackYr.toFixed(1)} лет` : '—'}</strong>
-                                {isFinite(paybackMo) && <> ({Math.round(paybackMo)} мес.)</>}
                               </>
                             ) : (
-                              <span className="text-danger font-bold">Инвестиции носят невозвратный характер</span>
+                              <span className="text-danger font-bold text-[10px] uppercase">Инвестиции не окупаются</span>
                             )}
                           </>
                         )}
@@ -1307,7 +1320,7 @@ const App = () => {
                     )}
                   </div>
                 </div>
-                <div className="text-right shrink-0">
+                <div className="hidden sm:block text-right shrink-0">
                   <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5 whitespace-nowrap">Ежемес. разница</div>
                   <div className={`text-xl font-black ${cheaperIs === 'equal' ? 'text-graphite'
                     : isWorthIt ? 'text-secondary-700' : 'text-danger'
@@ -1374,11 +1387,20 @@ const App = () => {
 
     const lCostM = Math.round(lFuelM * lP);
     const cCostM = Math.round(cFuelM * cP);
-    const cCostM_d = Math.round(cFuelM * cP_d);
+    // Новая логика расчета для 3-й колонки (КПГ со скидкой)
+    // 1. Объем газа со скидкой (лимит)
+    const limit = vC(discountLimit);
+    
+    // 2. Расчет затрат в месяц
+    // Из общего объема в месяц (cFuelM) первые 'limit' идут по цене cP_d, остальное по cP
+    const discountedVol = Math.min(cFuelM, limit);
+    const normalVol = Math.max(0, cFuelM - limit);
+    const cCostM_d = Math.round((discountedVol * cP_d) + (normalVol * cP));
 
+    // 3. Расчет цены за 1 км (усредненная)
     const lCostKm = (lC * lP) / 100;
     const cCostKm = (cC * cP) / 100;
-    const cCostKm_d = (cC * cP_d) / 100;
+    const cCostKm_d = cCostM_d / (mMile || 1);
 
     const savM = lCostM - cCostM;
     const savM_d = lCostM - cCostM_d;
@@ -1504,7 +1526,38 @@ const App = () => {
           <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium">
             * Расчёт носит справочный характер и основан на введённых данных.
           </p>
+
+          {/* Значок настроек справа внизу */}
+          <div className="flex justify-end mt-4 print:hidden">
+            <button
+              onClick={() => setIsOldRepSettingsOpen(true)}
+              className="p-2 bg-surface-50 border border-surface-200 rounded-lg text-graphite/40 
+                hover:text-primary hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Настройки скидки"
+            >
+              <Settings2 size={18} />
+            </button>
+          </div>
         </div>
+
+        {/* Модал настроек лимита скидки */}
+        {isOldRepSettingsOpen && (
+          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
+            <div className="space-y-4">
+              <Field 
+                label="Объем газа со скидкой (м³)" 
+                name="discountLimit" 
+                value={discountLimit} 
+                onChange={(e) => setDiscountLimit(e.target.value)} 
+                suffix="м³"
+              />
+              <p className="text-[10px] text-utility-muted italic">
+                * Первые {discountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({disc}%), остальной объем — по полной цене.
+              </p>
+              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
+            </div>
+          </Modal>
+        )}
       </div>
     );
   }
