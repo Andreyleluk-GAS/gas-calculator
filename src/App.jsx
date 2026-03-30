@@ -173,6 +173,7 @@ const App = () => {
     lngCoefficient: 0.86, lngPrice: 45,
     cngCoefficient: 1.2, cngPrice: 28.51,
     monthlyMileage: 15000,
+    substitutionRate: 60,
   });
   const [discountLimit, setDiscountLimit] = useState(2500);
   const [isOldRepSettingsOpen, setIsOldRepSettingsOpen] = useState(false);
