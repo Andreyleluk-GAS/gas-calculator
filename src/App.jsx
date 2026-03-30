@@ -1563,7 +1563,7 @@ const App = () => {
             transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none'
           }}
         >
-          <header className="mb-10 flex items-center justify-between print:hidden">
+          <header className="mb-10 hidden md:flex items-center justify-between print:hidden">
             <BackBtn className="h-10 !py-0" />
             <div className="flex gap-2">
               <button 
@@ -1679,12 +1679,12 @@ const App = () => {
               </tr>
             </tbody>
           </table>
-          <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium">
+          <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
             * Расчёт носит справочный характер и основан на введённых данных.
           </p>
 
           {/* Значок настроек справа внизу */}
-          <div className="flex justify-end mt-4 print:hidden">
+          <div className="hidden md:flex justify-end mt-4 print:hidden">
             <button
               onClick={() => setIsOldRepSettingsOpen(true)}
               className="p-2 bg-surface-50 border border-surface-200 rounded-lg text-graphite/40 
