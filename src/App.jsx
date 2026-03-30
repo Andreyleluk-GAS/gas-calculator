@@ -253,6 +253,36 @@ const App = () => {
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
 
+  // ЗУМ ДЛЯ OLD ОТЧЕТА (PINCH-TO-ZOOM)
+  const [zoomScale, setZoomScale] = useState(1);
+  const [lastDist, setLastDist] = useState(0);
+
+  const handlePinchStart = (e) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      setLastDist(dist);
+    }
+  };
+
+  const handlePinchMove = (e) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      if (lastDist > 0) {
+        const delta = dist / lastDist;
+        setZoomScale(prev => Math.max(0.3, Math.min(prev * delta, 2)));
+      }
+      setLastDist(dist);
+    }
+  };
+
+  const handlePinchEnd = () => setLastDist(0);
+
   // ── НАВИГАЦИЯ history ─────────────────────
   useEffect(() => {
     if (!window.history.state) window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
@@ -1518,8 +1548,21 @@ const App = () => {
     const fmtR = (n) => new Intl.NumberFormat('ru-RU').format(Math.round(n));
 
     return (
-      <div className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0">
-        <div id="old-report-table-container" className="w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-10 bg-white">
+      <div 
+        className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0"
+        onTouchStart={handlePinchStart}
+        onTouchMove={handlePinchMove}
+        onTouchEnd={handlePinchEnd}
+      >
+        <div 
+          id="old-report-table-container" 
+          className="w-[850px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-6 md:p-10 bg-white"
+          style={{ 
+            transform: `scale(${zoomScale})`, 
+            transformOrigin: 'top center',
+            transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none'
+          }}
+        >
           <header className="mb-10 flex items-center justify-between print:hidden">
             <BackBtn className="h-10 !py-0" />
             <div className="flex gap-2">
