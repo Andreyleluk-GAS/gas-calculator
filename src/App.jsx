@@ -940,12 +940,22 @@ const App = () => {
           {/* Верхняя панель */}
           <header className="mb-3 md:mb-4 flex items-center justify-between print:hidden">
             <BackBtn />
-            <button onClick={() => window.print()}
-              className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              <Printer size={14} /> Печать
-            </button>
+            <div className="flex gap-2">
+              {!isRem && (
+                <button onClick={() => navigateTo('TRUCK_REPORT_OLD')}
+                  className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                    rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
+                    active:scale-95 transition-all duration-200 cursor-pointer">
+                  <BarChart3 size={14} /> Отчёт OLD
+                </button>
+              )}
+              <button onClick={() => window.print()}
+                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                  active:scale-95 transition-all duration-200 cursor-pointer">
+                <Printer size={14} /> Печать
+              </button>
+            </div>
           </header>
 
           {/* Карточка отчёта */}
@@ -1503,6 +1513,258 @@ const App = () => {
       </div>
     );
   }
+  
+  // ═══════════════════════════════════════════
+  //  ЭКРАН 9 — ГАЗОДИЗЕЛЬ: ОТЧЁТ OLD
+  // ═══════════════════════════════════════════
+  if (currentScreen === 'TRUCK_REPORT_OLD') {
+    const inp = truckInputs;
+    const vC = (x) => { const n = parseFloat(x); return isNaN(n) ? 0 : n; };
+    const disc = ggmtDiscount;
+    const subRate = vC(inp.substitutionRate);
+    const gasCoef = vC(systemType === 'lng' ? inp.lngCoefficient : inp.cngCoefficient);
+    
+    const mMile = vC(inp.monthlyMileage);
+    const dP = vC(inp.dieselPrice), dC = vC(inp.dieselConsumption);
+    const gP = vC(systemType === 'lng' ? inp.lngPrice : inp.cngPrice);
+    const gP_d = gP * (1 - disc / 100);
+
+    // Расход в месяц (базовый ДТ)
+    const dFuelM_base = (mMile / 100) * dC;
+    const dCostM_base = Math.round(dFuelM_base * dP);
+
+    // Расход в месяц (Газодизель)
+    const dFuelM_gd = dFuelM_base * (1 - subRate / 100);
+    const gFuelM_gd = dFuelM_base * (subRate / 100) * gasCoef;
+
+    const dCostM_gd = dFuelM_gd * dP;
+    const gCostM_gd = gFuelM_gd * gP;
+    const totalCostM_gd = Math.round(dCostM_gd + gCostM_gd);
+
+    // Расход в месяц (Газодизель со скидкой)
+    const limit = vC(discountLimit);
+    const discountedVol = Math.min(gFuelM_gd, limit);
+    const normalVol = Math.max(0, gFuelM_gd - limit);
+    const gCostM_gd_d = (discountedVol * gP_d) + (normalVol * gP);
+    const totalCostM_gd_d = Math.round(dCostM_gd + gCostM_gd_d);
+
+    // Экономия
+    const savM = dCostM_base - totalCostM_gd;
+    const savM_d = dCostM_base - totalCostM_gd_d;
+
+    const fmtN = (n) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(n);
+    const fmtR = (n) => new Intl.NumberFormat('ru-RU').format(Math.round(n));
+
+    return (
+      <div 
+        className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0"
+        onTouchStart={handlePinchStart}
+        onTouchMove={handlePinchMove}
+        onTouchEnd={handlePinchEnd}
+      >
+        <div id="old-report-table-container" className="w-[900px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-6 md:p-10 bg-white"
+          style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center', transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none' }}>
+          
+          <header className="mb-10 hidden md:flex items-center justify-between print:hidden">
+            <BackBtn className="h-10 !py-0" />
+            <div className="flex gap-2">
+              <button onClick={handleSaveOldReportAsImage} className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer">
+                Сохранить
+              </button>
+              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+                <Printer size={16} /> Печать отчёта
+              </button>
+            </div>
+          </header>
+
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="text-sm">
+                <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
+                  <h1 className="text-xl font-black text-black leading-tight uppercase">
+                    Расчет экономической эффективности "ГАЗОДИЗЕЛЬ"
+                  </h1>
+                </th>
+                <th className="bg-[#f2d7d5] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
+                  100% пробега - ДТ
+                </th>
+                <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
+                  100% пробега - газодизель<br/>с замещением {subRate}%<br/>ДТ + КПГ метан
+                </th>
+                <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
+                  <div className="flex flex-col items-center">
+                    <span>100% пробега - газодизель</span>
+                    <span>с замещением {subRate}%</span>
+                    <span>ДТ + КПГ метан</span>
+                    <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на КПГ метан по программе</span>
+                    <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display='none'} />
+                  </div>
+                </th>
+              </tr>
+              <tr className="border-b-2 border-black">
+                <th className="bg-[#f2d7d5] py-1 text-center text-[12px] font-bold border-l border-white">Дизель, л</th>
+                <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">
+                  <div className="flex justify-around px-1">
+                    <span>Дизель, л</span>
+                    <span className="border-l border-black/20 h-4 mx-1"></span>
+                    <span>КПГ Метан, м³</span>
+                  </div>
+                </th>
+                <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-gray-200">
+                  <div className="flex justify-around px-1">
+                    <span>Дизель, л</span>
+                    <span className="border-l border-black/20 h-4 mx-1"></span>
+                    <span>КПГ Метан, м³</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="text-[13px]">
+              <tr>
+                <td className="py-2 pr-3 pl-0 align-middle border-none">Цена топлива за литр, ₽</td>
+                <td className="bg-[#f2d7d5] text-center py-2 px-3 font-bold align-middle border-none">{fmtN(dP)}</td>
+                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtN(dP)}</span>
+                    <span className="text-black/50">{fmtN(gP)}</span>
+                  </div>
+                </td>
+                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                   <div className="flex justify-between">
+                    <span>{fmtN(dP)}</span>
+                    <span className="text-black/50">{fmtN(gP_d)}</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
+                <td className="bg-[#f2d7d5] text-center py-2 px-3 font-bold align-middle border-none">{fmtN(dC)}</td>
+                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtN(dC * (1 - subRate/100))}</span>
+                    <span className="text-black/50">{fmtN(dC * (subRate/100) * gasCoef)}</span>
+                  </div>
+                </td>
+                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtN(dC * (1 - subRate/100))}</span>
+                    <span className="text-black/50">{fmtN(dC * (subRate/100) * gasCoef)}</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
+                <td className="bg-[#f2d7d5] text-center py-2 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                <td className="bg-[#d1f2eb] text-center py-2 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                <td className="text-center py-2 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
+                <td className="bg-[#f2d7d5] text-center py-2 px-3 font-bold align-middle border-none">{fmtR(dFuelM_base)}</td>
+                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtR(dFuelM_gd)}</span>
+                    <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
+                  </div>
+                </td>
+                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtR(dFuelM_gd)}</span>
+                    <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
+                  </div>
+                </td>
+              </tr>
+              <tr className="border-b-2 border-black">
+                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
+                <td className="bg-[#f2d7d5] text-center py-2.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(dCostM_base)}</td>
+                <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[14px] border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtR(dCostM_gd)}</span>
+                    <span className="text-black/50">{fmtR(gCostM_gd)}</span>
+                  </div>
+                </td>
+                <td className="text-right py-2.5 px-3 font-black align-middle text-[14px] bg-white border-none">
+                  <div className="flex justify-between">
+                    <span>{fmtR(dCostM_gd)}</span>
+                    <span className="text-black/50">{fmtR(gCostM_gd_d)}</span>
+                  </div>
+                </td>
+              </tr>
+              <tr className="border-none">
+                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
+                <td className="bg-[#f2d7d5] text-center py-2.5 px-3 font-black align-middle text-[16px]">{fmtR(dCostM_base)}</td>
+                <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px]">{fmtR(totalCostM_gd)}</td>
+                <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white">{fmtR(totalCostM_gd_d)}</td>
+              </tr>
+              <tr className="border-b-2 border-black">
+                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
+                <td className="bg-[#f2d7d5] text-center py-2.5 px-3 font-black align-middle text-[16px] border-none">{fmtN(dCostM_base / (mMile || 1))}</td>
+                <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px] border-none">{fmtN(totalCostM_gd / (mMile || 1))}</td>
+                <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white border-none">{fmtN(totalCostM_gd_d / (mMile || 1))}</td>
+              </tr>
+
+              <tr className="h-10"><td></td></tr>
+
+              <tr className="border-t border-black">
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
+                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM)}</td>
+                <td className="text-center py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
+              </tr>
+              <tr className="border-none">
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
+                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 12)}</td>
+                <td className="text-center py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
+              </tr>
+              <tr className="border-none">
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 5 лет на единицу техники, ₽</td>
+                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 60)}</td>
+                <td className="text-center py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 60)}</td>
+              </tr>
+              <tr className="border-b border-black">
+                <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
+                <td className="bg-[#d1f2eb] text-center px-3 py-0.5 text-[12px] font-bold border-l border-white">{dCostM_base ? (savM / dCostM_base * 100).toFixed(1) : 0}%</td>
+                <td className="text-center px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{dCostM_base ? (savM_d / dCostM_base * 100).toFixed(1) : 0}%</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
+            * Расчёт носит справочный характер и основан на введённых данных.
+          </p>
+
+          {/* Значок настроек справа внизу */}
+          <div className="hidden md:flex justify-end mt-4 print:hidden">
+            <button
+              onClick={() => setIsOldRepSettingsOpen(true)}
+              className="p-2 bg-surface-50 border border-surface-200 rounded-lg text-graphite/40 
+                hover:text-primary hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Настройки скидки"
+            >
+              <Settings2 size={18} />
+            </button>
+          </div>
+        </div>
+
+        {isOldRepSettingsOpen && (
+          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
+            <div className="space-y-4">
+              <Field 
+                label="Объем газа со скидкой (м³)" 
+                name="discountLimit" 
+                value={discountLimit} 
+                onChange={(e) => setDiscountLimit(e.target.value)} 
+                suffix="м³"
+              />
+              <p className="text-[10px] text-utility-muted italic">
+                * Первые {discountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({disc}%), остальной объем — по полной цене.
+              </p>
+              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
+            </div>
+          </Modal>
+        )}
+      </div>
+    );
+  }
 
   // ═══════════════════════════════════════════
   //  ЭКРАН 8 — СПГ ↔ КПГ: ОТЧЁТ OLD (1:1 ПО ОБРАЗЦУ)
@@ -1654,26 +1916,22 @@ const App = () => {
               <tr className="h-10"><td></td></tr>
 
               <tr className="border-t border-black">
-                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
-                <td className="bg-white border-none"></td>
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
                 <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM)}</td>
                 <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
               </tr>
               <tr className="border-none">
-                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
-                <td className="bg-white border-none"></td>
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
                 <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 12)}</td>
                 <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
               </tr>
               <tr className="border-none">
-                <td className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
-                <td className="bg-white border-none"></td>
+                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
                 <td className="bg-[#d1f2eb] text-right py-0.5 px-3 font-black text-[18px] border-l border-white">{fmtR(savM * 36)}</td>
                 <td className="text-right py-0.5 px-3 font-black text-[18px] border-l border-surface-100 bg-white">{fmtR(savM_d * 36)}</td>
               </tr>
               <tr className="border-b border-black">
-                <td className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
-                <td className="bg-white border-none"></td>
+                <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
                 <td className="bg-[#d1f2eb] text-right px-3 py-0.5 text-[12px] font-bold border-l border-white">{lCostM ? (savM / lCostM * 100).toFixed(1) : 0}%</td>
                 <td className="text-right px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{lCostM ? (savM_d / lCostM * 100).toFixed(1) : 0}%</td>
               </tr>
