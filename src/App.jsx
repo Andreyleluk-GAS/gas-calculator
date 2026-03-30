@@ -1435,8 +1435,8 @@ const App = () => {
 
     return (
       <div className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0">
-        <div id="old-report-table-container" className="max-w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-4 md:p-10 bg-white">
-          <header className="mb-8 flex items-center justify-between print:hidden">
+        <div id="old-report-table-container" className="w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-10 bg-white">
+          <header className="mb-10 flex items-center justify-between print:hidden">
             <BackBtn />
             <div className="flex gap-2">
               <button 
@@ -1453,9 +1453,9 @@ const App = () => {
 
           <table className="w-full border-collapse">
             <thead>
-              <tr className="text-xs md:text-sm">
+              <tr className="text-sm">
                 <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
-                  <h1 className="text-lg md:text-xl font-black text-black leading-tight">
+                  <h1 className="text-xl font-black text-black leading-tight">
                     Расчет экономической эффективности перевода с {source} на {target}
                   </h1>
                 </th>
