@@ -126,13 +126,13 @@ const SaveBtn = ({ onClick }) => (
 );
 
 /* ── Кнопка «Назад» — единый стиль для всех экранов ── */
-const BackBtn = ({ onClick, label = "Назад" }) => (
+const BackBtn = ({ onClick, label = "Назад", className = "" }) => (
   <button
     onClick={onClick ?? (() => window.history.back())}
-    className="flex items-center gap-1.5 px-4 py-2 bg-surface border border-surface-200
+    className={`flex items-center gap-1.5 px-4 py-2 bg-surface border border-surface-200
       rounded-xl text-xs font-bold text-graphite shadow-sm
       hover:border-primary hover:text-primary
-      active:scale-95 transition-all duration-200 cursor-pointer"
+      active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
   >
     <ChevronLeft size={14} /> {label}
   </button>
@@ -155,10 +155,55 @@ const App = () => {
       useCORS: true,
       logging: false
     }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `elitegas_report_${new Date().getTime()}.jpg`;
-      link.href = canvas.toDataURL('image/jpeg', 0.9);
-      link.click();
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.download = `elitegas_report_${new Date().getTime()}.jpg`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  // ФУНКЦИЯ СКРИНШОТА ВСЕЙ СТРАНИЦЫ
+  const handleFullPageScreenshot = () => {
+    const el = document.getElementById('root');
+    if (!el || !window.html2canvas) return;
+
+    // Временно убираем overflow для захвата всей высоты
+    const originalStyles = el.style.cssText;
+    
+    window.html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f8fafc', // Цвет фона страницы
+      scrollY: -window.scrollY,
+      windowHeight: el.scrollHeight,
+      width: el.scrollWidth,
+      height: el.scrollHeight,
+      logging: false
+    }).then(canvas => {
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.download = `elitegas_full_screenshot_${new Date().getTime()}.png`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      }, 'image/png');
     });
   };
 
@@ -214,6 +259,45 @@ const App = () => {
     const onPop = (e) => setCurrentScreen(e.state?.screen ?? 'MAIN_SELECTION');
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // ЖЕСТ 3 ПАЛЬЦАМИ ВНИЗ (СКРИНШОТ)
+  useEffect(() => {
+    let startY = 0;
+    let isThreeFinger = false;
+    let gestureActive = false;
+
+    const handleTouchStart = (e) => {
+      if (e.touches.length === 3) {
+        isThreeFinger = true;
+        gestureActive = false;
+        startY = (e.touches[0].pageY + e.touches[1].pageY + e.touches[2].pageY) / 3;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (isThreeFinger && !gestureActive) {
+        const currentY = (e.touches[0].pageY + e.touches[1].pageY + e.touches[2].pageY) / 3;
+        if (currentY - startY > 150) { // Порог свайпа 150px
+          gestureActive = true;
+          handleFullPageScreenshot();
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isThreeFinger = false;
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
   }, []);
 
   const navigateTo = (screen, extra = {}) => {
@@ -1437,15 +1521,15 @@ const App = () => {
       <div className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0">
         <div id="old-report-table-container" className="w-[800px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-10 bg-white">
           <header className="mb-10 flex items-center justify-between print:hidden">
-            <BackBtn />
+            <BackBtn className="h-10 !py-0" />
             <div className="flex gap-2">
               <button 
                 onClick={handleSaveOldReportAsImage}
-                className="flex items-center gap-2 px-6 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer"
+                className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer"
               >
                 Сохранить
               </button>
-              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-2.5 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
                 <Printer size={16} /> Печать отчёта
               </button>
             </div>
