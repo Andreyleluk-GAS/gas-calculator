@@ -316,13 +316,19 @@ const App = () => {
     }
 
     // Инициализация истории с барьером
-    if (!window.history.state) {
-      window.history.replaceState({ screen: 'BASE' }, '', '#BASE');
-      window.history.pushState({ screen: 'MAIN_SELECTION' }, '', '#MAIN_SELECTION');
-      setCurrentScreen('MAIN_SELECTION');
-    } else {
-      setCurrentScreen(window.history.state.screen || 'MAIN_SELECTION');
-    }
+    const initHistory = () => {
+      if (!window.history.state || window.history.state.screen === 'BASE') {
+        // Чтобы браузер "почувствовал" переход, сначала ставим базу, потом пушим главную
+        window.history.replaceState({ screen: 'BASE' }, '', '#BASE');
+        window.history.pushState({ screen: 'MAIN_SELECTION' }, '', '#MAIN_SELECTION');
+        setCurrentScreen('MAIN_SELECTION');
+      } else {
+        setCurrentScreen(window.history.state.screen || 'MAIN_SELECTION');
+      }
+    };
+
+    // Небольшая задержка помогает мобильным браузерам корректно обработать цепочку состояний
+    setTimeout(initHistory, 100);
 
     const onPop = (e) => {
       const screen = e.state?.screen;
@@ -422,6 +428,18 @@ const App = () => {
     new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(n || 0);
   const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; };
 
+  // ДЕТЕКТОР ТЕЛЕГРАМ БРАУЗЕРА (для подсказки)
+  const isTgBrowser = useMemo(() => {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    return (ua.indexOf('Telegram') > -1) && (ua.indexOf('Android') > -1);
+  }, []);
+
+  const openInExternal = () => {
+    const url = window.location.href.split('#')[0];
+    // Intent для открытия в Chrome на Android
+    const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+    window.location.href = intentUrl;
+  };
   // ── РАСЧЁТЫ ГРУЗОВОГО ─────────────────────
   const truckSummary = useMemo(() => {
     const isRem = truckSubMode === 'REMOT';
@@ -594,6 +612,17 @@ const App = () => {
           </div>
 
           <AppFooter />
+          
+          {isTgBrowser && (
+            <button
+              onClick={openInExternal}
+              className="mt-6 flex items-center gap-2 px-4 py-2.5 bg-surface-200 text-graphite-500 
+                rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-surface-300 transition-all border border-surface-300"
+            >
+              <img src="https://www.google.com/s2/favicons?domain=chrome.com&sz=32" className="w-4 h-4 grayscale opacity-70" alt="" />
+              Открыть в Chrome
+            </button>
+          )}
         </div>
       </div>
     );
