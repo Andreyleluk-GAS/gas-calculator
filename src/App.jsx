@@ -140,22 +140,35 @@ const SaveBtn = ({ onClick }) => (
   </button>
 );
 
-/* ── Кнопка «Назад» — единый стиль для всех экранов ── */
-const BackBtn = ({ onClick, label = "Назад", className = "" }) => (
-  <button
-    onClick={onClick ?? (() => window.history.back())}
-    className={`flex items-center gap-1.5 px-4 py-2 bg-surface border border-surface-200
-      rounded-xl text-xs font-bold text-graphite shadow-sm
-      hover:border-primary hover:text-primary
-      active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
-  >
-    <ChevronLeft size={14} /> {label}
-  </button>
-);
-
 const App = () => {
   // ── НАВИГАЦИЯ ─────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
+
+  /* ── Кнопка «Назад» — единый стиль для всех экранов ── */
+  const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
+    const handleNavigationBack = () => {
+      // Пытаемся вернуться в историю
+      if (window.history.state && window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Если истории нет (например, зашли по прямой ссылке), принудительно идем на главную
+        setCurrentScreen('MAIN_SELECTION');
+        window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
+      }
+    };
+
+    return (
+      <button
+        onClick={onClick ?? handleNavigationBack}
+        className={`flex items-center gap-1.5 px-4 py-2 bg-white border border-surface-200
+          rounded-xl text-xs font-bold text-graphite shadow-sm
+          hover:border-primary hover:text-primary
+          active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
+      >
+        <ChevronLeft size={14} /> {label}
+      </button>
+    );
+  };
 
   // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
   const handleSaveOldReportAsImage = () => {
@@ -301,11 +314,57 @@ const App = () => {
 
   // ── НАВИГАЦИЯ history ─────────────────────
   useEffect(() => {
-    if (!window.history.state) window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
-    const onPop = (e) => setCurrentScreen(e.state?.screen ?? 'MAIN_SELECTION');
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    if (!window.history.state) {
+      window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
+    }
+
+    const onPop = (e) => {
+      const screen = e.state?.screen ?? 'MAIN_SELECTION';
+      setCurrentScreen(screen);
+    };
+
     window.addEventListener('popstate', onPop);
+
     return () => window.removeEventListener('popstate', onPop);
   }, []);
+
+  // Синхронизация кнопки "Назад" в Telegram
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    if (currentScreen === 'MAIN_SELECTION') {
+      tg.BackButton.hide();
+    } else {
+      tg.BackButton.show();
+    }
+
+    const handleTgBack = () => {
+      if (currentScreen === 'MAIN_SELECTION') {
+        tg.close();
+        return;
+      }
+
+      // Пытаемся вернуться в историю
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Если истории нет, форсируем главную
+        setCurrentScreen('MAIN_SELECTION');
+        window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
+      }
+    };
+
+    tg.onEvent('backButtonClicked', handleTgBack);
+    return () => tg.offEvent('backButtonClicked', handleTgBack);
+  }, [currentScreen]);
 
   // ЖЕСТ 3 ПАЛЬЦАМИ ВНИЗ (СКРИНШОТ)
   useEffect(() => {
@@ -348,7 +407,20 @@ const App = () => {
 
   const navigateTo = (screen, extra = {}) => {
     setCurrentScreen(screen);
+    // При переходе на экран, который мы считаем "корневым" при возврате (например выбор типа грузового)
+    // можно делать replaceState если нужно, но в целом pushState достаточно.
     window.history.pushState({ screen, ...extra }, '');
+  };
+
+  const handleBack = () => {
+    // Универсальная функция назад
+    if (window.history.state?.screen === 'MAIN_SELECTION') {
+      // Мы и так на главной, ничего не делаем или закрываем приложение (через Telegram API)
+      const tg = window.Telegram?.WebApp;
+      if (tg) tg.close();
+      return;
+    }
+    window.history.back();
   };
 
   // ── УТИЛИТЫ ───────────────────────────────
@@ -543,7 +615,7 @@ const App = () => {
 
           {/* Навигация */}
           <div className="flex items-center mt-1 md:mt-2">
-            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
+            <BackBtn label="На главную" />
           </div>
 
           {/* Шапка */}
@@ -768,7 +840,7 @@ const App = () => {
       <div className="min-h-screen bg-surface-50 flex flex-col items-center justify-center p-4">
         <div className="max-w-4xl w-full flex flex-col min-h-[80vh] md:justify-center animate-fade-in">
           <div className="mb-6">
-            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
+            <BackBtn label="На главную" />
           </div>
 
           <div className="text-center mb-8">
