@@ -33,18 +33,18 @@ const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; };
 // ── ОБЩИЕ UI-БЛОКИ ────────────────────────
 /* ── Общее поле ввода ── */
 const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => (
-  <div>
-    <label className="block text-[9px] md:text-[10px] font-semibold text-graphite-500 uppercase tracking-wider mb-1">
+  <div className="flex flex-col h-full">
+    <label className="block text-[11px] md:text-xs font-semibold text-graphite-500 uppercase tracking-wider mb-1.5 min-h-[28px] flex items-end">
       {label}
     </label>
-    <div className="relative">
+    <div className="relative mt-auto">
       <input
         type="number"
         name={name}
         value={value}
         onChange={onChange}
         step={step}
-        className={`w-full p-2 md:p-2.5 bg-surface-50 border border-surface-300 rounded-lg font-bold text-sm text-graphite outline-none
+        className={`w-full p-2 md:p-2.5 bg-surface-50 border border-surface-300 rounded-lg font-bold text-lg text-graphite outline-none
           focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-200 ${colorClass}`}
       />
       {suffix && (
@@ -547,30 +547,36 @@ const App = () => {
           </div>
 
           {/* Шапка */}
-          <header className="flex flex-col items-center text-center bg-surface py-3 md:py-5 px-4
-            rounded-2xl shadow-sm border border-surface-200">
-            <h1 className="text-xl md:text-2xl font-extrabold text-graphite tracking-tight">
+          <header className="flex items-center bg-surface py-3 md:py-5 px-4 md:px-6
+            rounded-2xl shadow-sm border border-surface-200 overflow-hidden">
+            <h1 className="flex-1 text-center text-[15px] md:text-2xl font-extrabold text-graphite tracking-tight">
               Топливный калькулятор
             </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="bg-primary-50 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight">
-                Свердловскстат
-              </span>
-              <p className="text-utility-muted text-[10px] font-semibold uppercase">
-                Данные на {currentDate}
-              </p>
-            </div>
+            <img 
+              src="/logo-legcovie.png" 
+              alt="Легковые" 
+              className="h-6 md:h-12 w-auto object-contain shrink-0"
+              onError={(e) => e.target.style.display = 'none'}
+            />
           </header>
 
           {/* Ввод пробега / расхода */}
           <section className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="bg-surface p-3 md:p-4 rounded-xl shadow-sm border border-surface-200">
-              <Field label="Пробег (мес)" name="mileage" value={passInputs.mileage}
-                onChange={(e) => setPassInputs(p => ({ ...p, mileage: e.target.value }))} suffix="км" />
+              <Field 
+                label={<span>Пробег (мес), <br className="md:hidden" />км</span>} 
+                name="mileage" 
+                value={passInputs.mileage}
+                onChange={(e) => setPassInputs(p => ({ ...p, mileage: e.target.value }))} 
+              />
             </div>
             <div className="bg-surface p-3 md:p-4 rounded-xl shadow-sm border border-surface-200">
-              <Field label="Расход бензина" name="fuelNorm" value={passInputs.fuelNorm}
-                onChange={(e) => setPassInputs(p => ({ ...p, fuelNorm: e.target.value }))} suffix="л/100" />
+              <Field 
+                label="Расход бензина, л/100 км" 
+                name="fuelNorm" 
+                value={passInputs.fuelNorm}
+                onChange={(e) => setPassInputs(p => ({ ...p, fuelNorm: e.target.value }))} 
+              />
             </div>
           </section>
 
@@ -621,7 +627,7 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-[11px] font-medium text-amber-600/60 pt-2 border-t border-amber-100 mt-3 text-center italic">
+              <p className="text-[13px] font-medium text-amber-600/60 pt-2 border-t border-amber-100 mt-3 text-center italic">
                 Эталон для сравнения
               </p>
             </div>
@@ -670,7 +676,7 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-secondary-600 pt-2 border-t border-secondary-200 mt-3 text-center tracking-tight">
+              <p className="text-[13px] font-bold text-secondary-600 pt-2 border-t border-secondary-200 mt-3 text-center tracking-tight">
                 Экономия в год: +{fmt(passResults.saveYearP)}
               </p>
             </div>
@@ -719,7 +725,7 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-primary-600 pt-2 border-t border-primary-100 mt-3 text-center tracking-tight">
+              <p className="text-[13px] font-bold text-primary-600 pt-2 border-t border-primary-100 mt-3 text-center tracking-tight">
                 Экономия в год: +{fmt(passResults.saveYearM)}
               </p>
             </div>
@@ -779,8 +785,17 @@ const App = () => {
             <div
               onClick={() => { setTruckSubMode('GAS_DIESEL'); navigateTo('TRUCK_INPUTS'); }}
               className="bg-surface p-6 rounded-2xl border-2 border-surface-200 hover:border-primary
-                cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 group"
+                cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden"
             >
+              {/* Декоративный логотип */}
+              <div className="absolute top-3 right-3 select-none pointer-events-none">
+                <img 
+                  src="/logo-dizel-gas.png" 
+                  alt="Газодизель" 
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              </div>
               <div className="p-3 bg-primary-50 rounded-xl w-fit mb-4 text-primary
                 group-hover:bg-primary group-hover:text-white group-hover:scale-105 transition-all duration-300">
                 <Settings2 size={30} />
@@ -793,8 +808,17 @@ const App = () => {
             <div
               onClick={() => { setTruckSubMode('REMOT'); navigateTo('TRUCK_INPUTS'); }}
               className="bg-surface p-6 rounded-2xl border-2 border-surface-200 hover:border-amber-400
-                cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 group"
+                cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden"
             >
+              {/* Декоративный логотип */}
+              <div className="absolute top-3 right-3 select-none pointer-events-none">
+                <img 
+                  src="/logo-remotor.png" 
+                  alt="Ремоторизация" 
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              </div>
               <div className="p-3 bg-amber-50 rounded-xl w-fit mb-4 text-amber-500
                 group-hover:bg-amber-400 group-hover:text-white group-hover:scale-105 transition-all duration-300">
                 <Truck size={30} />
