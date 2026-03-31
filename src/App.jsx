@@ -147,14 +147,8 @@ const App = () => {
   /* ── Кнопка «Назад» — единый стиль для всех экранов ── */
   const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
     const handleNavigationBack = () => {
-      // Пытаемся вернуться в историю
-      if (window.history.state && window.history.length > 1) {
-        window.history.back();
-      } else {
-        // Если истории нет (например, зашли по прямой ссылке), принудительно идем на главную
-        setCurrentScreen('MAIN_SELECTION');
-        window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
-      }
+      // Всегда пытаемся идти назад через историю
+      window.history.back();
     };
 
     return (
@@ -321,17 +315,30 @@ const App = () => {
       tg.expand();
     }
 
+    // Инициализация истории с барьером
     if (!window.history.state) {
-      window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
+      window.history.replaceState({ screen: 'BASE' }, '', '#BASE');
+      window.history.pushState({ screen: 'MAIN_SELECTION' }, '', '#MAIN_SELECTION');
+      setCurrentScreen('MAIN_SELECTION');
+    } else {
+      setCurrentScreen(window.history.state.screen || 'MAIN_SELECTION');
     }
 
     const onPop = (e) => {
-      const screen = e.state?.screen ?? 'MAIN_SELECTION';
-      setCurrentScreen(screen);
+      const screen = e.state?.screen;
+      if (screen === 'BASE') {
+        // Барьер достигнут (пользователь нажал назад на главной странице)
+        // Предлагаем выйти через Telegram или остаемся на главной
+        setCurrentScreen('MAIN_SELECTION');
+        window.history.pushState({ screen: 'MAIN_SELECTION' }, '', '#MAIN_SELECTION');
+      } else if (screen) {
+        setCurrentScreen(screen);
+      } else {
+        setCurrentScreen('MAIN_SELECTION');
+      }
     };
 
     window.addEventListener('popstate', onPop);
-
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
@@ -347,19 +354,7 @@ const App = () => {
     }
 
     const handleTgBack = () => {
-      if (currentScreen === 'MAIN_SELECTION') {
-        tg.close();
-        return;
-      }
-
-      // Пытаемся вернуться в историю
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        // Если истории нет, форсируем главную
-        setCurrentScreen('MAIN_SELECTION');
-        window.history.replaceState({ screen: 'MAIN_SELECTION' }, '');
-      }
+      window.history.back();
     };
 
     tg.onEvent('backButtonClicked', handleTgBack);
@@ -407,9 +402,8 @@ const App = () => {
 
   const navigateTo = (screen, extra = {}) => {
     setCurrentScreen(screen);
-    // При переходе на экран, который мы считаем "корневым" при возврате (например выбор типа грузового)
-    // можно делать replaceState если нужно, но в целом pushState достаточно.
-    window.history.pushState({ screen, ...extra }, '');
+    // Используем только pushState с хешем, чтобы не создавать дубликаты в истории
+    window.history.pushState({ screen, ...extra }, '', '#' + screen);
   };
 
   const handleBack = () => {
