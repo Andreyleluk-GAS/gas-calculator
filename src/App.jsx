@@ -66,12 +66,27 @@ const AppFooter = ({ showDisclaimer = false }) => {
           * Расчёт носит справочный характер.
         </p>
       )}
-      <p className="text-graphite font-bold text-xs md:text-sm uppercase tracking-tight">
-        Установочный центр «ЭлитГаз»
-      </p>
+      <div className="flex flex-col items-center leading-tight">
+        <p className="text-utility-muted text-[9px] uppercase tracking-widest font-bold">Партнер проекта</p>
+        <a 
+          href="https://elitegas.ru/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-graphite font-black text-xs md:text-sm uppercase tracking-tight hover:text-primary transition-colors cursor-pointer"
+        >
+          "Установочный центр "ЭЛИТГАЗ"
+        </a>
+      </div>
       <div className="flex items-center gap-1.5 text-utility-muted text-[10px] md:text-xs">
         <MapPin size={12} className="text-utility-muted" />
-        <span>г. Екатеринбург, ул. Шефская, 3АВ</span>
+        <a 
+          href="https://yandex.ru/maps/?text=Екатеринбург, Шефская, 3АВ" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-primary transition-colors cursor-pointer hover:underline"
+        >
+          г. Екатеринбург, ул. Шефская, 3АВ
+        </a>
       </div>
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-0.5 text-graphite font-bold text-[10px] md:text-xs">
         <a href="tel:+73432532888"
@@ -443,13 +458,15 @@ const App = () => {
         <div className="max-w-md w-full relative z-10 flex flex-col items-center animate-fade-in">
           {/* Логотип */}
           <a
-            href="https://elitegas.ru"
+            href="https://elitegas.ru/"
             className="bg-surface/80 backdrop-blur-md p-5 rounded-2xl border border-surface-200 shadow-md
               flex items-center justify-center mb-5 w-full hover:shadow-lg transition-all duration-300"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <img
               src="/logo-start.png"
-              alt="EliteGas"
+              alt="GasCalculator"
               className="h-auto w-full max-h-16 md:max-h-20 object-contain select-none pointer-events-none"
               onError={(e) => e.target.style.display = 'none'}
             />
@@ -457,9 +474,6 @@ const App = () => {
 
           {/* Заголовок */}
           <div className="text-center mb-7">
-            <span className="inline-block text-[10px] font-semibold uppercase tracking-widest text-primary mb-2">
-              GasCalculator
-            </span>
             <h1 className="text-2xl md:text-3xl font-extrabold text-graphite mb-2 tracking-tight">
               Калькулятор Экономии
             </h1>
@@ -795,10 +809,14 @@ const App = () => {
               className="bg-surface p-6 rounded-2xl border-2 border-surface-200 hover:border-secondary
                 cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden"
             >
-              {/* Декоративный бейдж */}
-              <div className="absolute top-3 right-3 px-2 py-0.5 bg-secondary/10 text-secondary-700
-                rounded-full text-[9px] font-bold uppercase tracking-wider">
-                Уже на метане
+              {/* Декоративный логотип */}
+              <div className="absolute top-3 right-3 select-none pointer-events-none">
+                <img 
+                  src="/logo-methane.png" 
+                  alt="На метане" 
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                  onError={(e) => e.target.style.display = 'none'}
+                />
               </div>
               <div className="p-3 bg-secondary-50 rounded-xl w-fit mb-4 text-secondary-600
                 group-hover:bg-secondary group-hover:text-white group-hover:scale-105 transition-all duration-300">
@@ -810,14 +828,17 @@ const App = () => {
           </div>
 
           <div>
-            <div className="flex items-center justify-center gap-2 text-[10px] text-graphite font-bold
-              bg-surface px-4 py-2 rounded-full border border-surface-200 shadow-sm mx-auto w-fit mb-4">
-              <p>Скидка ГГМТ: {ggmtDiscount}%</p>
-              <button onClick={() => setIsTruckSettingsOpen(true)}
-                className="p-1 hover:bg-surface-100 rounded-lg transition-colors duration-200 cursor-pointer">
-                <Settings size={14} />
-              </button>
-            </div>
+            <button
+              onClick={() => setIsTruckSettingsOpen(true)}
+              className="flex items-center justify-center p-2 bg-white border border-surface-200 
+                rounded-2xl shadow-sm mx-auto w-fit mb-4 hover:shadow-md hover:border-primary transition-all active:scale-95 cursor-pointer group"
+              title={`Скидка ГГМТ: ${ggmtDiscount}%`}
+            >
+              <img src="/logo-ggmt-discount.png" alt="ГГМТ" className="h-10 object-contain" />
+              <div className="bg-surface-50 p-1 rounded-lg border border-surface-200 group-hover:bg-primary-50 group-hover:border-primary/20 transition-all ml-3">
+                <Settings size={14} className="text-surface-300 group-hover:text-primary transition-colors" />
+              </div>
+            </button>
             <AppFooter />
           </div>
         </div>
@@ -849,9 +870,21 @@ const App = () => {
             <BackBtn />
           </div>
 
-          <h1 className="text-lg font-bold mb-5 text-center uppercase tracking-tight text-graphite">
-            {isRem ? 'Ремоторизация ТС' : 'Газодизель ТС'}
-          </h1>
+          <div className="relative w-full mb-5 flex items-center justify-center">
+            <h1 className="text-lg font-bold uppercase tracking-tight text-graphite text-center px-8">
+              {isRem ? 'Ремоторизация ТС' : 'ТС на ГАЗОДИЗЕЛЬ'}
+            </h1>
+            {systemType === 'cng' && (
+              <button
+                onClick={() => setIsOldRepSettingsOpen(true)}
+                className="absolute right-0 p-0.5 bg-white border border-surface-200 rounded-xl
+                  hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95 group overflow-hidden"
+                title="Настройки скидки"
+              >
+                <img src="/logo-discount.png" alt="Скидка" className="w-9 h-9 object-contain" />
+              </button>
+            )}
+          </div>
 
           <div className="bg-surface rounded-2xl shadow-md border border-surface-200 p-5 w-full">
             <div className="space-y-4">
@@ -931,6 +964,24 @@ const App = () => {
             <AppFooter />
           </div>
         </div>
+
+        {isOldRepSettingsOpen && (
+          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
+            <div className="space-y-4">
+              <Field 
+                label="Объем газа со скидкой (м³)" 
+                name="truckDiscountLimit" 
+                value={truckDiscountLimit} 
+                onChange={(e) => setTruckDiscountLimit(e.target.value)} 
+                suffix="м³"
+              />
+              <p className="text-[10px] text-utility-muted italic">
+                * Первые {truckDiscountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({ggmtDiscount}%), остальной объем — по полной цене.
+              </p>
+              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
+            </div>
+          </Modal>
+        )}
       </div>
     );
   }
@@ -1180,14 +1231,24 @@ const App = () => {
           <div className="self-start mb-4"><BackBtn /></div>
 
           {/* Заголовок */}
-          <div className="text-center mb-5">
+          <div className="text-center mb-5 relative w-full">
             <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase
               tracking-widest text-secondary-600 mb-2">
               <ArrowLeftRight size={12} /> Уже на метане
             </span>
-            <h1 className="text-lg font-bold uppercase tracking-tight text-graphite">
-              СПГ ↔ КПГ — Расчёт эффективности
-            </h1>
+            <div className="relative w-full flex items-center justify-center">
+              <h1 className="text-lg font-bold uppercase tracking-tight text-graphite text-center px-8">
+                СПГ ↔ КПГ
+              </h1>
+              <button
+                onClick={() => setIsOldRepSettingsOpen(true)}
+                className="absolute right-0 p-0.5 bg-white border border-surface-200 rounded-xl
+                  hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95 group overflow-hidden"
+                title="Настройки скидки"
+              >
+                <img src="/logo-discount.png" alt="Скидка" className="w-9 h-9 object-contain" />
+              </button>
+            </div>
           </div>
 
           <div className="bg-surface rounded-2xl shadow-md border border-surface-200 p-5 w-full">
@@ -1278,12 +1339,30 @@ const App = () => {
                   bg-secondary hover:bg-secondary-600
                   transition-all duration-200 uppercase tracking-wider active:scale-95 cursor-pointer"
               >
-                Рассчитать эффективность
+                Показать отчёт
               </button>
             </div>
             <AppFooter />
           </div>
         </div>
+
+        {isOldRepSettingsOpen && (
+          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
+            <div className="space-y-4">
+              <Field 
+                label="Объем газа со скидкой (м³)" 
+                name="lngCngDiscountLimit" 
+                value={lngCngDiscountLimit} 
+                onChange={(e) => setLngCngDiscountLimit(e.target.value)} 
+                suffix="м³"
+              />
+              <p className="text-[10px] text-utility-muted italic">
+                * Первые {lngCngDiscountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({ggmtDiscount}%), остальной объем — по полной цене.
+              </p>
+              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
+            </div>
+          </Modal>
+        )}
       </div>
     );
   }
@@ -1500,7 +1579,7 @@ const App = () => {
               <div className="space-y-3">
                 {/* КПГ bar */}
                 <div>
-                  <div className="flex justify-between text-[10px] font-bold mb-1">
+                  <div className="flex justify-between text-[12px] font-bold mb-1">
                     <span className="text-secondary-700">КПГ</span>
                     <span className="text-secondary-700">{fmt(annualCng)}</span>
                   </div>
@@ -1511,7 +1590,7 @@ const App = () => {
                 </div>
                 {/* СПГ bar */}
                 <div>
-                  <div className="flex justify-between text-[10px] font-bold mb-1">
+                  <div className="flex justify-between text-[12px] font-bold mb-1">
                     <span className="text-primary-700">СПГ</span>
                     <span className="text-primary-700">{fmt(annualLng)}</span>
                   </div>
@@ -1748,36 +1827,12 @@ const App = () => {
             * Расчёт носит справочный характер и основан на введённых данных.
           </p>
 
-          {/* Значок настроек справа внизу */}
-          <div className="hidden md:flex justify-end mt-4 print:hidden">
-            <button
-              onClick={() => setIsOldRepSettingsOpen(true)}
-              className="p-2 bg-surface-50 border border-surface-200 rounded-lg text-graphite/40 
-                hover:text-primary hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95"
-              title="Настройки скидки"
-            >
-              <Settings2 size={18} />
-            </button>
+          <div className="mt-4 print:hidden">
+            {/* Настройки перемещены в ввод данных */}
           </div>
         </div>
 
-        {isOldRepSettingsOpen && (
-          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
-            <div className="space-y-4">
-              <Field 
-                label="Объем газа со скидкой (м³)" 
-                name="truckDiscountLimit" 
-                value={truckDiscountLimit} 
-                onChange={(e) => setTruckDiscountLimit(e.target.value)} 
-                suffix="м³"
-              />
-              <p className="text-[10px] text-utility-muted italic">
-                * Первые {truckDiscountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({disc}%), остальной объем — по полной цене.
-              </p>
-              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
-            </div>
-          </Modal>
-        )}
+
       </div>
     );
   }
@@ -1957,37 +2012,13 @@ const App = () => {
             * Расчёт носит справочный характер и основан на введённых данных.
           </p>
 
-          {/* Значок настроек справа внизу */}
-          <div className="hidden md:flex justify-end mt-4 print:hidden">
-            <button
-              onClick={() => setIsOldRepSettingsOpen(true)}
-              className="p-2 bg-surface-50 border border-surface-200 rounded-lg text-graphite/40 
-                hover:text-primary hover:border-primary transition-all cursor-pointer shadow-sm active:scale-95"
-              title="Настройки скидки"
-            >
-              <Settings2 size={18} />
-            </button>
+          <div className="mt-4 print:hidden">
+            {/* Настройки перемещены в ввод данных */}
           </div>
         </div>
 
         {/* Модал настроек лимита скидки */}
-        {isOldRepSettingsOpen && (
-          <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
-            <div className="space-y-4">
-              <Field 
-                label="Объем газа со скидкой (м³)" 
-                name="lngCngDiscountLimit" 
-                value={lngCngDiscountLimit} 
-                onChange={(e) => setLngCngDiscountLimit(e.target.value)} 
-                suffix="м³"
-              />
-              <p className="text-[10px] text-utility-muted italic">
-                * Первые {lngCngDiscountLimit} м³ в месяц будут рассчитаны со скидкой ГГМТ ({disc}%), остальной объем — по полной цене.
-              </p>
-              <SaveBtn onClick={() => setIsOldRepSettingsOpen(false)} />
-            </div>
-          </Modal>
-        )}
+
       </div>
     );
   }
