@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import EnergyServiceScreen from './EnergyServiceScreen';
 import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
   BarChart3, Tag, Printer, ArrowLeftRight,
@@ -9,7 +10,7 @@ import {
 /* ─────────────────────────────────────────────
    ДИЗАЙН-СИСТЕМА: токены из брендбука
    ─────────────────────────────────────────── */
-const ds = {
+export const ds = {
   // Газовые темы: КПГ → secondary (green), СПГ → primary (blue)
   gas: (isLng) => ({
     text: isLng ? 'text-primary' : 'text-secondary-700',
@@ -25,14 +26,14 @@ const ds = {
 };
 
 // ── УТИЛИТЫ ───────────────────────────────
-const fmt = (n) =>
+export const fmt = (n) =>
   new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(n || 0);
 
-const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; };
+export const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; };
 
 // ── ОБЩИЕ UI-БЛОКИ ────────────────────────
 /* ── Общее поле ввода ── */
-const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => (
+export const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => (
   <div className="flex flex-col h-full">
     <label className="block text-[11px] md:text-xs font-semibold text-graphite-500 uppercase tracking-wider mb-1.5 min-h-[28px] flex items-end">
       {label}
@@ -57,7 +58,7 @@ const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) 
 );
 
 /* ── Футер ── */
-const AppFooter = ({ showDisclaimer = false }) => {
+export const AppFooter = ({ showDisclaimer = false }) => {
   const year = new Date().getFullYear();
   return (
     <footer className="mt-8 mb-4 flex flex-col items-center text-center gap-1.5">
@@ -115,7 +116,7 @@ const AppFooter = ({ showDisclaimer = false }) => {
 };
 
 /* ── Модальное окно настроек ── */
-const Modal = ({ title, onClose, children }) => (
+export const Modal = ({ title, onClose, children }) => (
   <div className="fixed inset-0 bg-graphite/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div className="bg-surface rounded-2xl p-6 w-full max-w-xs shadow-xl border border-surface-200 relative animate-scale-in">
       <button
@@ -130,7 +131,7 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
-const SaveBtn = ({ onClick }) => (
+export const SaveBtn = ({ onClick }) => (
   <button
     onClick={onClick}
     className="w-full bg-primary hover:bg-primary-600 text-white font-bold py-3.5 rounded-xl mt-4
@@ -140,29 +141,28 @@ const SaveBtn = ({ onClick }) => (
   </button>
 );
 
+export const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
+  const handleNavigationBack = () => {
+    // Всегда пытаемся идти назад через историю
+    window.history.back();
+  };
+
+  return (
+    <button
+      onClick={onClick ?? handleNavigationBack}
+      className={`flex items-center gap-1.5 px-4 py-2 bg-white border border-surface-200
+        rounded-xl text-xs font-bold text-graphite shadow-sm
+        hover:border-primary hover:text-primary
+        active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
+    >
+      <ChevronLeft size={14} /> {label}
+    </button>
+  );
+};
+
 const App = () => {
   // ── НАВИГАЦИЯ ─────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
-
-  /* ── Кнопка «Назад» — единый стиль для всех экранов ── */
-  const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
-    const handleNavigationBack = () => {
-      // Всегда пытаемся идти назад через историю
-      window.history.back();
-    };
-
-    return (
-      <button
-        onClick={onClick ?? handleNavigationBack}
-        className={`flex items-center gap-1.5 px-4 py-2 bg-white border border-surface-200
-          rounded-xl text-xs font-bold text-graphite shadow-sm
-          hover:border-primary hover:text-primary
-          active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
-      >
-        <ChevronLeft size={14} /> {label}
-      </button>
-    );
-  };
 
   // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
   const handleSaveOldReportAsImage = () => {
@@ -897,6 +897,15 @@ const App = () => {
               </div>
               <h3 className="text-lg font-bold mb-1 text-graphite">Газодизельный режим</h3>
               <p className="text-utility-muted text-sm">Частичное замещение ДТ метаном</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateTo('ENERGY_SERVICE');
+                }}
+                className="mt-4 w-full py-2 px-4 rounded-xl border border-primary text-primary hover:bg-primary-50 transition-colors text-sm font-medium cursor-pointer"
+              >
+                Энергосервисный контракт
+              </button>
             </div>
 
             {/* Ремоторизация */}
@@ -2140,6 +2149,10 @@ const App = () => {
 
       </div>
     );
+  }
+
+  if (currentScreen === 'ENERGY_SERVICE') {
+    return <EnergyServiceScreen />;
   }
 
   return null;
