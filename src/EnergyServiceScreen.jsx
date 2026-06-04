@@ -180,7 +180,7 @@ const EnergyServiceScreen = () => {
             </div>
 
             {/* Новые поля энергосервиса */}
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mt-4">
+            <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 mt-4">
               
               {/* Слайдер */}
               <div>
@@ -203,7 +203,7 @@ const EnergyServiceScreen = () => {
               </div>
 
               {/* Срок контракта */}
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <label className="text-[12px] text-gray-500 uppercase font-semibold mb-2 block">Срок контракта</label>
                 <div className="flex w-full bg-gray-100 p-1 rounded-lg mt-2">
                   {terms.map(t => (
@@ -212,8 +212,8 @@ const EnergyServiceScreen = () => {
                       onClick={() => setTerm(t)}
                       className={
                         inputs.contractTerm === t 
-                          ? "flex-1 py-2 text-center bg-white shadow-sm transition-all rounded-md text-[12px] text-blue-600 uppercase font-semibold"
-                          : "flex-1 py-2 text-center transition-all rounded-md text-[12px] text-gray-500 uppercase font-semibold hover:text-gray-800"
+                          ? "flex-1 py-1.5 sm:py-2 text-center bg-white shadow-sm transition-all rounded-md text-[12px] text-blue-600 uppercase font-semibold"
+                          : "flex-1 py-1.5 sm:py-2 text-center transition-all rounded-md text-[12px] text-gray-500 uppercase font-semibold hover:text-gray-800"
                       }
                     >
                       {t} {t === 1 ? 'год' : (t === 5 ? 'лет' : 'года')}
@@ -229,7 +229,7 @@ const EnergyServiceScreen = () => {
               
               {/* СЛОЙ 1 (Сравнение) */}
               <div className="grid grid-cols-2 border-b border-gray-200">
-                <div className="p-4 border-r border-gray-200 flex flex-col items-center text-center">
+                <div className="py-2 px-3 sm:p-4 border-r border-gray-200 flex flex-col items-center text-center">
                   <div className="text-[9px] sm:text-[10px] uppercase text-gray-500 font-semibold mb-1 whitespace-nowrap">
                     ЭКОНОМИЯ ПРИ {inputs.baseSubstitutionRate}%
                   </div>
@@ -237,7 +237,7 @@ const EnergyServiceScreen = () => {
                     {fmt(results.baseSav)}
                   </div>
                 </div>
-                <div className="p-4 bg-blue-50/30 flex flex-col items-center text-center">
+                <div className="py-2 px-3 sm:p-4 bg-blue-50/30 flex flex-col items-center text-center">
                   <div className="text-[9px] sm:text-[10px] uppercase text-blue-600 font-semibold mb-1 whitespace-nowrap">
                     ЭКОНОМИЯ ПРИ {inputs.progressiveRate}%
                   </div>
@@ -248,7 +248,7 @@ const EnergyServiceScreen = () => {
               </div>
 
               {/* Блок 1: Детализация расчетов (Стиль чека) */}
-              <div className="flex flex-col gap-3 p-5 border-t border-gray-100 bg-white rounded-b-2xl">
+              <div className="flex flex-col gap-1.5 sm:gap-3 p-3 sm:p-5 border-t border-gray-100 bg-white rounded-b-2xl">
                 <div className="flex justify-between items-center">
                   <span className="text-xs sm:text-sm font-medium text-gray-600">Дополнительная экономия при сверх-замещении</span>
                   <span className="text-sm font-semibold text-gray-800">{fmt(results.progSav - results.baseSav)}</span>
@@ -260,14 +260,14 @@ const EnergyServiceScreen = () => {
                   </div>
                   <span className="text-sm font-semibold text-red-500 whitespace-nowrap">- {fmt(results.serviceCashback)}</span>
                 </div>
-                <hr className="border-gray-200 my-3" />
+                <hr className="border-gray-200 my-2 sm:my-3" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold text-gray-900">ДОПОЛНИТЕЛЬНАЯ выгода в месяц</span>
                   <span className="text-xl font-bold text-blue-900">{fmt((results.progSav - results.baseSav) - results.serviceCashback)}</span>
                 </div>
 
                 {/* Блок 2: Итоговая выгода за срок (Яркий подвал) */}
-                <div className="mt-4 p-5 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100">
+                <div className="mt-2 sm:mt-4 p-3 sm:p-5 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100">
                   <span className="text-xs font-bold uppercase tracking-wider text-blue-800 mb-1">
                     ИТОГО ВЫГОДА ЗА {inputs.contractTerm} {inputs.contractTerm === 1 ? 'ГОД' : (inputs.contractTerm === 5 ? 'ЛЕТ' : 'ГОДА')}
                   </span>
