@@ -225,7 +225,7 @@ const EnergyServiceScreen = () => {
             </div>
 
             {/* Вывод результатов */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mt-6 flex flex-col">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mt-2 sm:mt-4 flex flex-col">
               
               {/* СЛОЙ 1 (Сравнение) */}
               <div className="grid grid-cols-2 border-b border-gray-200">
@@ -248,7 +248,7 @@ const EnergyServiceScreen = () => {
               </div>
 
               {/* Блок 1: Детализация расчетов (Стиль чека) */}
-              <div className="flex flex-col gap-1.5 sm:gap-3 p-3 sm:p-5 border-t border-gray-100 bg-white rounded-b-2xl">
+              <div className="flex flex-col gap-1 p-3 sm:p-5 border-t border-gray-100 bg-white rounded-b-2xl">
                 <div className="flex justify-between items-center">
                   <span className="text-xs sm:text-sm font-medium text-gray-600">Дополнительная экономия при сверх-замещении</span>
                   <span className="text-sm font-semibold text-gray-800">{fmt(results.progSav - results.baseSav)}</span>
@@ -260,14 +260,14 @@ const EnergyServiceScreen = () => {
                   </div>
                   <span className="text-sm font-semibold text-red-500 whitespace-nowrap">- {fmt(results.serviceCashback)}</span>
                 </div>
-                <hr className="border-gray-200 my-2 sm:my-3" />
+                <hr className="border-gray-200 my-1 sm:my-2" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold text-gray-900">ДОПОЛНИТЕЛЬНАЯ выгода в месяц</span>
                   <span className="text-xl font-bold text-blue-900">{fmt((results.progSav - results.baseSav) - results.serviceCashback)}</span>
                 </div>
 
                 {/* Блок 2: Итоговая выгода за срок (Яркий подвал) */}
-                <div className="mt-2 sm:mt-4 p-3 sm:p-5 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100">
+                <div className="mt-1 sm:mt-2 py-3 px-4 sm:py-4 sm:px-5 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100">
                   <span className="text-xs font-bold uppercase tracking-wider text-blue-800 mb-1">
                     ИТОГО ВЫГОДА ЗА {inputs.contractTerm} {inputs.contractTerm === 1 ? 'ГОД' : (inputs.contractTerm === 5 ? 'ЛЕТ' : 'ГОДА')}
                   </span>
