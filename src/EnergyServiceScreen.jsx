@@ -1,30 +1,33 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Fuel, Gauge, Zap, Check, Camera, Printer, ChevronLeft, ShieldCheck, Map, Droplet, Flame, Calculator, Coins, CheckCircle, TrendingDown, ArrowDownToLine, Truck, Settings } from 'lucide-react';
-import { ds, fmt, v, Field, AppFooter, BackBtn } from './App';
+import { ds, fmt, v, Field, AppFooter, BackBtn, captureDesktopScreenshot } from './App';
 
 const EnergyServiceScreen = () => {
   const [showReport, setShowReport] = useState(false);
   const [screenshotCopied, setScreenshotCopied] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [showReport]);
+
   const handleTakeScreenshot = async () => {
-    const el = document.getElementById('report-capture-area');
-    if (!el) return;
     try {
-      const { toBlob } = await import('html-to-image');
-      const blob = await toBlob(el, {
-        cacheBust: true,
-        backgroundColor: '#ffffff',
-        style: { transform: 'scale(1)', transformOrigin: 'top left' }
-      });
+      const blob = await captureDesktopScreenshot('report-capture-area');
       if (blob) {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]);
-        setScreenshotCopied(true);
-        setTimeout(() => setScreenshotCopied(false), 2000);
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          setScreenshotCopied(true);
+          setTimeout(() => setScreenshotCopied(false), 2000);
+        } catch(e) {
+          console.error('Clipboard write error:', e);
+          alert('Ваш браузер не поддерживает копирование картинок в буфер.');
+        }
       }
     } catch (err) {
       console.error('Failed to capture screenshot', err);
+      alert('Ошибка при создании скриншота.');
     }
   };
 
@@ -169,23 +172,21 @@ const EnergyServiceScreen = () => {
       <div className="min-h-screen bg-surface-50 flex flex-col p-2 md:p-6 overflow-x-hidden">
         <div className="max-w-[1200px] mx-auto w-full">
           
-          <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
+          <header className="mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
             <button onClick={() => setShowReport(false)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer"
+              className="order-2 md:order-1 flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-2 bg-white border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer md:mr-auto"
             >
               <ChevronLeft size={14} /> Назад
             </button>
-            <div className="flex flex-wrap justify-center gap-2">
-              <button onClick={handleTakeScreenshot}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
-                {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
-                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
-              </button>
-              <button onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
-                <Printer size={14} /> Печать
-              </button>
-            </div>
+            <button onClick={handleTakeScreenshot}
+              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
+              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+            </button>
+            <button onClick={() => window.print()}
+              className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
+              <Printer size={14} /> Печать
+            </button>
           </header>
 
           <div className="bg-slate-50 rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in overflow-hidden">
@@ -196,26 +197,26 @@ const EnergyServiceScreen = () => {
                 <div>
                   <h1 className="text-xl md:text-2xl font-black uppercase text-gray-900 text-center md:text-left tracking-wide">РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)</h1>
                 </div>
-                <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-4">
-                  <div className="flex items-center gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl">
+                <div className="grid grid-cols-2 w-full md:w-auto md:flex md:flex-wrap justify-center md:justify-end gap-2 md:gap-4">
+                  <div className="col-span-2 md:col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl">
                     <Truck className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
                     <div className="flex flex-col">
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Пробег</span>
                       <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{fmtNum(v(inputs.monthlyMileage))} км</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl">
+                  <div className="col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl overflow-hidden">
                     <Droplet className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
                     <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Цена дизеля</span>
-                      <span className="font-bold text-gray-900 leading-tight">{dPrice} ₽/л</span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">Цена дизеля</span>
+                      <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{dPrice} ₽/л</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl">
+                  <div className="col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl overflow-hidden">
                     <Flame className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
                     <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Цена газа</span>
-                      <span className="font-bold text-gray-900 leading-tight">{gPrice} ₽/{gasUnit}</span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">Цена газа</span>
+                      <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{gPrice} ₽/{gasUnit}</span>
                     </div>
                   </div>
                 </div>

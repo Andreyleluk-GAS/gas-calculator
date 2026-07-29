@@ -4,8 +4,74 @@ import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
   BarChart3, Tag, Printer, ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
-  Zap, Camera, Check
+  Zap, Camera, Check, CheckCircle
 } from 'lucide-react';
+import { toBlob } from 'html-to-image';
+
+export const captureDesktopScreenshot = async (elementId) => {
+  const el = document.getElementById(elementId);
+  if (!el) return null;
+
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '1280px';
+    iframe.style.height = '2000px';
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-99999px';
+    iframe.style.top = '-99999px';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <base href="${document.baseURI}">
+        <meta charset="utf-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    `);
+    
+    const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+    styles.forEach(s => iframeDoc.write(s.outerHTML));
+    
+    iframeDoc.write('</head><body class="font-sans antialiased text-gray-900 bg-white" style="margin:0; padding:2rem; font-family: Inter, sans-serif;">');
+    iframeDoc.write(`<div style="width: ${el.offsetWidth}px; margin: 0 auto;">`);
+    iframeDoc.write(el.outerHTML);
+    iframeDoc.write('</div></body></html>');
+    iframeDoc.close();
+
+    setTimeout(async () => {
+      try {
+        if (iframe.contentWindow.document.fonts) {
+          await iframe.contentWindow.document.fonts.ready;
+        }
+        // Small extra delay to ensure font rendering has repainted the DOM
+        await new Promise(r => setTimeout(r, 150));
+
+        const targetEl = iframeDoc.getElementById(elementId);
+        if (!targetEl) throw new Error('Target element not found in iframe');
+        
+        const blob = await toBlob(targetEl, {
+          cacheBust: true,
+          backgroundColor: '#ffffff',
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left',
+            margin: '0'
+          }
+        });
+        document.body.removeChild(iframe);
+        resolve(blob);
+      } catch (e) {
+        document.body.removeChild(iframe);
+        reject(e);
+      }
+    }, 600);
+  });
+};
 
 /* ─────────────────────────────────────────────
    ДИЗАЙН-СИСТЕМА: токены из брендбука
@@ -33,29 +99,41 @@ export const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; 
 
 // ── ОБЩИЕ UI-БЛОКИ ────────────────────────
 /* ── Общее поле ввода ── */
-export const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => (
-  <div className="flex flex-col h-full">
-    <label className="block text-[11px] md:text-xs font-semibold text-graphite-500 uppercase tracking-wider mb-1.5 min-h-[28px] flex items-end">
-      {label}
-    </label>
-    <div className="relative mt-auto">
-      <input
-        type="number"
-        name={name}
-        value={value}
-        onChange={onChange}
-        step={step}
-        className={`w-full p-2 md:p-2.5 bg-surface-50 border border-surface-300 rounded-lg font-bold text-lg text-graphite outline-none
-          focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-200 ${colorClass}`}
-      />
-      {suffix && (
-        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-utility-muted pointer-events-none">
-          {suffix}
-        </span>
-      )}
+export const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => {
+  const handleChange = (e) => {
+    const rawVal = e.target.value.replace(/\s/g, '').replace(',', '.');
+    onChange({ target: { name: e.target.name, value: rawVal } });
+  };
+
+  const displayValue = String(value ?? '')
+    .split('.')
+    .map((part, index) => index === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : part)
+    .join('.');
+
+  return (
+    <div className="flex flex-col h-full">
+      <label className="block text-[11px] md:text-xs font-semibold text-graphite-500 uppercase tracking-wider mb-1.5 min-h-[28px] flex items-end">
+        {label}
+      </label>
+      <div className="relative mt-auto">
+        <input
+          type="text"
+          inputMode="decimal"
+          name={name}
+          value={displayValue}
+          onChange={handleChange}
+          className={`w-full p-2 md:p-2.5 bg-surface-50 border border-surface-300 rounded-lg font-bold text-lg text-graphite outline-none
+            focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-200 ${colorClass}`}
+        />
+        {suffix && (
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-utility-muted pointer-events-none">
+            {suffix}
+          </span>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ── Футер ── */
 export const AppFooter = ({ showDisclaimer = false }) => {
@@ -164,53 +242,67 @@ const App = () => {
   // ── НАВИГАЦИЯ ─────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
   const [screenshotCopied, setScreenshotCopied] = useState(false);
+  const [silentOldReport, setSilentOldReport] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentScreen]);
+
+  useEffect(() => {
+    if (silentOldReport) {
+      const timer = setTimeout(async () => {
+        try {
+          const blob = await captureDesktopScreenshot('old-report-capture-area');
+          if (blob) {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            setToastMessage('Отчёт OLD скопирован!');
+            setTimeout(() => setToastMessage(''), 3000);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка при копировании отчета OLD');
+        }
+        setSilentOldReport(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [silentOldReport]);
 
   const handleTakeScreenshot = async () => {
-    const el = document.getElementById('report-capture-area');
-    if (!el) return;
-    
     try {
-      const { toBlob } = await import('html-to-image');
-      const blob = await toBlob(el, {
-        cacheBust: true,
-        backgroundColor: '#ffffff',
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
-        }
-      });
+      const blob = await captureDesktopScreenshot('report-capture-area');
       if (blob) {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]);
-        setScreenshotCopied(true);
-        setTimeout(() => setScreenshotCopied(false), 2000);
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          setScreenshotCopied(true);
+          setTimeout(() => setScreenshotCopied(false), 2000);
+        } catch(e) {
+          console.error('Clipboard write error:', e);
+          alert('Ваш браузер не поддерживает копирование картинок в буфер.');
+        }
       }
     } catch (err) {
       console.error('Failed to capture screenshot', err);
+      alert('Библиотека скриншотов не загружена или произошла ошибка');
     }
   };
 
   const handleTakeOldScreenshot = async () => {
-    const el = document.getElementById('old-report-capture-area');
-    if (!el) return;
-    
     try {
-      const { toBlob } = await import('html-to-image');
-      const blob = await toBlob(el, {
-        cacheBust: true,
-        backgroundColor: '#ffffff',
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
-        }
-      });
+      const blob = await captureDesktopScreenshot('old-report-capture-area');
       if (blob) {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]);
-        setScreenshotCopied(true);
-        setTimeout(() => setScreenshotCopied(false), 2000);
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          setScreenshotCopied(true);
+          setTimeout(() => setScreenshotCopied(false), 2000);
+        } catch(e) {
+          console.error('Clipboard write error:', e);
+        }
       }
     } catch (err) {
       console.error('Failed to capture old screenshot', err);
@@ -745,10 +837,10 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-amber-700 uppercase">Цена/литр</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="number" name="priceBenzin" value={passInputs.priceBenzin}
-                          onChange={(e) => setPassInputs(p => ({ ...p, priceBenzin: e.target.value }))}
-                          step="0.01"
-                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-graphite [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <input type="text" inputMode="decimal" name="priceBenzin" 
+                          value={String(passInputs.priceBenzin ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                          onChange={(e) => setPassInputs(p => ({ ...p, priceBenzin: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
+                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-graphite" />
                         <span className="text-[10px] font-bold text-amber-400">₽</span>
                       </div>
                       <div className="flex flex-col -space-y-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
@@ -794,10 +886,10 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-secondary-700 uppercase">Цена/литр</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="number" name="pricePropane" value={passInputs.pricePropane}
-                          onChange={(e) => setPassInputs(p => ({ ...p, pricePropane: e.target.value }))}
-                          step="0.01"
-                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-secondary-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <input type="text" inputMode="decimal" name="pricePropane" 
+                          value={String(passInputs.pricePropane ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                          onChange={(e) => setPassInputs(p => ({ ...p, pricePropane: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
+                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-secondary-700" />
                         <span className="text-[10px] font-bold text-secondary-500">₽</span>
                       </div>
                       <div className="flex flex-col -space-y-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
@@ -843,10 +935,10 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-primary-700 uppercase">Цена / м³</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="number" name="priceMethane" value={passInputs.priceMethane}
-                          onChange={(e) => setPassInputs(p => ({ ...p, priceMethane: e.target.value }))}
-                          step="0.01"
-                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-primary-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <input type="text" inputMode="decimal" name="priceMethane" 
+                          value={String(passInputs.priceMethane ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                          onChange={(e) => setPassInputs(p => ({ ...p, priceMethane: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
+                          className="w-20 bg-transparent text-right font-bold text-lg outline-none text-primary-700" />
                         <span className="text-[10px] font-bold text-primary-400">₽</span>
                       </div>
                       <div className="flex flex-col -space-y-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
@@ -1186,31 +1278,29 @@ const App = () => {
         <div className="max-w-5xl mx-auto">
 
           {/* Верхняя панель */}
-          <header className="mb-3 md:mb-4 flex items-center justify-between print:hidden">
-            <BackBtn />
-            <div className="flex gap-2">
-              <button onClick={handleTakeScreenshot}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+          <header className="mb-3 md:mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
+            <BackBtn className="order-2 md:order-1 flex-1 md:flex-none justify-center md:mr-auto" />
+            <button onClick={handleTakeScreenshot}
+              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                active:scale-95 transition-all duration-200 cursor-pointer">
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+            </button>
+            {!isRem && !isLng && (
+              <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('TRUCK_REPORT_OLD') : navigateTo('TRUCK_REPORT_OLD')}
+                className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
                   active:scale-95 transition-all duration-200 cursor-pointer">
-                {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
-                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+                <BarChart3 size={14} /> Отчёт OLD
               </button>
-              {!isRem && !isLng && (
-                <button onClick={() => navigateTo('TRUCK_REPORT_OLD')}
-                  className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                    rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
-                    active:scale-95 transition-all duration-200 cursor-pointer">
-                  <BarChart3 size={14} /> Отчёт OLD
-                </button>
-              )}
-              <button onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                  active:scale-95 transition-all duration-200 cursor-pointer">
-                <Printer size={14} /> Печать
-              </button>
-            </div>
+            )}
+            <button onClick={() => window.print()}
+              className="order-4 md:order-4 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                active:scale-95 transition-all duration-200 cursor-pointer">
+              <Printer size={14} /> Печать
+            </button>
           </header>
 
           {/* Карточка отчёта */}
@@ -1232,19 +1322,19 @@ const App = () => {
             {/* Параметры */}
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-4 md:mb-8">
               {[
-                { label: 'Пробег км/мес', val: (isRem ? remotInputs : truckInputs).monthlyMileage.toLocaleString() },
+                { label: 'Пробег км/мес', val: Number((isRem ? remotInputs : truckInputs).monthlyMileage).toLocaleString('ru-RU') },
                 { label: 'Расход ДТ на 100 км', val: truckSummary.qD_base },
                 { label: 'Цена ДТ', val: `${(isRem ? remotInputs : truckInputs).dieselPrice} ₽` },
                 { label: `Цена ${gasName}`, val: `${isLng ? (isRem ? remotInputs.lngPrice : truckInputs.lngPrice) : (isRem ? remotInputs.cngPrice : truckInputs.cngPrice)} ₽`, accent: true },
                 { label: 'Коэф. расхода', val: truckSummary.gasCoef, hidden: true },
               ].map(({ label, val, accent, hidden }) => (
                 <div key={label}
-                  className={`${hidden ? 'hidden md:block' : ''} p-2 md:p-3 rounded-xl border ${accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
+                  className={`${hidden ? 'hidden md:block' : ''} p-2.5 md:p-4 rounded-xl border flex flex-col justify-center ${accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
                     }`}>
-                  <div className={`text-[8px] md:text-[10px] uppercase mb-1 font-bold tracking-tight ${accent ? gt.textDark : 'text-utility-muted'}`}>
+                  <div className={`text-[10px] md:text-xs uppercase mb-1 font-bold tracking-tight leading-tight ${accent ? gt.textDark : 'text-utility-muted'}`}>
                     {label}
                   </div>
-                  <div className={`font-bold text-[10px] md:text-sm ${accent ? gt.textDark : 'text-graphite'}`}>
+                  <div className={`font-black text-sm md:text-lg ${accent ? gt.textDark : 'text-graphite'}`}>
                     {val}
                   </div>
                 </div>
@@ -1403,6 +1493,19 @@ const App = () => {
             <AppFooter showDisclaimer />
           </div>
         </div>
+        {silentOldReport === 'TRUCK_REPORT_OLD' && (
+          <div className="fixed top-0 left-[-9999px] opacity-0 pointer-events-none z-[-1] w-[1000px] overflow-hidden">
+            {renderTruckReportOld()}
+          </div>
+        )}
+        {toastMessage && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-none">
+            <div className="bg-graphite text-white px-6 py-5 rounded-3xl shadow-2xl font-bold text-base animate-fade-in flex flex-col items-center justify-center gap-3 text-center min-w-[220px]">
+              <CheckCircle size={36} className="text-secondary" />
+              {toastMessage}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1589,29 +1692,27 @@ const App = () => {
         <div className="max-w-3xl mx-auto">
 
           {/* Шапка */}
-          <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
-            <BackBtn />
-            <div className="flex flex-wrap justify-center gap-2">
-              <button onClick={handleTakeScreenshot}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                  active:scale-95 transition-all duration-200 cursor-pointer">
-                {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
-                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
-              </button>
-              <button onClick={() => navigateTo('LNG_CNG_REPORT_OLD')}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
-                  active:scale-95 transition-all duration-200 cursor-pointer">
-                <BarChart3 size={14} /> Отчёт OLD
-              </button>
-              <button onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                  active:scale-95 transition-all duration-200 cursor-pointer">
-                <Printer size={14} /> Печать
-              </button>
-            </div>
+          <header className="mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
+            <BackBtn className="order-2 md:order-1 flex-1 md:flex-none justify-center md:mr-auto" />
+            <button onClick={handleTakeScreenshot}
+              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                active:scale-95 transition-all duration-200 cursor-pointer">
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
+              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+            </button>
+            <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('LNG_CNG_REPORT_OLD') : navigateTo('LNG_CNG_REPORT_OLD')}
+              className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
+                active:scale-95 transition-all duration-200 cursor-pointer">
+              <BarChart3 size={14} /> Отчёт OLD
+            </button>
+            <button onClick={() => window.print()}
+              className="order-4 md:order-4 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                active:scale-95 transition-all duration-200 cursor-pointer">
+              <Printer size={14} /> Печать
+            </button>
           </header>
 
           <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in overflow-hidden">
@@ -1640,9 +1741,9 @@ const App = () => {
                 { label: 'КПГ расход', val: `${vi(inp.cngConsumption)} м³/100км`, color: 'text-secondary-700', bg: 'bg-secondary-50', border: 'border-secondary-100' },
                 { label: 'СПГ расход', val: `${vi(inp.lngConsumption)} кг/100км`, color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-100' },
               ].map(({ label, val, color, bg, border }) => (
-                <div key={label} className={`${bg} border ${border} rounded-xl p-3`}>
-                  <div className="text-[8px] md:text-[10px] font-bold text-utility-muted uppercase mb-1">{label}</div>
-                  <div className={`font-bold text-sm md:text-base ${color}`}>{val}</div>
+                <div key={label} className={`${bg} border ${border} rounded-xl p-2.5 md:p-4 flex flex-col justify-center`}>
+                  <div className="text-[10px] md:text-xs font-bold text-utility-muted uppercase mb-1 leading-tight tracking-tight">{label}</div>
+                  <div className={`font-black text-sm md:text-lg ${color}`}>{val}</div>
                 </div>
               ))}
             </div>
@@ -1806,6 +1907,19 @@ const App = () => {
             </div>
           </div>
         </div>
+        {silentOldReport === 'LNG_CNG_REPORT_OLD' && (
+          <div className="fixed top-0 left-[-9999px] opacity-0 pointer-events-none z-[-1] w-[1000px] overflow-hidden">
+            {renderLngCngReportOld()}
+          </div>
+        )}
+        {toastMessage && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-none">
+            <div className="bg-graphite text-white px-6 py-5 rounded-3xl shadow-2xl font-bold text-base animate-fade-in flex flex-col items-center justify-center gap-3 text-center min-w-[220px]">
+              <CheckCircle size={36} className="text-secondary" />
+              {toastMessage}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1813,7 +1927,7 @@ const App = () => {
   // ═══════════════════════════════════════════
   //  ЭКРАН 9 — ГАЗОДИЗЕЛЬ: ОТЧЁТ OLD
   // ═══════════════════════════════════════════
-  if (currentScreen === 'TRUCK_REPORT_OLD') {
+  function renderTruckReportOld() {
     const inp = truckInputs;
     const vC = (x) => { const n = parseFloat(x); return isNaN(n) ? 0 : n; };
     const disc = ggmtDiscount;
@@ -1882,7 +1996,7 @@ const App = () => {
             <thead>
               <tr className="text-sm">
                 <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
-                  <h1 className="text-xl font-black text-black leading-tight uppercase">
+                  <h1 className="text-lg font-black text-black leading-tight uppercase">
                     Расчет экономической эффективности "ГАЗОДИЗЕЛЬ"
                   </h1>
                 </th>
@@ -2044,12 +2158,16 @@ const App = () => {
 
       </div>
     );
+  };
+
+  if (currentScreen === 'TRUCK_REPORT_OLD') {
+    return renderTruckReportOld();
   }
 
   // ═══════════════════════════════════════════
   //  ЭКРАН 8 — СПГ ↔ КПГ: ОТЧЁТ OLD (1:1 ПО ОБРАЗЦУ)
   // ═══════════════════════════════════════════
-  if (currentScreen === 'LNG_CNG_REPORT_OLD') {
+  function renderLngCngReportOld() {
     const inp = lngCngInputs;
     const vC = (x) => { const n = parseFloat(x); return isNaN(n) ? 0 : n; };
     const disc = ggmtDiscount;
@@ -2238,6 +2356,10 @@ const App = () => {
 
       </div>
     );
+  };
+
+  if (currentScreen === 'LNG_CNG_REPORT_OLD') {
+    return renderLngCngReportOld();
   }
 
   if (currentScreen === 'ENERGY_SERVICE') {
