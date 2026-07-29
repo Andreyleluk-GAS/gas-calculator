@@ -4,7 +4,7 @@ import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
   BarChart3, Tag, Printer, ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
-  Zap
+  Zap, Camera, Check
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
@@ -163,6 +163,59 @@ export const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
 const App = () => {
   // ── НАВИГАЦИЯ ─────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
+  const [screenshotCopied, setScreenshotCopied] = useState(false);
+
+  const handleTakeScreenshot = async () => {
+    const el = document.getElementById('report-capture-area');
+    if (!el) return;
+    
+    try {
+      const { toBlob } = await import('html-to-image');
+      const blob = await toBlob(el, {
+        cacheBust: true,
+        backgroundColor: '#ffffff',
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      });
+      if (blob) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        setScreenshotCopied(true);
+        setTimeout(() => setScreenshotCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to capture screenshot', err);
+    }
+  };
+
+  const handleTakeOldScreenshot = async () => {
+    const el = document.getElementById('old-report-capture-area');
+    if (!el) return;
+    
+    try {
+      const { toBlob } = await import('html-to-image');
+      const blob = await toBlob(el, {
+        cacheBust: true,
+        backgroundColor: '#ffffff',
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      });
+      if (blob) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        setScreenshotCopied(true);
+        setTimeout(() => setScreenshotCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to capture old screenshot', err);
+    }
+  };
 
   // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
   const handleSaveOldReportAsImage = () => {
@@ -236,9 +289,9 @@ const App = () => {
   const [isTruckSettingsOpen, setIsTruckSettingsOpen] = useState(false);
 
   const [truckInputs, setTruckInputs] = useState({
-    dieselConsumption: 36, dieselPrice: 73.26,
-    lngCoefficient: 0.86, lngPrice: 45,
-    cngCoefficient: 1.2, cngPrice: 28.51,
+    dieselConsumption: 36, dieselPrice: 82,
+    lngCoefficient: 0.86, lngPrice: 54,
+    cngCoefficient: 1.2, cngPrice: 31.5,
     monthlyMileage: 15000,
     substitutionRate: 60,
   });
@@ -247,9 +300,9 @@ const App = () => {
   const [isOldRepSettingsOpen, setIsOldRepSettingsOpen] = useState(false);
 
   const [remotInputs, setRemotInputs] = useState({
-    dieselConsumption: 22, dieselPrice: 73.26,
-    lngCoefficient: 0.86, lngPrice: 45,
-    cngCoefficient: 1.2, cngPrice: 28.51,
+    dieselConsumption: 22, dieselPrice: 82,
+    lngCoefficient: 0.86, lngPrice: 54,
+    cngCoefficient: 1.2, cngPrice: 31.5,
     monthlyMileage: 15000,
   });
 
@@ -259,10 +312,10 @@ const App = () => {
     currentSystem: 'lng',         // 'lng' | 'cng'
     // Параметры СПГ
     lngConsumption: 30,           // кг / 100 км
-    lngPrice: 45,                 // ₽ / кг
+    lngPrice: 54,                 // ₽ / кг
     // Параметры КПГ
     cngConsumption: 42,           // м³ / 100 км
-    cngPrice: 28.51,              // ₽ / м³
+    cngPrice: 31.5,              // ₽ / м³
     // Обще
     monthlyMileage: 15000,        // км / мес
     equipmentCost: 1200000,       // стоимость переоборудования, ₽
@@ -271,7 +324,7 @@ const App = () => {
   // ── ЛЕГКОВОЙ ──────────────────────────────
   const [passInputs, setPassInputs] = useState({
     mileage: 1600, fuelNorm: 10,
-    priceBenzin: 66.45, pricePropane: 26.08, priceMethane: 28.51,
+    priceBenzin: 70.5, pricePropane: 32, priceMethane: 31.5,
   });
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
@@ -1136,6 +1189,13 @@ const App = () => {
           <header className="mb-3 md:mb-4 flex items-center justify-between print:hidden">
             <BackBtn />
             <div className="flex gap-2">
+              <button onClick={handleTakeScreenshot}
+                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                  active:scale-95 transition-all duration-200 cursor-pointer">
+                {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+              </button>
               {!isRem && !isLng && (
                 <button onClick={() => navigateTo('TRUCK_REPORT_OLD')}
                   className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
@@ -1154,7 +1214,8 @@ const App = () => {
           </header>
 
           {/* Карточка отчёта */}
-          <div className="bg-surface p-4 md:p-10 rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in">
+          <div className="animate-fade-in">
+            <div id="report-capture-area" className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-md border border-surface-200">
 
             {/* Заголовок отчёта */}
             <div className="mb-4 md:mb-8 text-center border-b border-surface-200 pb-3 md:pb-6">
@@ -1338,6 +1399,7 @@ const App = () => {
               </div>
             </div>
 
+            </div>
             <AppFooter showDisclaimer />
           </div>
         </div>
@@ -1366,7 +1428,7 @@ const App = () => {
             </span>
             <div className="relative w-full flex items-center justify-center">
               <h1 className="text-lg font-bold uppercase tracking-tight text-graphite text-center px-8">
-                СПГ ↔ КПГ
+                {isFromLng ? 'СПГ ↔ КПГ' : 'КПГ ↔ СПГ'}
               </h1>
               <button
                 onClick={() => setIsOldRepSettingsOpen(true)}
@@ -1530,6 +1592,13 @@ const App = () => {
           <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
             <BackBtn />
             <div className="flex flex-wrap justify-center gap-2">
+              <button onClick={handleTakeScreenshot}
+                className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
+                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
+                  active:scale-95 transition-all duration-200 cursor-pointer">
+                {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
+                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+              </button>
               <button onClick={() => navigateTo('LNG_CNG_REPORT_OLD')}
                 className="flex items-center gap-2 px-4 py-2 bg-surface border border-surface-200
                   rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
@@ -1545,7 +1614,8 @@ const App = () => {
             </div>
           </header>
 
-          <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 p-4 md:p-8 animate-fade-in">
+          <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in overflow-hidden">
+            <div id="report-capture-area" className="bg-white p-6 md:p-8">
 
             {/* Заголовок отчёта */}
             <div className="text-center border-b border-surface-200 pb-4 mb-6">
@@ -1554,7 +1624,7 @@ const App = () => {
                 <ArrowLeftRight size={12} /> Анализ эффективности
               </div>
               <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-graphite">
-                СПГ ↔ КПГ
+                {isFromLng ? 'СПГ ↔ КПГ' : 'КПГ ↔ СПГ'}
               </h1>
               <p className="text-[9px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
                 Текущая система: {isFromLng ? 'СПГ (криогенный)' : 'КПГ (компремированный)'}
@@ -1729,8 +1799,11 @@ const App = () => {
                 </div>
               </div>
             </div>
+            </div>
 
-            <AppFooter showDisclaimer />
+            <div className="px-4 md:px-8 pb-4 md:pb-8">
+              <AppFooter showDisclaimer />
+            </div>
           </div>
         </div>
       </div>
@@ -1785,12 +1858,16 @@ const App = () => {
         onTouchMove={handlePinchMove}
         onTouchEnd={handlePinchEnd}
       >
-        <div id="old-report-table-container" className="w-[900px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-6 md:p-10 bg-white"
+        <div id="old-report-table-container" className="w-[900px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none bg-white"
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center', transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none' }}>
           
-          <header className="mb-10 hidden md:flex items-center justify-between print:hidden">
+          <header className="px-6 md:px-10 pt-6 md:pt-10 hidden md:flex items-center justify-between print:hidden">
             <BackBtn className="h-10 !py-0" />
             <div className="flex gap-2">
+              <button onClick={handleTakeOldScreenshot} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+                {screenshotCopied ? <Check size={16} /> : <Camera size={16} />}
+                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+              </button>
               <button onClick={handleSaveOldReportAsImage} className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer">
                 Сохранить
               </button>
@@ -1800,7 +1877,8 @@ const App = () => {
             </div>
           </header>
 
-          <table className="w-full border-collapse">
+          <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
+            <table className="w-full border-collapse">
             <thead>
               <tr className="text-sm">
                 <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
@@ -1950,13 +2028,16 @@ const App = () => {
               </tr>
             </tbody>
           </table>
+          </div>
           
-          <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
-            * Расчёт носит справочный характер и основан на введённых данных.
-          </p>
+          <div className="px-6 md:px-10 pb-6 md:pb-10">
+            <p className="mt-2 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
+              * Расчёт носит справочный характер и основан на введённых данных.
+            </p>
 
-          <div className="mt-4 print:hidden">
-            {/* Настройки перемещены в ввод данных */}
+            <div className="mt-4 print:hidden">
+              {/* Настройки перемещены в ввод данных */}
+            </div>
           </div>
         </div>
 
@@ -2017,16 +2098,20 @@ const App = () => {
       >
         <div 
           id="old-report-table-container" 
-          className="w-[850px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none p-6 md:p-10 bg-white"
+          className="w-[850px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none bg-white"
           style={{ 
             transform: `scale(${zoomScale})`, 
             transformOrigin: 'top center',
             transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none'
           }}
         >
-          <header className="mb-10 hidden md:flex items-center justify-between print:hidden">
+          <header className="px-6 md:px-10 pt-6 md:pt-10 hidden md:flex items-center justify-between print:hidden">
             <BackBtn className="h-10 !py-0" />
             <div className="flex gap-2">
+              <button onClick={handleTakeOldScreenshot} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+                {screenshotCopied ? <Check size={16} /> : <Camera size={16} />}
+                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+              </button>
               <button 
                 onClick={handleSaveOldReportAsImage}
                 className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer"
@@ -2039,7 +2124,8 @@ const App = () => {
             </div>
           </header>
 
-          <table className="w-full border-collapse">
+          <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
+            <table className="w-full border-collapse">
             <thead>
               <tr className="text-sm">
                 <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
@@ -2136,12 +2222,15 @@ const App = () => {
               </tr>
             </tbody>
           </table>
-          <p className="mt-12 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
-            * Расчёт носит справочный характер и основан на введённых данных.
-          </p>
+          </div>
+          <div className="px-6 md:px-10 pb-6 md:pb-10">
+            <p className="mt-2 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
+              * Расчёт носит справочный характер и основан на введённых данных.
+            </p>
 
-          <div className="mt-4 print:hidden">
-            {/* Настройки перемещены в ввод данных */}
+            <div className="mt-4 print:hidden">
+              {/* Настройки перемещены в ввод данных */}
+            </div>
           </div>
         </div>
 
