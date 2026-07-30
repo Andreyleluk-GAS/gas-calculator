@@ -2,13 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import EnergyServiceScreen from './EnergyServiceScreen';
 import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
-  BarChart3, Tag, Printer, ArrowLeftRight,
+  BarChart3, Tag,  ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
   Zap, Camera, Check, CheckCircle
 } from 'lucide-react';
 import { toBlob } from 'html-to-image';
 
-export const captureDesktopScreenshot = async (elementId) => {
+export const captureDesktopScreenshot = async (elementId, forceWidth = null) => {
   const el = document.getElementById(elementId);
   if (!el) return null;
 
@@ -38,7 +38,7 @@ export const captureDesktopScreenshot = async (elementId) => {
     styles.forEach(s => iframeDoc.write(s.outerHTML));
     
     iframeDoc.write('</head><body class="font-sans antialiased text-gray-900 bg-white" style="margin:0; padding:2rem; font-family: Inter, sans-serif;">');
-    iframeDoc.write(`<div style="width: ${el.offsetWidth}px; margin: 0 auto;">`);
+    iframeDoc.write(`<div style="width: ${forceWidth || el.offsetWidth}px; margin: 0 auto;">`);
     iframeDoc.write(el.outerHTML);
     iframeDoc.write('</div></body></html>');
     iframeDoc.close();
@@ -87,8 +87,8 @@ export const ds = {
     btnSolid: isLng ? 'bg-primary hover:bg-primary-600'
       : 'bg-secondary hover:bg-secondary-600',
     gradient: isLng ? 'from-primary-700 to-primary-900'
-      : 'from-secondary-700 via-secondary-600 to-primary-700',
-  }),
+      : 'from-secondary-700 via-secondary-600 to-primary-700'
+})
 };
 
 // ── УТИЛИТЫ ───────────────────────────────
@@ -220,18 +220,11 @@ export const SaveBtn = ({ onClick }) => (
 );
 
 export const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
-  const handleNavigationBack = () => {
-    // Всегда пытаемся идти назад через историю
-    window.history.back();
-  };
-
+  const handleNavigationBack = () => { window.history.back(); };
   return (
     <button
       onClick={onClick ?? handleNavigationBack}
-      className={`flex items-center gap-1.5 px-4 py-2 bg-white border border-surface-200
-        rounded-xl text-xs font-bold text-graphite shadow-sm
-        hover:border-primary hover:text-primary
-        active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
+      className={`w-[130px] md:w-[160px] h-10 shrink-0 flex items-center justify-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
     >
       <ChevronLeft size={14} /> {label}
     </button>
@@ -310,35 +303,7 @@ const App = () => {
   };
 
   // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
-  const handleSaveOldReportAsImage = () => {
-    const el = document.getElementById('old-report-table-container');
-    if (!el || !window.html2canvas) {
-      alert('Ошибка: библиотека для сохранения не загружена');
-      return;
-    }
-    window.html2canvas(el, { 
-      scale: 3, 
-      backgroundColor: '#ffffff',
-      useCORS: true,
-      logging: false
-    }).then(canvas => {
-      canvas.toBlob(blob => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.style.display = 'none';
-        link.download = `elitegas_report_${new Date().getTime()}.jpg`;
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }, 100);
-      }, 'image/jpeg', 0.95);
-    });
-  };
-
+  
   // ФУНКЦИЯ СКРИНШОТА ВСЕЙ СТРАНИЦЫ
   const handleFullPageScreenshot = () => {
     const el = document.getElementById('root');
@@ -385,8 +350,8 @@ const App = () => {
     lngCoefficient: 0.86, lngPrice: 54,
     cngCoefficient: 1.2, cngPrice: 31.5,
     monthlyMileage: 15000,
-    substitutionRate: 60,
-  });
+    substitutionRate: 60
+});
   const [truckDiscountLimit, setTruckDiscountLimit] = useState(3500);
   const [lngCngDiscountLimit, setLngCngDiscountLimit] = useState(2500);
   const [isOldRepSettingsOpen, setIsOldRepSettingsOpen] = useState(false);
@@ -395,8 +360,8 @@ const App = () => {
     dieselConsumption: 22, dieselPrice: 82,
     lngCoefficient: 0.86, lngPrice: 54,
     cngCoefficient: 1.2, cngPrice: 31.5,
-    monthlyMileage: 15000,
-  });
+    monthlyMileage: 15000
+});
 
   // ── СПГ ↔ КПГ ─────────────────────────────────
   const [lngCngInputs, setLngCngInputs] = useState({
@@ -416,8 +381,8 @@ const App = () => {
   // ── ЛЕГКОВОЙ ──────────────────────────────
   const [passInputs, setPassInputs] = useState({
     mileage: 1600, fuelNorm: 10,
-    priceBenzin: 70.5, pricePropane: 32, priceMethane: 31.5,
-  });
+    priceBenzin: 70.5, pricePropane: 32, priceMethane: 31.5
+});
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
 
@@ -662,8 +627,8 @@ const App = () => {
       costB: Math.round(costB), costP: Math.round(costP), costM: Math.round(costM),
       kmCostB: fmtKm(kmCostB), kmCostP: fmtKm(kmCostP), kmCostM: fmtKm(kmCostM),
       saveYearP: Math.round((costB - costP) * 12),
-      saveYearM: Math.round((costB - costM) * 12),
-    };
+      saveYearM: Math.round((costB - costM) * 12)
+};
   }, [passInputs, passCoeffs]);
 
   // ── ПРОИЗВОДНЫЕ ───────────────────────────
@@ -782,7 +747,7 @@ const App = () => {
         <div className="w-full max-w-lg lg:max-w-4xl flex flex-col gap-2 md:gap-3">
 
           {/* Навигация */}
-          <div className="flex items-center mt-1 md:mt-2">
+          <div className="w-full flex justify-start mb-4">
             <BackBtn label="На главную" />
           </div>
 
@@ -1007,7 +972,7 @@ const App = () => {
     return (
       <div className="min-h-screen bg-surface-50 flex flex-col items-center justify-center p-4">
         <div className="max-w-4xl w-full flex flex-col min-h-[80vh] md:justify-center animate-fade-in">
-          <div className="mb-6">
+          <div className="w-full flex justify-start mb-4">
             <BackBtn label="На главную" />
           </div>
 
@@ -1139,7 +1104,7 @@ const App = () => {
     return (
       <div className="min-h-screen bg-surface-50 flex flex-col p-2 md:p-6">
         <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto w-full animate-fade-in">
-          <div className="self-start mb-4">
+          <div className="w-full flex justify-start mb-4">
             <BackBtn />
           </div>
 
@@ -1278,29 +1243,34 @@ const App = () => {
         <div className="max-w-5xl mx-auto">
 
           {/* Верхняя панель */}
-          <header className="mb-3 md:mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
-            <BackBtn className="order-2 md:order-1 flex-1 md:flex-none justify-center md:mr-auto" />
-            <button onClick={handleTakeScreenshot}
-              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
-              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
-            </button>
+          <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+            
+            {/* 1. Кнопка Назад (На мобильном: 1-й ряд слева. На десктопе: слева, отталкивает остальных) */}
+            <BackBtn className="order-1 md:mr-auto" />
+
+            {/* 2. Кнопка Отчёт OLD (На мобильном: 2-й ряд, 100% ширины. На десктопе: 1-й ряд, между Назад и Скриншот) */}
             {!isRem && !isLng && (
               <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('TRUCK_REPORT_OLD') : navigateTo('TRUCK_REPORT_OLD')}
-                className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                  rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
-                  active:scale-95 transition-all duration-200 cursor-pointer">
-                <BarChart3 size={14} /> Отчёт OLD
+                className="order-3 md:order-2 w-full md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-2 px-4 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary active:scale-95 transition-all duration-200 cursor-pointer"
+              >
+                <BarChart3 size={14} /> 
+                <span className="truncate">Отчёт OLD</span>
               </button>
             )}
-            <button onClick={() => window.print()}
-              className="order-4 md:order-4 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              <Printer size={14} /> Печать
+
+            {/* 3. Кнопка Скриншот (На мобильном: 1-й ряд справа. На десктопе: 1-й ряд, крайняя правая) */}
+            <button 
+              onClick={handleTakeScreenshot}
+              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                screenshotCopied 
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                  : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
+              }`}
+            >
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
             </button>
+
           </header>
 
           {/* Карточка отчёта */}
@@ -1521,7 +1491,9 @@ const App = () => {
     return (
       <div className="min-h-screen bg-surface-50 flex flex-col p-2 md:p-6">
         <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto w-full animate-fade-in">
-          <div className="self-start mb-4"><BackBtn /></div>
+          <div className="w-full flex justify-start mb-4">
+            <BackBtn />
+          </div>
 
           {/* Заголовок */}
           <div className="text-center mb-5 relative w-full">
@@ -1692,27 +1664,32 @@ const App = () => {
         <div className="max-w-3xl mx-auto">
 
           {/* Шапка */}
-          <header className="mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
-            <BackBtn className="order-2 md:order-1 flex-1 md:flex-none justify-center md:mr-auto" />
-            <button onClick={handleTakeScreenshot}
-              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
-              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
-            </button>
+          <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+            
+            {/* 1. Кнопка Назад (На мобильном: 1-й ряд слева. На десктопе: слева, отталкивает остальных) */}
+            <BackBtn className="order-1 md:mr-auto" />
+
+            {/* 2. Кнопка Отчёт OLD (На мобильном: 2-й ряд, 100% ширины. На десктопе: 1-й ряд, между Назад и Скриншот) */}
             <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('LNG_CNG_REPORT_OLD') : navigateTo('LNG_CNG_REPORT_OLD')}
-              className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              <BarChart3 size={14} /> Отчёт OLD
+              className="order-3 md:order-2 w-full md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-2 px-4 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary active:scale-95 transition-all duration-200 cursor-pointer"
+            >
+              <BarChart3 size={14} /> 
+              <span className="truncate">Отчёт OLD</span>
             </button>
-            <button onClick={() => window.print()}
-              className="order-4 md:order-4 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200
-                rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary
-                active:scale-95 transition-all duration-200 cursor-pointer">
-              <Printer size={14} /> Печать
+
+            {/* 3. Кнопка Скриншот (На мобильном: 1-й ряд справа. На десктопе: 1-й ряд, крайняя правая) */}
+            <button 
+              onClick={handleTakeScreenshot}
+              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                screenshotCopied 
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                  : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
+              }`}
+            >
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
             </button>
+
           </header>
 
           <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in overflow-hidden">
@@ -1975,20 +1952,19 @@ const App = () => {
         <div id="old-report-table-container" className="w-[900px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none bg-white"
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center', transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none' }}>
           
-          <header className="px-6 md:px-10 pt-6 md:pt-10 hidden md:flex items-center justify-between print:hidden">
-            <BackBtn className="h-10 !py-0" />
-            <div className="flex gap-2">
-              <button onClick={handleTakeOldScreenshot} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
-                {screenshotCopied ? <Check size={16} /> : <Camera size={16} />}
-                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
-              </button>
-              <button onClick={handleSaveOldReportAsImage} className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer">
-                Сохранить
-              </button>
-              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
-                <Printer size={16} /> Печать отчёта
-              </button>
-            </div>
+          <header className="px-6 md:px-10 pt-6 md:pt-10 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+            <BackBtn className="order-1 md:mr-auto" />
+            <button 
+              onClick={handleTakeOldScreenshot} 
+              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                screenshotCopied 
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                  : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
+              }`}
+            >
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
+            </button>
           </header>
 
           <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
@@ -2224,11 +2200,18 @@ const App = () => {
           }}
         >
           <header className="px-6 md:px-10 pt-6 md:pt-10 hidden md:flex items-center justify-between print:hidden">
-            <BackBtn className="h-10 !py-0" />
+            <BackBtn />
             <div className="flex gap-2">
-              <button onClick={handleTakeOldScreenshot} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
+              <button 
+                onClick={handleTakeOldScreenshot} 
+                className={`w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                  screenshotCopied 
+                    ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                    : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
+                }`}
+              >
                 {screenshotCopied ? <Check size={16} /> : <Camera size={16} />}
-                {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+                <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
               </button>
               <button 
                 onClick={handleSaveOldReportAsImage}
@@ -2236,9 +2219,7 @@ const App = () => {
               >
                 Сохранить
               </button>
-              <button onClick={() => window.print()} className="flex items-center gap-2 px-6 h-10 bg-surface-100 border border-surface-200 rounded-xl text-xs font-bold text-graphite hover:bg-surface-200 transition-colors shadow-sm cursor-pointer">
-                <Printer size={16} /> Печать отчёта
-              </button>
+              
             </div>
           </header>
 

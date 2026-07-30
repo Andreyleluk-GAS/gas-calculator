@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Fuel, Gauge, Zap, Check, Camera, Printer, ChevronLeft, ShieldCheck, Map, Droplet, Flame, Calculator, Coins, CheckCircle, TrendingDown, ArrowDownToLine, Truck, Settings } from 'lucide-react';
+import { Fuel, Gauge, Zap, Check, Camera,  ChevronLeft, ShieldCheck, Map, Droplet, Flame, Calculator, Coins, CheckCircle, TrendingDown, ArrowDownToLine, Truck, Settings } from 'lucide-react';
 import { ds, fmt, v, Field, AppFooter, BackBtn, captureDesktopScreenshot } from './App';
 
 const EnergyServiceScreen = () => {
@@ -12,7 +12,7 @@ const EnergyServiceScreen = () => {
 
   const handleTakeScreenshot = async () => {
     try {
-      const blob = await captureDesktopScreenshot('report-capture-area');
+      const blob = await captureDesktopScreenshot('report-capture-area', 1200);
       if (blob) {
         try {
           await navigator.clipboard.write([
@@ -172,21 +172,26 @@ const EnergyServiceScreen = () => {
       <div className="min-h-screen bg-surface-50 flex flex-col p-2 md:p-6 overflow-x-hidden">
         <div className="max-w-[1200px] mx-auto w-full">
           
-          <header className="mb-4 flex flex-wrap md:flex-nowrap items-center gap-2 print:hidden">
+          <header className="mb-4 flex flex-wrap items-center justify-between md:justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
             <button onClick={() => setShowReport(false)}
-              className="order-2 md:order-1 flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-2 bg-white border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer md:mr-auto"
+              className="order-1 w-[130px] md:w-[160px] md:mr-auto h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <ChevronLeft size={14} /> Назад
             </button>
-            <button onClick={handleTakeScreenshot}
-              className="order-1 md:order-2 w-full md:w-auto flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
-              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />} 
-              {screenshotCopied ? 'Скопировано!' : 'Скриншот'}
+            
+            <button 
+              onClick={handleTakeScreenshot}
+              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                screenshotCopied 
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                  : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
+              }`}
+            >
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
             </button>
-            <button onClick={() => window.print()}
-              className="order-3 md:order-3 flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer">
-              <Printer size={14} /> Печать
-            </button>
+
+            
           </header>
 
           <div className="bg-slate-50 rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in overflow-hidden">
