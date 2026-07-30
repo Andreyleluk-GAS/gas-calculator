@@ -159,7 +159,7 @@ const EnergyServiceScreen = () => {
     const var3Saving = var1TotalCost - var3TotalCost;
 
     const Row = ({ icon: Icon, label, value, bold }) => (
-      <div className="flex justify-between items-center px-1 border-b border-gray-100 last:border-0 py-1.5 min-h-[2rem]">
+      <div className="flex justify-between items-center px-1 border-b border-gray-100 last:border-0 py-0.5 min-h-[1.5rem]">
         <div className="flex items-center gap-1.5 text-gray-600">
           <Icon size={14} className="text-gray-400 shrink-0" />
           <span className="text-sm leading-tight">{label}</span>
@@ -168,11 +168,18 @@ const EnergyServiceScreen = () => {
       </div>
     );
 
+
+    const monthlySave2 = results.dCostM_base - results.totalCost_base_gas;
+    const monthlySave3 = results.dCostM_base - results.totalCost_prog_gas;
+    const monthlyDiff = monthlySave3 - monthlySave2;
+    const yearlyDiff = var3Saving - var2Saving;
+
+
     return (
-      <div className="min-h-screen bg-surface-50 flex flex-col p-2 md:p-6 overflow-x-hidden">
+      <div className="min-h-screen bg-slate-50 flex flex-col p-2 md:p-6 overflow-x-hidden font-sans">
         <div className="max-w-[1200px] mx-auto w-full">
           
-          <header className="mb-4 flex flex-wrap items-center justify-between md:justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+          <header className="mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
             <button onClick={() => setShowReport(false)}
               className="order-1 w-[130px] md:w-[160px] md:mr-auto h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer"
             >
@@ -184,276 +191,284 @@ const EnergyServiceScreen = () => {
               className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
                 screenshotCopied 
                   ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
-                  : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
+                  : 'bg-white border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
               }`}
             >
               {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
               <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
             </button>
-
-            
           </header>
 
-          <div className="bg-slate-50 rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in overflow-hidden">
-            <div id="report-capture-area" className="bg-slate-50 p-4 sm:p-8 max-w-full">
+          <div id="report-capture-area" className="bg-white rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in p-3 sm:p-5 pt-5 max-w-full relative overflow-hidden">
+            
+            {/* Header Redesign */}
+            <div className="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3 border-b border-gray-100 pb-3">
+              <h1 className="text-xl md:text-[24px] font-bold uppercase text-gray-900 text-center xl:text-left tracking-wide shrink-0">
+                РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)
+              </h1>
+              <div className="flex flex-wrap justify-center gap-3">
+                <div className="flex items-center gap-3 bg-[#8fa1b4] px-5 py-2 rounded-full shadow-sm">
+                  <Truck className="text-white shrink-0" size={24} strokeWidth={1.5} />
+                  <div className="flex flex-col text-white">
+                    <span className="text-[10px] font-medium leading-none mb-1">Пробег</span>
+                    <span className="font-bold leading-none whitespace-nowrap text-sm">{fmtNum(v(inputs.monthlyMileage))} км</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-[#2a7bca] px-5 py-2 rounded-full shadow-sm">
+                  <Droplet className="text-white shrink-0" size={24} strokeWidth={1.5} />
+                  <div className="flex flex-col text-white">
+                    <span className="text-[10px] font-medium leading-none mb-1">Цена дизеля</span>
+                    <span className="font-bold leading-none whitespace-nowrap text-sm">{dPrice} ₽/л</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-[#10a886] px-5 py-2 rounded-full shadow-sm">
+                  <Flame className="text-white shrink-0" size={24} strokeWidth={1.5} />
+                  <div className="flex flex-col text-white">
+                    <span className="text-[10px] font-medium leading-none mb-1">Цена газа</span>
+                    <span className="font-bold leading-none whitespace-nowrap text-sm">{gPrice} ₽/{gasUnit}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 1: ЕЖЕМЕСЯЧНЫЙ РАСЧЕТ */}
+            <div className="mb-6 relative z-10">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 relative z-10 items-stretch mb-0">
+                
+                {/* Column 1 */}
+                <div className="flex flex-col w-full relative">
+                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
+                    <div className="bg-[#546476] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                      <span className="font-bold uppercase text-[13px] tracking-wide">1. ЧИСТЫЙ ДИЗЕЛЬ</span>
+                    </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px]">
+                      <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
+                      <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons)} л`} />
+                      <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_base)} л`} />
+                      <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_base)} bold />
+                      <Row icon={Flame} label="Газ на 100 км" value="0" />
+                      <Row icon={Calculator} label="Газ в месяц" value="0" />
+                      <Row icon={Coins} label="Стоимость газа" value={fmt(0)} bold />
+                    </div>
+                    <div className="bg-[#546476] p-3 flex justify-between items-center text-white">
+                      <span className="text-[13px] font-bold uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
+                      <span className="text-[18px] font-black">{fmt(results.dCostM_base)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 2 */}
+                <div className="flex flex-col w-full relative">
+                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
+                    <div className="bg-[#2a7bca] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                      <span className="font-bold uppercase text-[13px] tracking-wide">2. ГАЗОДИЗЕЛЬ</span>
+                      <span className="font-bold uppercase text-[13px] tracking-wide">[СТАНДАРТ]</span>
+                      <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ {inputs.baseSubstitutionRate}%)</span>
+                    </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px]">
+                      <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
+                      <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons * (1 - baseRate))} л`} />
+                      <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_base_gas)} л`} />
+                      <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_base_gas)} bold />
+                      <Row icon={Flame} label="Газ на 100 км" value={`${fmtNum(dCons * baseRate * gCoef)} ${gasUnit}`} />
+                      <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_base_gas)} ${gasUnit}`} />
+                      <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_base_gas)} bold />
+                    </div>
+                    <div className="bg-[#dce9f6] p-3 flex justify-between items-center text-[#2a7bca]">
+                      <span className="text-[13px] font-bold text-gray-800 uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
+                      <span className="text-[18px] font-black">{fmt(results.totalCost_base_gas)}</span>
+                    </div>
+                  </div>
+                  {/* Floating attachment */}
+                  <div className="absolute -bottom-12 left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 text-gray-900">
+                    ▼ Экономия vs ДТ: {fmt(monthlySave2)}
+                  </div>
+                </div>
+
+                {/* Column 3 */}
+                <div className="flex flex-col w-full relative">
+                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
+                    <div className="bg-[#10a886] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                      <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ "ELITEGAS"</span>
+                      <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
+                      <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ {inputs.progressiveRate}%)</span>
+                    </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px]">
+                      <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
+                      <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons * (1 - progRate))} л`} />
+                      <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_prog_gas)} л`} />
+                      <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_prog_gas)} bold />
+                      <Row icon={Flame} label="Газ на 100 км" value={`${fmtNum(dCons * progRate * gCoef)} ${gasUnit}`} />
+                      <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_prog_gas)} ${gasUnit}`} />
+                      <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_prog_gas)} bold />
+                    </div>
+                    <div className="bg-[#67d9bc] p-3 flex justify-between items-center text-gray-900">
+                      <span className="text-[13px] font-bold text-gray-800 uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
+                      <span className="text-[18px] font-black">{fmt(results.totalCost_prog_gas)}</span>
+                    </div>
+                  </div>
+                  {/* Floating attachment */}
+                  <div className="absolute -bottom-[72px] left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex flex-col items-end text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2">
+                    <div className="text-gray-900">▼ Экономия vs ДТ: {fmt(monthlySave3)}</div>
+                    <div className="text-[#2a7bca] mt-0.5">▼ Экономия vs 40%: {fmt(monthlyDiff)}</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="h-[45px] w-full shrink-0" aria-hidden="true"></div>
+            {/* Section 2: ГОДОВАЯ АНАЛИТИКА */}
+            <div className="mt-4 relative z-10 pt-2">
+              <div className="flex items-center gap-4 mb-3">
+                <h2 className="text-xl md:text-[22px] font-bold uppercase text-gray-900">ГОДОВАЯ АНАЛИТИКА</h2>
+              </div>
               
-              {/* Шапка отчета */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                  <h1 className="text-xl md:text-2xl font-black uppercase text-gray-900 text-center md:text-left tracking-wide">РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)</h1>
-                </div>
-                <div className="grid grid-cols-2 w-full md:w-auto md:flex md:flex-wrap justify-center md:justify-end gap-2 md:gap-4">
-                  <div className="col-span-2 md:col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl">
-                    <Truck className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Пробег</span>
-                      <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{fmtNum(v(inputs.monthlyMileage))} км</span>
-                    </div>
-                  </div>
-                  <div className="col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl overflow-hidden">
-                    <Droplet className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">Цена дизеля</span>
-                      <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{dPrice} ₽/л</span>
-                    </div>
-                  </div>
-                  <div className="col-span-1 flex items-center justify-center md:justify-start gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2.5 rounded-3xl overflow-hidden">
-                    <Flame className="text-slate-600 shrink-0" size={24} strokeWidth={1.5} />
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">Цена газа</span>
-                      <span className="font-bold text-gray-900 leading-tight whitespace-nowrap">{gPrice} ₽/{gasUnit}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Три главные колонки */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch mb-[90px]">
                 
-                {/* Колонка 1 */}
-                <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col">
-                  <div className="bg-slate-700 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                    <Settings className="absolute top-3 right-3 text-white/30" size={20} />
-                    <span>1. ЧИСТЫЙ ДИЗЕЛЬ</span>
+                {/* Column 1 */}
+                <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden h-full">
+                  <div className="bg-[#546476] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                    <span className="font-bold uppercase text-[13px] tracking-wide">1. ЧИСТЫЙ ДИЗЕЛЬ</span>
                   </div>
-                  <div className="p-3 sm:p-5 flex-1 flex flex-col gap-0">
-                    <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
-                    <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons)} л`} />
-                    <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_base)} л`} />
-                    <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_base)} bold />
-                    <Row icon={Flame} label="Газ на 100 км" value="0" />
-                    <Row icon={Calculator} label="Газ в месяц" value="0" />
-                    <Row icon={Coins} label="Стоимость газа" value={fmt(0)} bold />
-                  </div>
-                  <div className="bg-slate-100 p-4 sm:p-5 flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-800 uppercase">Итого затрат в месяц:</span>
-                    <span className="text-xl font-black text-slate-900">{fmt(results.dCostM_base)}</span>
+                  <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
+                    <div className="flex justify-between items-end text-sm mb-1">
+                      <span className="text-gray-700">Затраты на топливо:</span>
+                      <span className="font-bold text-gray-900">{fmt(var1TotalCost)}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-gray-500 pl-3">
+                      <span>↳ из них ДТ:</span>
+                      <span className="font-medium">{fmt(var1DieselCost)}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-gray-500 pl-3 mb-1 border-b border-gray-100 pb-1">
+                      <span>↳ стоимость газа:</span>
+                      <span className="font-medium">—</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                      <span className="text-gray-700">Вложения в оборудование:</span>
+                      <span className="font-bold text-gray-900">—</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-gray-100 mb-3">
+                      <span className="text-gray-700">Платежи по контракту:</span>
+                      <span className="font-bold text-gray-900">—</span>
+                    </div>
+                    
+                    <div className="text-center mt-1 mb-2">
+                      <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
+                      <div className="text-[22px] font-black text-gray-900">{fmt(var1TotalCost)}</div>
+                    </div>
+                    
+                    <div className="mt-auto flex justify-center pt-2 pb-2">
+                      <div className="bg-[#eef2f5] text-gray-500 rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[11px] font-bold tracking-wider">
+                        БАЗОВЫЙ ВАРИАНТ
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Колонка 2 */}
-                <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col">
-                  <div className="bg-gradient-to-br from-blue-600 to-sky-400 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                    <span>2. ГАЗОДИЗЕЛЬ</span>
-                    <span>[СТАНДАРТ]</span>
-                    <span className="text-sm font-normal opacity-90 mt-0.5">(Замещение {inputs.baseSubstitutionRate}%)</span>
-                  </div>
-                  <div className="p-3 sm:p-5 flex-1 flex flex-col gap-0">
-                    <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
-                    <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons * (1 - baseRate))} л`} />
-                    <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_base_gas)} л`} />
-                    <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_base_gas)} bold />
-                    <Row icon={Flame} label="Газ на 100 км" value={`${fmtNum(dCons * baseRate * gCoef)} ${gasUnit}`} />
-                    <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_base_gas)} ${gasUnit}`} />
-                    <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_base_gas)} bold />
-                  </div>
-                  <div className="bg-sky-100 p-4 sm:p-5 flex justify-between items-center">
-                    <span className="text-xs font-bold text-sky-900 uppercase">Итого затрат в месяц:</span>
-                    <span className="text-xl font-black text-sky-700">{fmt(results.totalCost_base_gas)}</span>
-                  </div>
-                </div>
-
-                {/* Колонка 3 */}
-                <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col">
-                  <div className="bg-gradient-to-br from-blue-600 to-emerald-500 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                    <CheckCircle className="absolute top-3 right-3 text-white/50" size={20} />
-                    <span>3. ГАЗОДИЗЕЛЬ 'ELITEGAS'</span>
-                    <span>[ЭНЕРГОСЕРВИС]</span>
-                    <span className="text-sm font-normal opacity-90 mt-0.5">(Замещение {inputs.progressiveRate}%)</span>
-                  </div>
-                  <div className="p-3 sm:p-5 flex-1 flex flex-col gap-0">
-                    <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
-                    <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons * (1 - progRate))} л`} />
-                    <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_prog_gas)} л`} />
-                    <Row icon={Coins} label="Стоимость дизеля" value={fmt(results.dCostM_prog_gas)} bold />
-                    <Row icon={Flame} label="Газ на 100 км" value={`${fmtNum(dCons * progRate * gCoef)} ${gasUnit}`} />
-                    <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_prog_gas)} ${gasUnit}`} />
-                    <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_prog_gas)} bold />
-                  </div>
-                  <div className="bg-emerald-100 p-4 sm:p-5 flex justify-between items-center">
-                    <span className="text-xs font-bold text-emerald-900 uppercase">Итого затрат в месяц:</span>
-                    <span className="text-xl font-black text-emerald-700">{fmt(results.totalCost_prog_gas)}</span>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Нижняя секция: АНАЛИТИКА ЗАТРАТ ЗА X ЛЕТ */}
-              <div className="mt-5">
-                <div className="mt-8 flex flex-col md:flex-row justify-between items-center mb-5 border-b-2 border-gray-100 pb-4 gap-4">
-                  <div className="w-full">
-                    <h2 className="text-xl md:text-2xl font-black uppercase text-gray-900 text-center md:text-left">
-                      ГОДОВАЯ АНАЛИТИКА
-                    </h2>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  
-                  {/* Колонка 1: Без переоборудования */}
-                  <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col h-full">
-                    <div className="bg-slate-700 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                      <Settings className="absolute top-3 right-3 text-white/30" size={20} />
-                      <span>1. ЧИСТЫЙ ДИЗЕЛЬ</span>
+                {/* Column 2 */}
+                <div className="flex flex-col w-full relative">
+                  <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden relative z-10 h-full">
+                    <div className="bg-[#2a7bca] text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight">
+                      <span className="font-bold uppercase text-[13px] tracking-wide">2. ГАЗОДИЗЕЛЬ</span>
+                      <span className="font-bold uppercase text-[13px] tracking-wide">[СТАНДАРТ]</span>
+                      <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ 40%)</span>
                     </div>
-                    <div className="p-3 flex-1 flex flex-col">
-                      <div className="flex flex-col border-b border-gray-200 pb-1 mb-1">
-                        <div className="h-6 flex justify-between items-end text-sm mb-0.5">
-                          <span className="text-gray-600">Затраты на топливо:</span>
-                          <span className="font-bold text-gray-900">{fmt(var1TotalCost)}</span>
-                        </div>
-                        <div className="flex flex-col gap-0 pl-3 text-xs text-slate-500">
-                          <div className="flex justify-between">
-                            <span>↳ из них ДТ:</span>
-                            <span className="font-medium text-gray-700">{fmt(var1DieselCost)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>↳ стоимость газа:</span>
-                            <span className="font-medium text-gray-700">—</span>
-                          </div>
-                        </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
+                      <div className="flex justify-between items-end text-sm mb-1">
+                        <span className="text-gray-700">Затраты на топливо:</span>
+                        <span className="font-bold text-gray-900">{fmt(var2FuelCost)}</span>
                       </div>
-                      <div className="h-8 flex justify-between items-center border-b border-gray-200 py-1 text-sm">
-                        <span className="text-gray-600">Вложения в оборудование:</span>
-                        <span className="font-bold text-gray-900">—</span>
+                      <div className="flex justify-between text-[11px] text-gray-500 pl-3">
+                        <span>↳ из них ДТ:</span>
+                        <span className="font-medium">{fmt(var2DieselCost)}</span>
                       </div>
-                      <div className="h-8 flex justify-between items-center border-b border-gray-200 py-1 text-sm">
-                        <span className="text-gray-600">Платежи по контракту:</span>
-                        <span className="font-bold text-gray-900">—</span>
+                      <div className="flex justify-between text-[11px] text-gray-500 pl-3 mb-1 border-b border-gray-100 pb-1">
+                        <span>↳ стоимость газа:</span>
+                        <span className="font-medium">{fmt(var2GasCost)}</span>
                       </div>
-                      <div className="mt-5 min-h-[60px] flex flex-col justify-center text-center">
-                        <div className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase mb-1">Итого затрат на топливо за {termYears} {termYears === 1 ? 'год' : (termYears >= 2 && termYears <= 4 ? 'года' : 'лет')}:</div>
-                        <div className="text-xl md:text-2xl font-black text-slate-800 leading-none">{fmt(var1TotalCost)}</div>
-                      </div>
-                    </div>
-                    <div className="p-4 sm:p-5 pt-0 mt-2">
-                      <div className="bg-slate-200 text-slate-500 rounded-full h-16 flex items-center justify-center">
-                        <span className="text-xs font-bold uppercase tracking-wider">БАЗОВЫЙ ВАРИАНТ</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Колонка 2: За свой счет */}
-                  <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col h-full">
-                    <div className="bg-gradient-to-br from-blue-600 to-sky-400 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                      <span>2. ГАЗОДИЗЕЛЬ</span>
-                      <span>[СТАНДАРТ]</span>
-                      <span className="text-sm font-normal opacity-90 mt-0.5">(Замещение {inputs.baseSubstitutionRate}%)</span>
-                    </div>
-                    <div className="p-3 flex-1 flex flex-col">
-                      <div className="flex flex-col border-b border-blue-100 pb-1 mb-1">
-                        <div className="h-6 flex justify-between items-end text-sm mb-0.5">
-                          <span className="text-gray-600">Затраты на топливо:</span>
-                          <span className="font-bold text-gray-900">{fmt(var2FuelCost)}</span>
-                        </div>
-                        <div className="flex flex-col gap-0 pl-3 text-xs text-slate-500">
-                          <div className="flex justify-between">
-                            <span>↳ из них ДТ:</span>
-                            <span className="font-medium text-gray-700">{fmt(var2DieselCost)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>↳ стоимость газа:</span>
-                            <span className="font-medium text-gray-700">{fmt(var2GasCost)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="h-8 flex justify-between items-center border-b border-blue-100 py-1 text-sm">
-                        <span className="text-gray-600">Вложения в оборудование:</span>
-                        <span className="font-bold text-gray-900">{fmt(EQUIPMENT_COST)}</span>
-                      </div>
-                      <div className="h-8 flex justify-between items-center border-b border-blue-100 py-1 text-sm">
-                        <span className="text-gray-600">Платежи по контракту:</span>
-                        <span className="font-bold text-gray-900">—</span>
-                      </div>
-                      <div className="mt-5 min-h-[60px] flex flex-col justify-center text-center">
-                        <div className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase mb-1">Итого затрат на топливо за {termYears} {termYears === 1 ? 'год' : (termYears >= 2 && termYears <= 4 ? 'года' : 'лет')}:</div>
-                        <div className="text-xl md:text-2xl font-black text-blue-700 leading-none">{fmt(var2TotalCost)}</div>
-                      </div>
-                    </div>
-                    <div className="p-4 sm:p-5 pt-0 mt-2">
-                      <div className="bg-gradient-to-br from-blue-600 to-sky-400 text-white rounded-full py-1.5 flex flex-col items-center justify-center shadow-md h-16">
-                        <span className="text-[11px] font-medium opacity-90 mb-0.5">Экономия от ДТ</span>
-                        <span className="text-lg md:text-xl font-bold">{fmt(var2Saving)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Колонка 3: Энергосервис */}
-                  <div className="bg-white rounded-[32px] shadow-xl border-0 overflow-hidden flex flex-col h-full relative">
-                    <div className="bg-gradient-to-br from-blue-600 to-emerald-500 text-white text-center font-bold uppercase tracking-wider flex flex-col justify-center items-center py-2 px-2 h-24 leading-tight relative">
-                      <CheckCircle className="absolute top-3 right-3 text-white/50" size={20} />
-                      <span>3. ГАЗОДИЗЕЛЬ 'ELITEGAS'</span>
-                      <span>[ЭНЕРГОСЕРВИС]</span>
-                      <span className="text-sm font-normal opacity-90 mt-0.5">(Замещение {inputs.progressiveRate}%)</span>
-                    </div>
-                    <div className="p-3 flex-1 flex flex-col">
-                      <div className="flex flex-col border-b border-green-200 pb-1 mb-1">
-                        <div className="h-6 flex justify-between items-end text-sm mb-0.5">
-                          <span className="text-gray-700">Затраты на топливо:</span>
-                          <span className="font-bold text-gray-900">{fmt(var3FuelCost)}</span>
-                        </div>
-                        <div className="flex flex-col gap-0 pl-3 text-xs text-slate-500">
-                          <div className="flex justify-between">
-                            <span>↳ из них ДТ:</span>
-                            <span className="font-medium text-gray-700">{fmt(var3DieselCost)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>↳ стоимость газа:</span>
-                            <span className="font-medium text-gray-700">{fmt(var3GasCost)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="h-8 flex justify-between items-center border-b border-green-200 py-1 text-sm">
+                      
+                      <div className="flex justify-between items-center py-1 border-b border-gray-100">
                         <span className="text-gray-700">Вложения в оборудование:</span>
                         <span className="font-bold text-gray-900">{fmt(EQUIPMENT_COST)}</span>
                       </div>
-                      <div className="h-8 flex justify-between items-center border-b border-green-200 py-1 text-sm">
+                      <div className="flex justify-between items-center py-1 border-b border-gray-100 mb-3">
                         <span className="text-gray-700">Платежи по контракту:</span>
-                        <span className="font-bold text-gray-900">{fmt(var3InvestorCost)}</span>
+                        <span className="font-bold text-gray-900">—</span>
                       </div>
-                      <div className="mt-5 min-h-[60px] flex flex-col justify-center text-center">
-                        <div className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase mb-1">Итого затрат на топливо за {termYears} {termYears === 1 ? 'год' : (termYears >= 2 && termYears <= 4 ? 'года' : 'лет')}:</div>
-                        <div className="text-xl md:text-2xl font-black text-green-600 leading-none">{fmt(var3TotalCost)}</div>
+                      
+                      <div className="text-center mt-1 mb-2">
+                        <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ, ГАЗ и стоимость переоборудования ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
+                        <div className="text-[22px] font-black text-[#2a7bca]">{fmt(var2TotalCost)}</div>
                       </div>
-                    </div>
-                    <div className="p-4 sm:p-5 pt-0 mt-2">
-                      <div className="bg-gradient-to-br from-blue-600 to-emerald-500 text-white rounded-full py-1.5 flex flex-col items-center justify-center shadow-md h-16 relative">
-                        <span className="text-[11px] font-medium opacity-90 mb-0.5">Экономия от ДТ</span>
-                        <span className="text-lg md:text-xl font-bold">{fmt(var3Saving)}</span>
-                        <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-white/20 rounded-full p-1 hidden sm:block">
-                           <CheckCircle size={16} className="text-white" />
+                      
+                      <div className="mt-auto flex justify-center pt-2 pb-2">
+                        <div className="bg-[#dce9f6] text-[#2a7bca] rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold">
+                          <div>▼ Экономия vs ДТ:</div>
+                          <div className="text-[16px]">{fmt(var2Saving)}</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
+                </div>
+
+                {/* Column 3 */}
+                <div className="flex flex-col w-full relative">
+                  <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden relative z-10 h-full">
+                    <div className="bg-[#10a886] text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight">
+                      <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ 'ELITEGAS'</span>
+                      <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
+                      <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ 70%)</span>
+                    </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
+                      <div className="flex justify-between items-end text-sm mb-1">
+                        <span className="text-gray-700">Затраты на топливо:</span>
+                        <span className="font-bold text-gray-900">{fmt(var3FuelCost)}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-gray-500 pl-3">
+                        <span>↳ из них ДТ:</span>
+                        <span className="font-medium">{fmt(var3DieselCost)}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-gray-500 pl-3 mb-1 border-b border-gray-100 pb-1">
+                        <span>↳ стоимость газа:</span>
+                        <span className="font-medium">{fmt(var3GasCost)}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                        <span className="text-gray-700">Вложения в оборудование:</span>
+                        <span className="font-bold text-gray-900">{fmt(EQUIPMENT_COST)}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b border-gray-100 mb-3">
+                        <span className="text-gray-700">Платежи по контракту:</span>
+                        <span className="font-bold text-gray-900">{fmt(var3InvestorCost)}</span>
+                      </div>
+                      
+                      <div className="text-center mt-1 mb-2">
+                        <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ, ГАЗ и стоимость переоборудования ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
+                        <div className="text-[22px] font-black text-[#10a886]">{fmt(var3TotalCost)}</div>
+                      </div>
+                      
+                      <div className="mt-auto flex justify-center pt-2 pb-2">
+                        <div className="bg-[#d2f3e8] text-[#0f5132] rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold">
+                          <div className="text-[#10a886]">▼ Экономия vs ДТ:</div>
+                          <div className="text-[16px]">{fmt(var3Saving)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Floating attachment */}
+                  <div className="absolute -bottom-[54px] left-6 right-6 bg-[#f8fafc] rounded-b-2xl px-4 py-2 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 text-[#2a7bca]">
+                    ▼ Экономия vs 40%: {fmt(yearlyDiff)}
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div className="px-4 md:px-8 pb-4 md:pb-8">
-              <AppFooter showDisclaimer />
-            </div>
+
+          </div>
+          
+          <div className="px-4 md:px-8 pb-4 md:pb-8 pt-2">
+            <AppFooter showDisclaimer />
           </div>
         </div>
       </div>
