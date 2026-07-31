@@ -206,28 +206,35 @@ const EnergyServiceScreen = () => {
               <h1 className="text-xl md:text-[24px] font-bold uppercase text-gray-900 text-center xl:text-left tracking-wide shrink-0">
                 РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)
               </h1>
-              <div className="flex flex-wrap justify-center gap-3">
-                <div className="flex items-center gap-3 bg-[#8fa1b4] px-5 py-2 rounded-full shadow-sm">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full xl:w-auto xl:flex xl:flex-nowrap">
+                
+                {/* 1. Пробег (Полная ширина на мобилке, 1-й ряд) */}
+                <div className="col-span-2 xl:col-span-1 flex items-center justify-center gap-3 bg-[#8fa1b4] px-5 py-2 rounded-full shadow-sm w-full">
                   <Truck className="text-white shrink-0" size={24} strokeWidth={1.5} />
                   <div className="flex flex-col text-white">
                     <span className="text-[10px] font-medium leading-none mb-1">Пробег</span>
                     <span className="font-bold leading-none whitespace-nowrap text-sm">{fmtNum(v(inputs.monthlyMileage))} км</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-[#2a7bca] px-5 py-2 rounded-full shadow-sm">
-                  <Droplet className="text-white shrink-0" size={24} strokeWidth={1.5} />
-                  <div className="flex flex-col text-white">
+                
+                {/* 2. Цена дизеля (Половина ширины на мобилке, 2-й ряд) */}
+                <div className="col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 bg-[#2a7bca] px-2 sm:px-4 py-2 rounded-full shadow-sm w-full">
+                  <Droplet className="text-white shrink-0" size={20} strokeWidth={1.5} />
+                  <div className="flex flex-col text-white overflow-hidden">
                     <span className="text-[10px] font-medium leading-none mb-1">Цена дизеля</span>
-                    <span className="font-bold leading-none whitespace-nowrap text-sm">{dPrice} ₽/л</span>
+                    <span className="font-bold leading-none whitespace-nowrap text-[11px] sm:text-sm truncate">{dPrice} ₽/л</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-[#10a886] px-5 py-2 rounded-full shadow-sm">
-                  <Flame className="text-white shrink-0" size={24} strokeWidth={1.5} />
-                  <div className="flex flex-col text-white">
+                
+                {/* 3. Цена газа (Половина ширины на мобилке, 2-й ряд) */}
+                <div className="col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 bg-[#10a886] px-2 sm:px-4 py-2 rounded-full shadow-sm w-full">
+                  <Flame className="text-white shrink-0" size={20} strokeWidth={1.5} />
+                  <div className="flex flex-col text-white overflow-hidden">
                     <span className="text-[10px] font-medium leading-none mb-1">Цена газа</span>
-                    <span className="font-bold leading-none whitespace-nowrap text-sm">{gPrice} ₽/{gasUnit}</span>
+                    <span className="font-bold leading-none whitespace-nowrap text-[11px] sm:text-sm truncate">{gPrice} ₽/{gasUnit}</span>
                   </div>
                 </div>
+
               </div>
             </div>
 

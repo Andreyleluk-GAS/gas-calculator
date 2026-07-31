@@ -4,7 +4,7 @@ import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
   BarChart3, Tag,  ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
-  Zap, Camera, Check, CheckCircle
+  Zap, Camera, Check, CheckCircle, Loader2
 } from 'lucide-react';
 import { toBlob } from 'html-to-image';
 
@@ -32,6 +32,9 @@ export const captureDesktopScreenshot = async (elementId, forceWidth = null) => 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <style>
+          * { box-sizing: border-box !important; }
+        </style>
     `);
     
     const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
@@ -236,6 +239,7 @@ const App = () => {
   const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
   const [screenshotCopied, setScreenshotCopied] = useState(false);
   const [silentOldReport, setSilentOldReport] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
@@ -244,9 +248,15 @@ const App = () => {
 
   useEffect(() => {
     if (silentOldReport) {
+      setIsCapturing(true); // Включаем затемнение экрана
+
+      // Даем React 150мс на отрисовку лоадера перед блокировкой потока
       const timer = setTimeout(async () => {
         try {
-          const blob = await captureDesktopScreenshot('old-report-capture-area');
+          // Точная ширина (850 или 900) гарантирует правильную десктопную верстку в iframe
+          const captureWidth = silentOldReport === 'LNG_CNG_REPORT_OLD' ? 850 : 900;
+          const blob = await captureDesktopScreenshot('old-report-capture-area', captureWidth);
+
           if (blob) {
             await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
             setToastMessage('Отчёт OLD скопирован!');
@@ -255,16 +265,25 @@ const App = () => {
         } catch (err) {
           console.error(err);
           alert('Ошибка при копировании отчета OLD');
+        } finally {
+          setIsCapturing(false); // Убираем затемнение
+          setSilentOldReport(null);
         }
-        setSilentOldReport(null);
-      }, 500);
+      }, 150);
+
       return () => clearTimeout(timer);
     }
   }, [silentOldReport]);
 
   const handleTakeScreenshot = async () => {
     try {
-      const blob = await captureDesktopScreenshot('report-capture-area');
+      let captureWidth = 1200; // по умолчанию (для Энергосервиса)
+
+      if (currentScreen === 'TRUCK_REPORT' || currentScreen === 'LNG_CNG_REPORT') {
+        captureWidth = 896; 
+      }
+
+      const blob = await captureDesktopScreenshot('report-capture-area', captureWidth);
       if (blob) {
         try {
           await navigator.clipboard.write([
@@ -285,7 +304,8 @@ const App = () => {
 
   const handleTakeOldScreenshot = async () => {
     try {
-      const blob = await captureDesktopScreenshot('old-report-capture-area');
+      const captureWidth = currentScreen === 'LNG_CNG_REPORT_OLD' ? 850 : 900;
+      const blob = await captureDesktopScreenshot('old-report-capture-area', captureWidth);
       if (blob) {
         try {
           await navigator.clipboard.write([
@@ -302,8 +322,29 @@ const App = () => {
     }
   };
 
-  // ФУНКЦИЯ СОХРАНЕНИЯ В JPG
-  
+  // ФУНКЦИЯ СОХРАНЕНИЯ ОТЧЕТА В ВИДЕ КАРТИНКИ
+  const handleSaveOldReportAsImage = async () => {
+    try {
+      const captureWidth = currentScreen === 'LNG_CNG_REPORT_OLD' ? 850 : 900;
+      const blob = await captureDesktopScreenshot('old-report-capture-area', captureWidth);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.download = `elitegas_old_report_${new Date().getTime()}.png`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      }
+    } catch (err) {
+      console.error('Failed to save old report as image', err);
+    }
+  };
+
   // ФУНКЦИЯ СКРИНШОТА ВСЕЙ СТРАНИЦЫ
   const handleFullPageScreenshot = () => {
     const el = document.getElementById('root');
@@ -1240,7 +1281,7 @@ const App = () => {
 
     return (
       <div className="min-h-screen bg-surface-50 p-1.5 md:p-6 overflow-x-hidden">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto w-full">
 
           {/* Верхняя панель */}
           <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
@@ -1275,7 +1316,7 @@ const App = () => {
 
           {/* Карточка отчёта */}
           <div className="animate-fade-in">
-            <div id="report-capture-area" className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-md border border-surface-200">
+            <div id="report-capture-area" className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-md border border-surface-200 w-full max-w-full">
 
             {/* Заголовок отчёта */}
             <div className="mb-4 md:mb-8 text-center border-b border-surface-200 pb-3 md:pb-6">
@@ -1316,59 +1357,62 @@ const App = () => {
 
               {/* Базовая экономия */}
               <div className={`bg-gradient-to-br ${gt.gradient} text-white p-4 md:p-8 rounded-2xl shadow-lg
-                flex flex-row justify-between relative overflow-hidden`}>
-                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 mt-2">
+                flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]`}>
+                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 h-full py-1">
                   <div>
-                    <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-80 mb-1">
+                    <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-80 mb-1 md:mb-2">
                       Экономия (Базовый)
                     </div>
-                    <div className="text-2xl md:text-5xl font-black mb-3 md:mb-4 leading-tight">
+                    <div className="text-2xl md:text-5xl font-black mb-3 md:mb-4 leading-none screenshot-fix-y">
                       {fmt(truckSummary.savings)}
                     </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                  <div className="flex gap-2 flex-wrap mt-auto">
+                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
                       {fmt(truckSummary.monthlySav)} / мес
                     </div>
-                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase">
+                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
                       -{Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат
                     </div>
                   </div>
                 </div>
-                <div className="absolute right-3 top-3 bottom-3 flex items-center justify-end w-1/3 select-none opacity-20">
-                  <img src="/logo.png" alt="Logo" className="h-full w-auto object-contain object-right"
+                <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-center justify-end pointer-events-none opacity-20 select-none">
+                  <img src="/logo.png" alt="Logo" className="w-full h-full object-contain object-right"
                     onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               </div>
 
               {/* ГГМТ (только КПГ) */}
               {systemType === 'cng' && (
-                <div className="bg-surface border-2 border-primary-100 p-4 md:p-8 rounded-2xl shadow-md
-                  flex flex-col justify-between relative overflow-hidden">
-                  <div className="absolute top-0 right-0 px-3 py-1.5 bg-primary text-white rounded-bl-2xl
-                    font-bold text-[9px] md:text-[10px] uppercase z-20">
+                <div className="bg-surface p-4 md:p-8 rounded-2xl shadow-md flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]">
+                  {/* Изолированная рамка для обхода бага html-to-image */}
+                  <div className="absolute inset-0 border-2 border-primary-100 rounded-2xl pointer-events-none z-30"></div>
+                  
+                  <div className="absolute top-0 right-0 px-3 py-1.5 bg-primary text-white rounded-bl-2xl rounded-tr-2xl font-bold text-[9px] md:text-[10px] uppercase z-40">
                     Программа ГГМТ
                   </div>
-                  <div className="relative z-10 w-2/3 md:w-3/4 mt-2">
+                  
+                  <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 h-full py-1">
                     <div>
-                      <div className="text-[9px] md:text-xs font-bold text-graphite-500 mb-1 flex items-center gap-1 uppercase tracking-wider">
+                      <div className="text-[9px] md:text-xs font-bold text-graphite-500 mb-1 md:mb-2 flex items-center gap-1 uppercase tracking-wider">
                         <Tag size={10} className="text-primary" /> Со скидкой на метан {ggmtDiscount}%
                       </div>
-                      <div className="text-2xl md:text-5xl font-black text-primary-700 mb-3 md:mb-4 leading-tight">
+                      <div className="text-2xl md:text-5xl font-black text-primary-700 mb-3 md:mb-4 leading-none screenshot-fix-y">
                         {fmt(truckSummary.savingsDiscounted)}
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase">
+                    <div className="flex gap-2 flex-wrap mt-auto">
+                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
                         {fmt(truckSummary.monthlySavDiscounted)} / мес
                       </div>
-                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase">
+                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
                         -{Math.round((truckSummary.savingsDiscounted / (truckSummary.totalD || 1)) * 100)}% затрат
                       </div>
                     </div>
                   </div>
-                  <div className="absolute right-3 bottom-3 flex items-end justify-end max-h-[35%] w-[28%] select-none opacity-25">
-                    <img src="/logoGGMT.png" alt="GGMT" className="h-auto max-h-full w-auto object-contain"
+                  
+                  <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-end justify-end pointer-events-none opacity-25 select-none z-10">
+                    <img src="/logoGGMT.png" alt="GGMT" className="w-full h-full object-contain object-right object-bottom"
                       onError={(e) => { e.target.style.display = 'none'; }} />
                   </div>
                 </div>
@@ -1466,6 +1510,16 @@ const App = () => {
         {silentOldReport === 'TRUCK_REPORT_OLD' && (
           <div className="fixed top-0 left-[-9999px] opacity-0 pointer-events-none z-[-1] w-[1000px] overflow-hidden">
             {renderTruckReportOld()}
+          </div>
+        )}
+        {isCapturing && (
+          <div className="fixed inset-0 z-[999999] bg-graphite/30 backdrop-blur-[2px] flex items-center justify-center pointer-events-auto transition-opacity duration-300">
+            <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 animate-scale-in">
+              <Loader2 size={24} className="text-primary animate-spin" />
+              <span className="font-bold text-graphite text-xs md:text-sm uppercase tracking-wider">
+                Формируем отчёт...
+              </span>
+            </div>
           </div>
         )}
         {toastMessage && (
@@ -1661,7 +1715,7 @@ const App = () => {
 
     return (
       <div className="min-h-screen bg-surface-50 p-2 md:p-6 overflow-x-hidden">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto w-full">
 
           {/* Шапка */}
           <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
@@ -1693,14 +1747,10 @@ const App = () => {
           </header>
 
           <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in overflow-hidden">
-            <div id="report-capture-area" className="bg-white p-6 md:p-8">
+            <div id="report-capture-area" className="bg-white p-6 md:p-8 w-full max-w-full">
 
             {/* Заголовок отчёта */}
             <div className="text-center border-b border-surface-200 pb-4 mb-6">
-              <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase
-                tracking-widest text-secondary-600 mb-2">
-                <ArrowLeftRight size={12} /> Анализ эффективности
-              </div>
               <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-graphite">
                 {isFromLng ? 'СПГ ↔ КПГ' : 'КПГ ↔ СПГ'}
               </h1>
@@ -1729,49 +1779,57 @@ const App = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
 
               {/* КПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${cheaperIs === 'cng' ? 'bg-secondary border-secondary shadow-lg' : 'bg-surface border-surface-200'
-                }`}>
+              <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'cng' ? 'bg-secondary shadow-lg' : 'bg-surface'}`}>
+                {/* Изолированная рамка */}
+                <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'cng' ? 'border-secondary' : 'border-surface-200'}`}></div>
+
                 {cheaperIs === 'cng' && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white
-                    rounded-full text-[9px] font-bold uppercase">
+                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
                     Выгоднее
                   </div>
                 )}
-                <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'cng' ? 'text-white/80' : 'text-secondary-700'} font-bold text-xs uppercase`}>
-                  <Gauge size={14} /> КПГ компремированный
-                </div>
-                <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
-                <div className={`text-2xl font-black mb-3 ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
-                  {kmCostCng.toFixed(2)} ₽/км
-                </div>
-                <div className={`border-t pt-3 ${cheaperIs === 'cng' ? 'border-white/20' : 'border-surface-200'}`}>
-                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
-                  <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
-                    {fmt(annualCng)}
+
+                <div className="relative z-10">
+                  <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'cng' ? 'text-white/80' : 'text-secondary-700'} font-bold text-xs uppercase`}>
+                    <Gauge size={14} /> КПГ компремированный
+                  </div>
+                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
+                  <div className={`text-2xl font-black mb-3 ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
+                    {kmCostCng.toFixed(2)} ₽/км
+                  </div>
+                  <div className={`border-t pt-3 ${cheaperIs === 'cng' ? 'border-white/20' : 'border-surface-200'}`}>
+                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
+                    <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
+                      {fmt(annualCng)}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* СПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 border-2 relative overflow-hidden ${cheaperIs === 'lng' ? 'bg-primary border-primary shadow-lg' : 'bg-surface border-surface-200'
-                }`}>
+              <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'lng' ? 'bg-primary shadow-lg' : 'bg-surface'}`}>
+                {/* Изолированная рамка */}
+                <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'lng' ? 'border-primary' : 'border-surface-200'}`}></div>
+
                 {cheaperIs === 'lng' && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white
-                    rounded-full text-[9px] font-bold uppercase">
+                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
                     Выгоднее
                   </div>
                 )}
-                <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'lng' ? 'text-white/80' : 'text-primary-700'} font-bold text-xs uppercase`}>
-                  <Flame size={14} /> СПГ криогенный
-                </div>
-                <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
-                <div className={`text-2xl font-black mb-3 ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
-                  {kmCostLng.toFixed(2)} ₽/км
-                </div>
-                <div className={`border-t pt-3 ${cheaperIs === 'lng' ? 'border-white/20' : 'border-surface-200'}`}>
-                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
-                  <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
-                    {fmt(annualLng)}
+
+                <div className="relative z-10">
+                  <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'lng' ? 'text-white/80' : 'text-primary-700'} font-bold text-xs uppercase`}>
+                    <Flame size={14} /> СПГ криогенный
+                  </div>
+                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
+                  <div className={`text-2xl font-black mb-3 ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
+                    {kmCostLng.toFixed(2)} ₽/км
+                  </div>
+                  <div className={`border-t pt-3 ${cheaperIs === 'lng' ? 'border-white/20' : 'border-surface-200'}`}>
+                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
+                    <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
+                      {fmt(annualLng)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1887,6 +1945,16 @@ const App = () => {
         {silentOldReport === 'LNG_CNG_REPORT_OLD' && (
           <div className="fixed top-0 left-[-9999px] opacity-0 pointer-events-none z-[-1] w-[1000px] overflow-hidden">
             {renderLngCngReportOld()}
+          </div>
+        )}
+        {isCapturing && (
+          <div className="fixed inset-0 z-[999999] bg-graphite/30 backdrop-blur-[2px] flex items-center justify-center pointer-events-auto transition-opacity duration-300">
+            <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 animate-scale-in">
+              <Loader2 size={24} className="text-primary animate-spin" />
+              <span className="font-bold text-graphite text-xs md:text-sm uppercase tracking-wider">
+                Формируем отчёт...
+              </span>
+            </div>
           </div>
         )}
         {toastMessage && (
@@ -2199,28 +2267,24 @@ const App = () => {
             transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none'
           }}
         >
-          <header className="px-6 md:px-10 pt-6 md:pt-10 hidden md:flex items-center justify-between print:hidden">
-            <BackBtn />
-            <div className="flex gap-2">
-              <button 
-                onClick={handleTakeOldScreenshot} 
-                className={`w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
-                  screenshotCopied 
-                    ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
-                    : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
-                }`}
-              >
-                {screenshotCopied ? <Check size={16} /> : <Camera size={16} />}
-                <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
-              </button>
-              <button 
-                onClick={handleSaveOldReportAsImage}
-                className="flex items-center gap-2 px-6 h-10 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-bold text-secondary-700 hover:bg-secondary-100 transition-colors shadow-sm cursor-pointer"
-              >
-                Сохранить
-              </button>
-              
-            </div>
+          <header className="px-6 md:px-10 pt-6 md:pt-10 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+            
+            {/* 1. Кнопка Назад */}
+            <BackBtn className="order-1 md:mr-auto" />
+
+            {/* 2. Кнопка Скриншот */}
+            <button 
+              onClick={handleTakeOldScreenshot} 
+              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+                screenshotCopied 
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+                  : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
+              }`}
+            >
+              {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
+              <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
+            </button>
+
           </header>
 
           <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
