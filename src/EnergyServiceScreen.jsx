@@ -239,10 +239,8 @@ const EnergyServiceScreen = () => {
             {/* Header Redesign */}
             <div className="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3 border-b border-gray-100 pb-3 relative z-10">
               <div className="hidden md:flex items-center gap-3">
-                {isEliteTheme && (
-                  <img src="/ELITEGAS/logo.png" alt="Elite Gas" className="h-12 w-12 md:h-[50px] md:w-[50px] object-contain shrink-0" />
-                )}
-                <h1 className={`hidden md:block text-xl md:text-[24px] font-bold uppercase text-center xl:text-left tracking-wide shrink-0 ${isEliteTheme ? 'text-[#bb1a2c]' : 'text-gray-900'}`}>
+
+                <h1 className="hidden md:block text-xl md:text-[24px] font-bold uppercase text-center xl:text-left tracking-wide shrink-0 text-[#064e3b]">
                   РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)
                 </h1>
               </div>
@@ -335,17 +333,13 @@ const EnergyServiceScreen = () => {
                 {/* Column 3 */}
                 <div className="flex flex-col w-full relative">
                   <div className={`bg-white rounded-3xl shadow-md flex flex-col border overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#3b8c52]' : 'border-gray-100'}`}>
-                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] relative`}>
-                      {isEliteTheme && (
-                        <div className="absolute left-2 top-2 h-10 w-10 bg-white rounded-full flex items-center justify-center p-0.5 border border-[#3b8c52] shadow-sm">
-                          <img src="/ELITEGAS/logo.png" alt="logo" className="h-full w-full object-contain rounded-full" />
-                        </div>
-                      )}
+
+                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] relative z-10`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ "ELITEGAS"</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
                       <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ {inputs.progressiveRate}%)</span>
                     </div>
-                    <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px]">
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px] relative z-10">
                       <Row icon={Map} label="Пробег в месяц" value={`${fmtNum(v(inputs.monthlyMileage))} км`} />
                       <Row icon={Droplet} label="Дизель на 100 км" value={`${fmtNum(dCons * (1 - progRate))} л`} />
                       <Row icon={Calculator} label="Дизель в месяц" value={`${fmtNum(results.dFuelM_prog_gas)} л`} />
@@ -362,7 +356,7 @@ const EnergyServiceScreen = () => {
                   {/* Floating attachment */}
                   <div className="absolute -bottom-[72px] left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex flex-col items-end text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2">
                     <div className={`${isEliteTheme ? 'text-[#2d7e44]' : 'text-gray-900'}`}>▼ Экономия vs ДТ: {fmt(monthlySave3)}</div>
-                    <div className={`${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#2a7bca]'} mt-0.5`}>▼ Экономия vs 40%: {fmt(monthlyDiff)}</div>
+                    <div className={`${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#2a7bca]'} mt-0.5`}>▼ Экономия vs {inputs.baseSubstitutionRate}%: {fmt(monthlyDiff)}</div>
                   </div>
                 </div>
 
@@ -373,7 +367,9 @@ const EnergyServiceScreen = () => {
             {/* Section 2: ГОДОВАЯ АНАЛИТИКА */}
             <div className="mt-4 relative z-10 pt-2">
               <div className="flex items-center gap-4 mb-3">
-                <h2 className="text-xl md:text-[22px] font-bold uppercase text-gray-900">ГОДОВАЯ АНАЛИТИКА</h2>
+                <h2 className="text-xl md:text-[22px] font-bold uppercase text-[#064e3b]">
+                  ГОДОВАЯ АНАЛИТИКА (за период {termYears} {termYears === 1 ? 'год' : (termYears >= 2 && termYears <= 4 ? 'года' : 'лет')})
+                </h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch mb-[90px]">
@@ -425,7 +421,7 @@ const EnergyServiceScreen = () => {
                     <div className={`${isEliteTheme ? 'bg-[#2d7e44]' : 'bg-[#2a7bca]'} text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">2. ГАЗОДИЗЕЛЬ</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[СТАНДАРТ]</span>
-                      <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ 40%)</span>
+                      <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ {inputs.baseSubstitutionRate}%)</span>
                     </div>
                     <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
                       <div className="flex justify-between items-end text-sm mb-1">
@@ -468,17 +464,13 @@ const EnergyServiceScreen = () => {
                 {/* Column 3 */}
                 <div className="flex flex-col w-full relative">
                   <div className={`bg-white rounded-3xl shadow-md border flex flex-col overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#3b8c52]' : 'border-gray-100'}`}>
-                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight relative`}>
-                      {isEliteTheme && (
-                        <div className="absolute left-2 top-2 h-10 w-10 bg-white rounded-full flex items-center justify-center p-0.5 border border-[#3b8c52] shadow-sm">
-                          <img src="/ELITEGAS/logo.png" alt="logo" className="h-full w-full object-contain rounded-full" />
-                        </div>
-                      )}
+
+                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight relative z-10`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ 'ELITEGAS'</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
-                      <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ 70%)</span>
+                      <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ {inputs.progressiveRate}%)</span>
                     </div>
-                    <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px] relative z-10">
                       <div className="flex justify-between items-end text-sm mb-1">
                         <span className="text-gray-700">Затраты на топливо:</span>
                         <span className="font-bold text-gray-900">{fmt(var3FuelCost)}</span>
@@ -516,7 +508,7 @@ const EnergyServiceScreen = () => {
                   </div>
                   {/* Floating attachment */}
                   <div className={`absolute -bottom-[54px] left-6 right-6 bg-[#f8fafc] rounded-b-2xl px-4 py-2 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 ${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#2a7bca]'}`}>
-                    ▼ Экономия vs 40%: {fmt(yearlyDiff)}
+                    ▼ Экономия vs {inputs.baseSubstitutionRate}%: {fmt(yearlyDiff)}
                   </div>
                 </div>
               </div>

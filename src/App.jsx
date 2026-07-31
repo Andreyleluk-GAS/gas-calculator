@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import EnergyServiceScreen from './EnergyServiceScreen';
 import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
-  BarChart3, Tag,  ArrowLeftRight,
+  BarChart3, Tag, ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
   Zap, Camera, Check, CheckCircle, Loader2
 } from 'lucide-react';
@@ -36,10 +36,10 @@ export const captureDesktopScreenshot = async (elementId, forceWidth = null) => 
           * { box-sizing: border-box !important; }
         </style>
     `);
-    
+
     const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
     styles.forEach(s => iframeDoc.write(s.outerHTML));
-    
+
     iframeDoc.write('</head><body class="font-sans antialiased text-gray-900 bg-white" style="margin:0; padding:2rem; font-family: Inter, sans-serif;">');
     iframeDoc.write(`<div style="width: ${forceWidth || el.offsetWidth}px; margin: 0 auto;">`);
     iframeDoc.write(el.outerHTML);
@@ -56,7 +56,7 @@ export const captureDesktopScreenshot = async (elementId, forceWidth = null) => 
 
         const targetEl = iframeDoc.getElementById(elementId);
         if (!targetEl) throw new Error('Target element not found in iframe');
-        
+
         const blob = await toBlob(targetEl, {
           cacheBust: true,
           backgroundColor: '#ffffff',
@@ -91,7 +91,7 @@ export const ds = {
       : 'bg-secondary hover:bg-secondary-600',
     gradient: isLng ? 'from-primary-700 to-primary-900'
       : 'from-secondary-700 via-secondary-600 to-primary-700'
-})
+  })
 };
 
 // ── УТИЛИТЫ ───────────────────────────────
@@ -150,9 +150,9 @@ export const AppFooter = ({ showDisclaimer = false }) => {
       )}
       <div className="flex flex-col items-center leading-tight">
         <p className="text-utility-muted text-[9px] uppercase tracking-widest font-bold">Партнер проекта</p>
-        <a 
-          href="https://elitegas.ru/" 
-          target="_blank" 
+        <a
+          href="https://elitegas.ru/"
+          target="_blank"
           rel="noopener noreferrer"
           className="text-graphite font-black text-xs md:text-sm uppercase tracking-tight hover:text-primary transition-colors cursor-pointer"
         >
@@ -161,9 +161,9 @@ export const AppFooter = ({ showDisclaimer = false }) => {
       </div>
       <div className="flex items-center gap-1.5 text-utility-muted text-[10px] md:text-xs">
         <MapPin size={12} className="text-utility-muted" />
-        <a 
-          href="https://yandex.ru/maps/?text=Екатеринбург, Шефская, 3АВ" 
-          target="_blank" 
+        <a
+          href="https://yandex.ru/maps/?text=Екатеринбург, Шефская, 3АВ"
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:text-primary transition-colors cursor-pointer hover:underline"
         >
@@ -280,7 +280,7 @@ const App = () => {
       let captureWidth = 1200; // по умолчанию (для Энергосервиса)
 
       if (currentScreen === 'TRUCK_REPORT' || currentScreen === 'LNG_CNG_REPORT') {
-        captureWidth = 896; 
+        captureWidth = 896;
       }
 
       const blob = await captureDesktopScreenshot('report-capture-area', captureWidth);
@@ -291,7 +291,7 @@ const App = () => {
           ]);
           setScreenshotCopied(true);
           setTimeout(() => setScreenshotCopied(false), 2000);
-        } catch(e) {
+        } catch (e) {
           console.error('Clipboard write error:', e);
           alert('Ваш браузер не поддерживает копирование картинок в буфер.');
         }
@@ -313,7 +313,7 @@ const App = () => {
           ]);
           setScreenshotCopied(true);
           setTimeout(() => setScreenshotCopied(false), 2000);
-        } catch(e) {
+        } catch (e) {
           console.error('Clipboard write error:', e);
         }
       }
@@ -352,7 +352,7 @@ const App = () => {
 
     // Временно убираем overflow для захвата всей высоты
     const originalStyles = el.style.cssText;
-    
+
     window.html2canvas(el, {
       scale: 2,
       useCORS: true,
@@ -392,7 +392,7 @@ const App = () => {
     cngCoefficient: 1.2, cngPrice: 31.5,
     monthlyMileage: 15000,
     substitutionRate: 60
-});
+  });
   const [truckDiscountLimit, setTruckDiscountLimit] = useState(3500);
   const [lngCngDiscountLimit, setLngCngDiscountLimit] = useState(2500);
   const [isOldRepSettingsOpen, setIsOldRepSettingsOpen] = useState(false);
@@ -402,7 +402,7 @@ const App = () => {
     lngCoefficient: 0.86, lngPrice: 54,
     cngCoefficient: 1.2, cngPrice: 31.5,
     monthlyMileage: 15000
-});
+  });
 
   // ── СПГ ↔ КПГ ─────────────────────────────────
   const [lngCngInputs, setLngCngInputs] = useState({
@@ -423,7 +423,7 @@ const App = () => {
   const [passInputs, setPassInputs] = useState({
     mileage: 1600, fuelNorm: 10,
     priceBenzin: 70.5, pricePropane: 32, priceMethane: 31.5
-});
+  });
   const [passCoeffs, setPassCoeffs] = useState({ propane: 1.2, methane: 0.9 });
   const [isPassSettingsOpen, setIsPassSettingsOpen] = useState(false);
 
@@ -549,7 +549,7 @@ const App = () => {
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd);
-    
+
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -617,14 +617,14 @@ const App = () => {
     const gasPriceDisc = gasPrice * (1 - v(ggmtDiscount) / 100);
     const gasMonthlyVol = (qG_res * monthlyMileage) / 100;
     const limit = v(truckDiscountLimit);
-    
+
     const discountedGasVol = Math.min(gasMonthlyVol, limit);
     const normalGasVol = Math.max(0, gasMonthlyVol - limit);
     const gasMonthlyCostDisc = discountedGasVol * gasPriceDisc + normalGasVol * gasPrice;
-    
+
     const dMonthlyCost = (qD_res * dPrice * monthlyMileage) / 100;
-    const totalMonthlyCostDisc = isRem 
-      ? gasMonthlyCostDisc 
+    const totalMonthlyCostDisc = isRem
+      ? gasMonthlyCostDisc
       : dMonthlyCost + gasMonthlyCostDisc;
 
     const totalD = Math.round(totalM * costD);
@@ -669,7 +669,7 @@ const App = () => {
       kmCostB: fmtKm(kmCostB), kmCostP: fmtKm(kmCostP), kmCostM: fmtKm(kmCostM),
       saveYearP: Math.round((costB - costP) * 12),
       saveYearM: Math.round((costB - costM) * 12)
-};
+    };
   }, [passInputs, passCoeffs]);
 
   // ── ПРОИЗВОДНЫЕ ───────────────────────────
@@ -763,7 +763,7 @@ const App = () => {
           </div>
 
           <AppFooter />
-          
+
           {isTgBrowser && (
             <button
               onClick={openInExternal}
@@ -798,9 +798,9 @@ const App = () => {
             <h1 className="flex-1 text-center text-[15px] md:text-2xl font-extrabold text-graphite tracking-tight">
               Топливный калькулятор
             </h1>
-            <img 
-              src="/logo-legcovie.png" 
-              alt="Легковые" 
+            <img
+              src="/logo-legcovie.png"
+              alt="Легковые"
               className="h-6 md:h-12 w-auto object-contain shrink-0"
               onError={(e) => e.target.style.display = 'none'}
             />
@@ -809,19 +809,19 @@ const App = () => {
           {/* Ввод пробега / расхода */}
           <section className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="bg-surface p-3 md:p-4 rounded-xl shadow-sm border border-surface-200">
-              <Field 
-                label={<span>Пробег (мес), <br className="md:hidden" />км</span>} 
-                name="mileage" 
+              <Field
+                label={<span>Пробег (мес), <br className="md:hidden" />км</span>}
+                name="mileage"
                 value={passInputs.mileage}
-                onChange={(e) => setPassInputs(p => ({ ...p, mileage: e.target.value }))} 
+                onChange={(e) => setPassInputs(p => ({ ...p, mileage: e.target.value }))}
               />
             </div>
             <div className="bg-surface p-3 md:p-4 rounded-xl shadow-sm border border-surface-200">
-              <Field 
-                label="Расход бензина, л/100 км" 
-                name="fuelNorm" 
+              <Field
+                label="Расход бензина, л/100 км"
+                name="fuelNorm"
                 value={passInputs.fuelNorm}
-                onChange={(e) => setPassInputs(p => ({ ...p, fuelNorm: e.target.value }))} 
+                onChange={(e) => setPassInputs(p => ({ ...p, fuelNorm: e.target.value }))}
               />
             </div>
           </section>
@@ -843,8 +843,8 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-amber-700 uppercase">Цена/литр</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="text" inputMode="decimal" name="priceBenzin" 
-                          value={String(passInputs.priceBenzin ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                        <input type="text" inputMode="decimal" name="priceBenzin"
+                          value={String(passInputs.priceBenzin ?? '').split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : p).join('.')}
                           onChange={(e) => setPassInputs(p => ({ ...p, priceBenzin: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
                           className="w-20 bg-transparent text-right font-bold text-lg outline-none text-graphite" />
                         <span className="text-[10px] font-bold text-amber-400">₽</span>
@@ -892,8 +892,8 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-secondary-700 uppercase">Цена/литр</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="text" inputMode="decimal" name="pricePropane" 
-                          value={String(passInputs.pricePropane ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                        <input type="text" inputMode="decimal" name="pricePropane"
+                          value={String(passInputs.pricePropane ?? '').split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : p).join('.')}
                           onChange={(e) => setPassInputs(p => ({ ...p, pricePropane: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
                           className="w-20 bg-transparent text-right font-bold text-lg outline-none text-secondary-700" />
                         <span className="text-[10px] font-bold text-secondary-500">₽</span>
@@ -941,8 +941,8 @@ const App = () => {
                     <label className="text-[9px] md:text-[10px] font-bold text-primary-700 uppercase">Цена / м³</label>
                     <div className="flex items-center gap-2 group">
                       <div className="flex items-baseline gap-2">
-                        <input type="text" inputMode="decimal" name="priceMethane" 
-                          value={String(passInputs.priceMethane ?? '').split('.').map((p,i)=>i===0?p.replace(/\B(?=(\d{3})+(?!\d))/g,' '):p).join('.')}
+                        <input type="text" inputMode="decimal" name="priceMethane"
+                          value={String(passInputs.priceMethane ?? '').split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : p).join('.')}
                           onChange={(e) => setPassInputs(p => ({ ...p, priceMethane: e.target.value.replace(/\s/g, '').replace(',', '.') }))}
                           className="w-20 bg-transparent text-right font-bold text-lg outline-none text-primary-700" />
                         <span className="text-[10px] font-bold text-primary-400">₽</span>
@@ -1035,10 +1035,10 @@ const App = () => {
             >
               {/* Декоративный логотип */}
               <div className="absolute top-3 right-3 select-none pointer-events-none">
-                <img 
-                  src="/logo-dizel-gas.png" 
-                  alt="Газодизель" 
-                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                <img
+                  src="/logo-dizel-gas.png"
+                  alt="Газодизель"
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110"
                   onError={(e) => e.target.style.display = 'none'}
                 />
               </div>
@@ -1067,10 +1067,10 @@ const App = () => {
             >
               {/* Декоративный логотип */}
               <div className="absolute top-3 right-3 select-none pointer-events-none">
-                <img 
-                  src="/logo-remotor.png" 
-                  alt="Ремоторизация" 
-                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                <img
+                  src="/logo-remotor.png"
+                  alt="Ремоторизация"
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110"
                   onError={(e) => e.target.style.display = 'none'}
                 />
               </div>
@@ -1090,10 +1090,10 @@ const App = () => {
             >
               {/* Декоративный логотип */}
               <div className="absolute top-3 right-3 select-none pointer-events-none">
-                <img 
-                  src="/logo-methane.png" 
-                  alt="На метане" 
-                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110" 
+                <img
+                  src="/logo-methane.png"
+                  alt="На метане"
+                  className="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-110"
                   onError={(e) => e.target.style.display = 'none'}
                 />
               </div>
@@ -1247,11 +1247,11 @@ const App = () => {
         {isOldRepSettingsOpen && (
           <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
             <div className="space-y-4">
-              <Field 
-                label="Объем газа со скидкой (м³)" 
-                name="truckDiscountLimit" 
-                value={truckDiscountLimit} 
-                onChange={(e) => setTruckDiscountLimit(e.target.value)} 
+              <Field
+                label="Объем газа со скидкой (м³)"
+                name="truckDiscountLimit"
+                value={truckDiscountLimit}
+                onChange={(e) => setTruckDiscountLimit(e.target.value)}
                 suffix="м³"
               />
               <p className="text-[10px] text-utility-muted italic">
@@ -1285,7 +1285,7 @@ const App = () => {
 
           {/* Верхняя панель */}
           <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
-            
+
             {/* 1. Кнопка Назад (На мобильном: 1-й ряд слева. На десктопе: слева, отталкивает остальных) */}
             <BackBtn className="order-1 md:mr-auto" />
 
@@ -1294,19 +1294,18 @@ const App = () => {
               <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('TRUCK_REPORT_OLD') : navigateTo('TRUCK_REPORT_OLD')}
                 className="order-3 md:order-2 w-full md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-2 px-4 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary active:scale-95 transition-all duration-200 cursor-pointer"
               >
-                <BarChart3 size={14} /> 
+                <BarChart3 size={14} />
                 <span className="truncate">Отчёт OLD</span>
               </button>
             )}
 
             {/* 3. Кнопка Скриншот (На мобильном: 1-й ряд справа. На десктопе: 1-й ряд, крайняя правая) */}
-            <button 
+            <button
               onClick={handleTakeScreenshot}
-              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
-                screenshotCopied 
-                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${screenshotCopied
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md'
                   : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
-              }`}
+                }`}
             >
               {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
               <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
@@ -1318,190 +1317,190 @@ const App = () => {
           <div className="animate-fade-in">
             <div id="report-capture-area" className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-md border border-surface-200 w-full max-w-full">
 
-            {/* Заголовок отчёта */}
-            <div className="mb-4 md:mb-8 text-center border-b border-surface-200 pb-3 md:pb-6">
-              <h1 className="text-sm md:text-xl font-extrabold uppercase tracking-tight text-graphite">
-                {isRem
-                  ? `Отчёт: Ремоторизация (100% ${gasName})`
-                  : `Отчёт: Газодизель (ДТ ${100 - truckInputs.substitutionRate}% + ${gasName} ${truckInputs.substitutionRate}%)`}
-              </h1>
-              <p className="text-[9px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
-                Период расчёта: 12 месяцев
-              </p>
-            </div>
-
-            {/* Параметры */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-4 md:mb-8">
-              {[
-                { label: 'Пробег км/мес', val: Number((isRem ? remotInputs : truckInputs).monthlyMileage).toLocaleString('ru-RU') },
-                { label: 'Расход ДТ на 100 км', val: truckSummary.qD_base },
-                { label: 'Цена ДТ', val: `${(isRem ? remotInputs : truckInputs).dieselPrice} ₽` },
-                { label: `Цена ${gasName}`, val: `${isLng ? (isRem ? remotInputs.lngPrice : truckInputs.lngPrice) : (isRem ? remotInputs.cngPrice : truckInputs.cngPrice)} ₽`, accent: true },
-                { label: 'Коэф. расхода', val: truckSummary.gasCoef, hidden: true },
-              ].map(({ label, val, accent, hidden }) => (
-                <div key={label}
-                  className={`${hidden ? 'hidden md:block' : ''} p-2.5 md:p-4 rounded-xl border flex flex-col justify-center ${accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
-                    }`}>
-                  <div className={`text-[10px] md:text-xs uppercase mb-1 font-bold tracking-tight leading-tight ${accent ? gt.textDark : 'text-utility-muted'}`}>
-                    {label}
-                  </div>
-                  <div className={`font-black text-sm md:text-lg ${accent ? gt.textDark : 'text-graphite'}`}>
-                    {val}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Главные блоки экономии */}
-            <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-4 md:mb-8`}>
-
-              {/* Базовая экономия */}
-              <div className={`bg-gradient-to-br ${gt.gradient} text-white p-4 md:p-8 rounded-2xl shadow-lg
-                flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]`}>
-                <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 h-full py-1">
-                  <div>
-                    <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-80 mb-1 md:mb-2">
-                      Экономия (Базовый)
-                    </div>
-                    <div className="text-2xl md:text-5xl font-black mb-3 md:mb-4 leading-none screenshot-fix-y">
-                      {fmt(truckSummary.savings)}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-wrap mt-auto">
-                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
-                      {fmt(truckSummary.monthlySav)} / мес
-                    </div>
-                    <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
-                      -{Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-center justify-end pointer-events-none opacity-20 select-none">
-                  <img src="/logo.png" alt="Logo" className="w-full h-full object-contain object-right"
-                    onError={(e) => { e.target.style.display = 'none'; }} />
-                </div>
+              {/* Заголовок отчёта */}
+              <div className="mb-4 md:mb-8 text-center border-b border-surface-200 pb-3 md:pb-6">
+                <h1 className="text-sm md:text-xl font-extrabold uppercase tracking-tight text-graphite">
+                  {isRem
+                    ? `Отчёт: Ремоторизация (100% ${gasName})`
+                    : `Отчёт: Газодизель (ДТ ${100 - truckInputs.substitutionRate}% + ${gasName} ${truckInputs.substitutionRate}%)`}
+                </h1>
+                <p className="text-[9px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
+                  Период расчёта: 12 месяцев
+                </p>
               </div>
 
-              {/* ГГМТ (только КПГ) */}
-              {systemType === 'cng' && (
-                <div className="bg-surface p-4 md:p-8 rounded-2xl shadow-md flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]">
-                  {/* Изолированная рамка для обхода бага html-to-image */}
-                  <div className="absolute inset-0 border-2 border-primary-100 rounded-2xl pointer-events-none z-30"></div>
-                  
-                  <div className="absolute top-0 right-0 px-3 py-1.5 bg-primary text-white rounded-bl-2xl rounded-tr-2xl font-bold text-[9px] md:text-[10px] uppercase z-40">
-                    Программа ГГМТ
+              {/* Параметры */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1.5 md:gap-3 mb-4 md:mb-8">
+                {[
+                  { label: 'Пробег км/мес', val: Number((isRem ? remotInputs : truckInputs).monthlyMileage).toLocaleString('ru-RU') },
+                  { label: 'Расход ДТ на 100 км', val: truckSummary.qD_base },
+                  { label: 'Цена ДТ', val: `${(isRem ? remotInputs : truckInputs).dieselPrice} ₽` },
+                  { label: `Цена ${gasName}`, val: `${isLng ? (isRem ? remotInputs.lngPrice : truckInputs.lngPrice) : (isRem ? remotInputs.cngPrice : truckInputs.cngPrice)} ₽`, accent: true },
+                  { label: 'Коэф. расхода', val: truckSummary.gasCoef, hidden: true },
+                ].map(({ label, val, accent, hidden }) => (
+                  <div key={label}
+                    className={`${hidden ? 'hidden md:block' : ''} p-2.5 md:p-4 rounded-xl border flex flex-col justify-center ${accent ? `${gt.bg} ${gt.border}` : 'bg-surface-50 border-surface-200'
+                      }`}>
+                    <div className={`text-[10px] md:text-xs uppercase mb-1 font-bold tracking-tight leading-tight ${accent ? gt.textDark : 'text-utility-muted'}`}>
+                      {label}
+                    </div>
+                    <div className={`font-black text-sm md:text-lg ${accent ? gt.textDark : 'text-graphite'}`}>
+                      {val}
+                    </div>
                   </div>
-                  
+                ))}
+              </div>
+
+              {/* Главные блоки экономии */}
+              <div className={`grid grid-cols-1 ${systemType === 'cng' ? 'md:grid-cols-2' : ''} gap-2 md:gap-6 mb-4 md:mb-8`}>
+
+                {/* Базовая экономия */}
+                <div className={`bg-gradient-to-br ${gt.gradient} text-white p-4 md:p-8 rounded-2xl shadow-lg
+                flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]`}>
                   <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 h-full py-1">
                     <div>
-                      <div className="text-[9px] md:text-xs font-bold text-graphite-500 mb-1 md:mb-2 flex items-center gap-1 uppercase tracking-wider">
-                        <Tag size={10} className="text-primary" /> Со скидкой на метан {ggmtDiscount}%
+                      <div className="text-[9px] md:text-xs font-bold uppercase tracking-wider opacity-80 mb-1 md:mb-2">
+                        Экономия (Базовый)
                       </div>
-                      <div className="text-2xl md:text-5xl font-black text-primary-700 mb-3 md:mb-4 leading-none screenshot-fix-y">
-                        {fmt(truckSummary.savingsDiscounted)}
+                      <div className="text-[34px] md:text-[42px] font-black mb-3 md:mb-4 leading-none screenshot-fix-y">
+                        {fmt(truckSummary.savings)}
                       </div>
                     </div>
                     <div className="flex gap-2 flex-wrap mt-auto">
-                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
-                        {fmt(truckSummary.monthlySavDiscounted)} / мес
+                      <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
+                        {fmt(truckSummary.monthlySav)} / мес
                       </div>
-                      <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
-                        -{Math.round((truckSummary.savingsDiscounted / (truckSummary.totalD || 1)) * 100)}% затрат
+                      <div className="bg-white/20 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold uppercase leading-none screenshot-fix-y">
+                        -{Math.round((truckSummary.savings / (truckSummary.totalD || 1)) * 100)}% затрат
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-end justify-end pointer-events-none opacity-25 select-none z-10">
-                    <img src="/logoGGMT.png" alt="GGMT" className="w-full h-full object-contain object-right object-bottom"
+                  <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-center justify-end pointer-events-none opacity-20 select-none">
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-contain object-right"
                       onError={(e) => { e.target.style.display = 'none'; }} />
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Сравнение дизель / газ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-4 md:mb-8">
-              {/* Дизель */}
-              <div className="border border-danger/20 rounded-xl md:rounded-2xl p-3 md:p-6 bg-red-50/40">
-                <div className="text-danger font-bold text-[10px] md:text-xs uppercase mb-3 flex items-center gap-2">
-                  <Fuel size={12} /> На дизеле (100%)
+                {/* ГГМТ (только КПГ) */}
+                {systemType === 'cng' && (
+                  <div className="bg-surface p-4 md:p-8 rounded-2xl shadow-md flex flex-row justify-between relative overflow-hidden min-h-[160px] md:min-h-[180px]">
+                    {/* Изолированная рамка для обхода бага html-to-image */}
+                    <div className="absolute inset-0 border-2 border-primary-100 rounded-2xl pointer-events-none z-30"></div>
+
+                    <div className="absolute top-0 right-0 px-3 py-1.5 bg-primary text-white rounded-bl-2xl rounded-tr-2xl font-bold text-[9px] md:text-[10px] uppercase z-40">
+                      Программа ГГМТ
+                    </div>
+
+                    <div className="relative z-10 flex flex-col justify-between w-2/3 md:w-3/4 h-full py-1">
+                      <div>
+                        <div className="text-[9px] md:text-xs font-bold text-graphite-500 mb-1 md:mb-2 flex items-center gap-1 uppercase tracking-wider">
+                          <Tag size={10} className="text-primary" /> Со скидкой на метан {ggmtDiscount}%
+                        </div>
+                        <div className="text-[34px] md:text-[42px] font-black text-primary-700 mb-3 md:mb-4 leading-none screenshot-fix-y">
+                          {fmt(truckSummary.savingsDiscounted)}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-wrap mt-auto">
+                        <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
+                          {fmt(truckSummary.monthlySavDiscounted)} / мес
+                        </div>
+                        <div className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-[8px] md:text-[10px] font-bold border border-primary-100 uppercase leading-none screenshot-fix-y">
+                          -{Math.round((truckSummary.savingsDiscounted / (truckSummary.totalD || 1)) * 100)}% затрат
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="absolute right-4 top-4 bottom-4 w-1/3 flex items-end justify-end pointer-events-none opacity-25 select-none z-10 transform scale-90 translate-y-8 origin-bottom-right">
+                      <img src="/logoGGMT.png" alt="GGMT" className="w-full h-full object-contain object-right object-bottom"
+                        onError={(e) => { e.target.style.display = 'none'; }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Сравнение дизель / газ */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 mb-4 md:mb-8">
+                {/* Дизель */}
+                <div className="border border-danger/20 rounded-xl md:rounded-2xl p-3 md:p-6 bg-red-50/40">
+                  <div className="text-danger font-bold text-[10px] md:text-xs uppercase mb-3 flex items-center gap-2">
+                    <Fuel size={12} /> На дизеле (100%)
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] md:text-sm text-graphite">
+                      <span>Расход на 100 км:</span>
+                      <span className="font-semibold">{truckSummary.qD_base} л ДТ</span>
+                    </div>
+                    <div className="flex justify-between text-[10px] md:text-sm text-graphite">
+                      <span>Стоимость 1 км:</span>
+                      <span className="font-semibold">{truckSummary.kmD?.toFixed(2)} ₽</span>
+                    </div>
+                    <div className="border-t border-danger/20 pt-2 flex justify-between font-bold text-danger text-sm md:text-2xl leading-none">
+                      <span className="text-[8px] md:text-xs uppercase self-center font-bold text-danger/70 tracking-tight">
+                        Итого за год:
+                      </span>
+                      <span className="font-black">{fmt(truckSummary.totalD)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] md:text-sm text-graphite">
-                    <span>Расход на 100 км:</span>
-                    <span className="font-semibold">{truckSummary.qD_base} л ДТ</span>
+
+                {/* Газ */}
+                <div className={`border ${gt.border} rounded-xl md:rounded-2xl p-3 md:p-6 ${gt.bg}`}>
+                  <div className={`${gt.textDark} font-bold text-[10px] md:text-xs uppercase mb-3 flex items-center gap-2`}>
+                    {isLng ? <Flame size={12} /> : <Gauge size={12} />}
+                    {isRem ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
                   </div>
-                  <div className="flex justify-between text-[10px] md:text-sm text-graphite">
-                    <span>Стоимость 1 км:</span>
-                    <span className="font-semibold">{truckSummary.kmD?.toFixed(2)} ₽</span>
-                  </div>
-                  <div className="border-t border-danger/20 pt-2 flex justify-between font-bold text-danger text-sm md:text-2xl leading-none">
-                    <span className="text-[8px] md:text-xs uppercase self-center font-bold text-danger/70 tracking-tight">
-                      Итого за год:
-                    </span>
-                    <span className="font-black">{fmt(truckSummary.totalD)}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] md:text-sm text-graphite">
+                      <span>Расход на 100 км:</span>
+                      <span className="font-semibold">
+                        {isRem
+                          ? `${truckSummary.qG_result} ${gasUnit} ${gasName}`
+                          : `${truckSummary.qD_result} л ДТ + ${truckSummary.qG_result} ${gasUnit} ${gasName}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[10px] md:text-sm text-graphite">
+                      <span>Стоимость 1 км:</span>
+                      <span className="font-semibold">{truckSummary.kmG?.toFixed(2)} ₽</span>
+                    </div>
+                    <div className={`border-t ${gt.border} pt-2 flex justify-between font-bold ${gt.textDark} text-sm md:text-2xl leading-none`}>
+                      <span className="text-[8px] md:text-xs uppercase self-center font-bold opacity-60 tracking-tight">
+                        Итого за год:
+                      </span>
+                      <span className="font-black">{fmt(truckSummary.totalG)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Газ */}
-              <div className={`border ${gt.border} rounded-xl md:rounded-2xl p-3 md:p-6 ${gt.bg}`}>
-                <div className={`${gt.textDark} font-bold text-[10px] md:text-xs uppercase mb-3 flex items-center gap-2`}>
-                  {isLng ? <Flame size={12} /> : <Gauge size={12} />}
-                  {isRem ? `На газе (${gasName} 100%)` : `Газодизель (${truckInputs.substitutionRate}% замещения)`}
+              {/* Диаграмма затрат */}
+              <div className="bg-surface-50 p-3 md:p-6 rounded-xl md:rounded-2xl border border-surface-200">
+                <h4 className="text-[8px] md:text-[10px] font-bold text-utility-muted uppercase mb-3 md:mb-5 flex items-center gap-2 tracking-widest">
+                  <BarChart3 size={12} /> Структура затрат на топливо в год
+                  {!isRem && <span className="normal-case ml-1 opacity-70">(замещение {truckInputs.substitutionRate}%)</span>}
+                </h4>
+                <div className="h-7 md:h-10 w-full bg-surface-200 rounded-xl overflow-hidden flex shadow-inner">
+                  {isRem
+                    ? <div className={`${gt.btnSolid.split(' ')[0]} h-full w-full transition-all duration-1000`} />
+                    : (
+                      <>
+                        <div className="bg-danger h-full transition-all duration-1000" style={{ width: `${perD}%` }} />
+                        <div className={`${gt.btnSolid.split(' ')[0]} h-full transition-all duration-1000`} style={{ width: `${perG}%` }} />
+                      </>
+                    )
+                  }
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] md:text-sm text-graphite">
-                    <span>Расход на 100 км:</span>
-                    <span className="font-semibold">
-                      {isRem
-                        ? `${truckSummary.qG_result} ${gasUnit} ${gasName}`
-                        : `${truckSummary.qD_result} л ДТ + ${truckSummary.qG_result} ${gasUnit} ${gasName}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-[10px] md:text-sm text-graphite">
-                    <span>Стоимость 1 км:</span>
-                    <span className="font-semibold">{truckSummary.kmG?.toFixed(2)} ₽</span>
-                  </div>
-                  <div className={`border-t ${gt.border} pt-2 flex justify-between font-bold ${gt.textDark} text-sm md:text-2xl leading-none`}>
-                    <span className="text-[8px] md:text-xs uppercase self-center font-bold opacity-60 tracking-tight">
-                      Итого за год:
-                    </span>
-                    <span className="font-black">{fmt(truckSummary.totalG)}</span>
-                  </div>
+                <div className="flex justify-between mt-2 text-[10px] md:text-xs font-bold uppercase tracking-tight">
+                  {isRem
+                    ? <span className={gt.textDark}>100% {gasName} Метан</span>
+                    : (
+                      <>
+                        <span className="text-danger">Дизель: {fmt(costD_rep)}</span>
+                        <span className={gt.textDark}>{gasName}: {fmt(costG_rep)}</span>
+                      </>
+                    )
+                  }
                 </div>
               </div>
-            </div>
-
-            {/* Диаграмма затрат */}
-            <div className="bg-surface-50 p-3 md:p-6 rounded-xl md:rounded-2xl border border-surface-200">
-              <h4 className="text-[8px] md:text-[10px] font-bold text-utility-muted uppercase mb-3 md:mb-5 flex items-center gap-2 tracking-widest">
-                <BarChart3 size={12} /> Структура затрат на топливо в год
-                {!isRem && <span className="normal-case ml-1 opacity-70">(замещение {truckInputs.substitutionRate}%)</span>}
-              </h4>
-              <div className="h-7 md:h-10 w-full bg-surface-200 rounded-xl overflow-hidden flex shadow-inner">
-                {isRem
-                  ? <div className={`${gt.btnSolid.split(' ')[0]} h-full w-full transition-all duration-1000`} />
-                  : (
-                    <>
-                      <div className="bg-danger h-full transition-all duration-1000" style={{ width: `${perD}%` }} />
-                      <div className={`${gt.btnSolid.split(' ')[0]} h-full transition-all duration-1000`} style={{ width: `${perG}%` }} />
-                    </>
-                  )
-                }
-              </div>
-              <div className="flex justify-between mt-2 text-[10px] md:text-xs font-bold uppercase tracking-tight">
-                {isRem
-                  ? <span className={gt.textDark}>100% {gasName} Метан</span>
-                  : (
-                    <>
-                      <span className="text-danger">Дизель: {fmt(costD_rep)}</span>
-                      <span className={gt.textDark}>{gasName}: {fmt(costG_rep)}</span>
-                    </>
-                  )
-                }
-              </div>
-            </div>
 
             </div>
             <AppFooter showDisclaimer />
@@ -1668,11 +1667,11 @@ const App = () => {
         {isOldRepSettingsOpen && (
           <Modal title="Параметры программы" onClose={() => setIsOldRepSettingsOpen(false)}>
             <div className="space-y-4">
-              <Field 
-                label="Объем газа со скидкой (м³)" 
-                name="lngCngDiscountLimit" 
-                value={lngCngDiscountLimit} 
-                onChange={(e) => setLngCngDiscountLimit(e.target.value)} 
+              <Field
+                label="Объем газа со скидкой (м³)"
+                name="lngCngDiscountLimit"
+                value={lngCngDiscountLimit}
+                onChange={(e) => setLngCngDiscountLimit(e.target.value)}
                 suffix="м³"
               />
               <p className="text-[10px] text-utility-muted italic">
@@ -1719,7 +1718,7 @@ const App = () => {
 
           {/* Шапка */}
           <header className="mb-3 md:mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
-            
+
             {/* 1. Кнопка Назад (На мобильном: 1-й ряд слева. На десктопе: слева, отталкивает остальных) */}
             <BackBtn className="order-1 md:mr-auto" />
 
@@ -1727,18 +1726,17 @@ const App = () => {
             <button onClick={() => window.innerWidth < 768 ? setSilentOldReport('LNG_CNG_REPORT_OLD') : navigateTo('LNG_CNG_REPORT_OLD')}
               className="order-3 md:order-2 w-full md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-2 px-4 bg-surface border border-surface-200 rounded-xl text-xs font-bold text-graphite shadow-sm hover:border-secondary hover:text-secondary active:scale-95 transition-all duration-200 cursor-pointer"
             >
-              <BarChart3 size={14} /> 
+              <BarChart3 size={14} />
               <span className="truncate">Отчёт OLD</span>
             </button>
 
             {/* 3. Кнопка Скриншот (На мобильном: 1-й ряд справа. На десктопе: 1-й ряд, крайняя правая) */}
-            <button 
+            <button
               onClick={handleTakeScreenshot}
-              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
-                screenshotCopied 
-                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${screenshotCopied
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md'
                   : 'bg-surface border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
-              }`}
+                }`}
             >
               {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
               <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
@@ -1749,192 +1747,192 @@ const App = () => {
           <div className="bg-surface rounded-2xl md:rounded-3xl shadow-md border border-surface-200 animate-fade-in overflow-hidden">
             <div id="report-capture-area" className="bg-white p-6 md:p-8 w-full max-w-full">
 
-            {/* Заголовок отчёта */}
-            <div className="text-center border-b border-surface-200 pb-4 mb-6">
-              <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-graphite">
-                {isFromLng ? 'СПГ ↔ КПГ' : 'КПГ ↔ СПГ'}
-              </h1>
-              <p className="text-[9px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
-                Текущая система: {isFromLng ? 'СПГ (криогенный)' : 'КПГ (компремированный)'}
-                &nbsp;•&nbsp; Пробег {vi(inp.monthlyMileage).toLocaleString()} км/мес
-              </p>
-            </div>
+              {/* Заголовок отчёта */}
+              <div className="text-center border-b border-surface-200 pb-4 mb-6">
+                <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-graphite">
+                  {isFromLng ? 'СПГ ↔ КПГ' : 'КПГ ↔ СПГ'}
+                </h1>
+                <p className="text-[9px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
+                  Текущая система: {isFromLng ? 'СПГ (криогенный)' : 'КПГ (компремированный)'}
+                  &nbsp;•&nbsp; Пробег {vi(inp.monthlyMileage).toLocaleString()} км/мес
+                </p>
+              </div>
 
-            {/* Параметры верхней строки */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-              {[
-                { label: 'КПГ цена', val: `${vi(inp.cngPrice)} ₽/м³`, color: 'text-secondary-700', bg: 'bg-secondary-50', border: 'border-secondary-100' },
-                { label: 'СПГ цена', val: `${vi(inp.lngPrice)} ₽/кг`, color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-100' },
-                { label: 'КПГ расход', val: `${vi(inp.cngConsumption)} м³/100км`, color: 'text-secondary-700', bg: 'bg-secondary-50', border: 'border-secondary-100' },
-                { label: 'СПГ расход', val: `${vi(inp.lngConsumption)} кг/100км`, color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-100' },
-              ].map(({ label, val, color, bg, border }) => (
-                <div key={label} className={`${bg} border ${border} rounded-xl p-2.5 md:p-4 flex flex-col justify-center`}>
-                  <div className="text-[10px] md:text-xs font-bold text-utility-muted uppercase mb-1 leading-tight tracking-tight">{label}</div>
-                  <div className={`font-black text-sm md:text-lg ${color}`}>{val}</div>
+              {/* Параметры верхней строки */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+                {[
+                  { label: 'КПГ цена', val: `${vi(inp.cngPrice)} ₽/м³`, color: 'text-secondary-700', bg: 'bg-secondary-50', border: 'border-secondary-100' },
+                  { label: 'СПГ цена', val: `${vi(inp.lngPrice)} ₽/кг`, color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-100' },
+                  { label: 'КПГ расход', val: `${vi(inp.cngConsumption)} м³/100км`, color: 'text-secondary-700', bg: 'bg-secondary-50', border: 'border-secondary-100' },
+                  { label: 'СПГ расход', val: `${vi(inp.lngConsumption)} кг/100км`, color: 'text-primary-700', bg: 'bg-primary-50', border: 'border-primary-100' },
+                ].map(({ label, val, color, bg, border }) => (
+                  <div key={label} className={`${bg} border ${border} rounded-xl p-2.5 md:p-4 flex flex-col justify-center`}>
+                    <div className="text-[10px] md:text-xs font-bold text-utility-muted uppercase mb-1 leading-tight tracking-tight">{label}</div>
+                    <div className={`font-black text-sm md:text-lg ${color}`}>{val}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Главный результат */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+
+                {/* КПГ карточка */}
+                <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'cng' ? 'bg-secondary shadow-lg' : 'bg-surface'}`}>
+                  {/* Изолированная рамка */}
+                  <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'cng' ? 'border-secondary' : 'border-surface-200'}`}></div>
+
+                  {cheaperIs === 'cng' && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
+                      Выгоднее
+                    </div>
+                  )}
+
+                  <div className="relative z-10">
+                    <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'cng' ? 'text-white/80' : 'text-secondary-700'} font-bold text-xs uppercase`}>
+                      <Gauge size={14} /> КПГ компремированный
+                    </div>
+                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
+                    <div className={`text-2xl font-black mb-3 ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
+                      {kmCostCng.toFixed(2)} ₽/км
+                    </div>
+                    <div className={`border-t pt-3 ${cheaperIs === 'cng' ? 'border-white/20' : 'border-surface-200'}`}>
+                      <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
+                      <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
+                        {fmt(annualCng)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Главный результат */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                {/* СПГ карточка */}
+                <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'lng' ? 'bg-primary shadow-lg' : 'bg-surface'}`}>
+                  {/* Изолированная рамка */}
+                  <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'lng' ? 'border-primary' : 'border-surface-200'}`}></div>
 
-              {/* КПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'cng' ? 'bg-secondary shadow-lg' : 'bg-surface'}`}>
-                {/* Изолированная рамка */}
-                <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'cng' ? 'border-secondary' : 'border-surface-200'}`}></div>
+                  {cheaperIs === 'lng' && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
+                      Выгоднее
+                    </div>
+                  )}
 
-                {cheaperIs === 'cng' && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
-                    Выгоднее
-                  </div>
-                )}
-
-                <div className="relative z-10">
-                  <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'cng' ? 'text-white/80' : 'text-secondary-700'} font-bold text-xs uppercase`}>
-                    <Gauge size={14} /> КПГ компремированный
-                  </div>
-                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
-                  <div className={`text-2xl font-black mb-3 ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
-                    {kmCostCng.toFixed(2)} ₽/км
-                  </div>
-                  <div className={`border-t pt-3 ${cheaperIs === 'cng' ? 'border-white/20' : 'border-surface-200'}`}>
-                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'cng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
-                    <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'cng' ? 'text-white' : 'text-secondary-700'}`}>
-                      {fmt(annualCng)}
+                  <div className="relative z-10">
+                    <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'lng' ? 'text-white/80' : 'text-primary-700'} font-bold text-xs uppercase`}>
+                      <Flame size={14} /> СПГ криогенный
+                    </div>
+                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
+                    <div className={`text-2xl font-black mb-3 ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
+                      {kmCostLng.toFixed(2)} ₽/км
+                    </div>
+                    <div className={`border-t pt-3 ${cheaperIs === 'lng' ? 'border-white/20' : 'border-surface-200'}`}>
+                      <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
+                      <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
+                        {fmt(annualLng)}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* СПГ карточка */}
-              <div className={`rounded-2xl p-4 md:p-6 relative overflow-hidden ${cheaperIs === 'lng' ? 'bg-primary shadow-lg' : 'bg-surface'}`}>
-                {/* Изолированная рамка */}
-                <div className={`absolute inset-0 border-2 rounded-2xl pointer-events-none z-30 ${cheaperIs === 'lng' ? 'border-primary' : 'border-surface-200'}`}></div>
-
-                {cheaperIs === 'lng' && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 text-white rounded-full text-[9px] font-bold uppercase z-20">
-                    Выгоднее
-                  </div>
-                )}
-
-                <div className="relative z-10">
-                  <div className={`flex items-center gap-2 mb-3 ${cheaperIs === 'lng' ? 'text-white/80' : 'text-primary-700'} font-bold text-xs uppercase`}>
-                    <Flame size={14} /> СПГ криогенный
-                  </div>
-                  <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Стоимость 1 км</div>
-                  <div className={`text-2xl font-black mb-3 ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
-                    {kmCostLng.toFixed(2)} ₽/км
-                  </div>
-                  <div className={`border-t pt-3 ${cheaperIs === 'lng' ? 'border-white/20' : 'border-surface-200'}`}>
-                    <div className={`text-[9px] font-bold uppercase mb-1 ${cheaperIs === 'lng' ? 'text-white/60' : 'text-utility-muted'}`}>Затраты в год</div>
-                    <div className={`text-2xl md:text-3xl font-black ${cheaperIs === 'lng' ? 'text-white' : 'text-primary-700'}`}>
-                      {fmt(annualLng)}
+              {/* Вывод: выгодно ли переходить */}
+              <div className={`rounded-2xl p-4 md:p-6 mb-6 border-2 ${cheaperIs === 'equal'
+                ? 'bg-surface-50 border-surface-200'
+                : isWorthIt
+                  ? 'bg-secondary-50 border-secondary-200'
+                  : 'bg-red-50 border-danger/20'
+                }`}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
+                      : isWorthIt ? 'bg-secondary text-white'
+                        : 'bg-danger text-white'
+                      }`}>
+                      {cheaperIs === 'equal' ? '=' : isWorthIt ? '✓' : '!'}
+                    </div>
+                    <div className="sm:hidden flex-1 text-right">
+                      <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5">Ежемес. разница</div>
+                      <div className={`text-lg font-black ${cheaperIs === 'equal' ? 'text-graphite'
+                        : isWorthIt ? 'text-secondary-700' : 'text-danger'
+                        }`}>
+                        {fmt(Math.round(savings / 12))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Вывод: выгодно ли переходить */}
-            <div className={`rounded-2xl p-4 md:p-6 mb-6 border-2 ${cheaperIs === 'equal'
-              ? 'bg-surface-50 border-surface-200'
-              : isWorthIt
-                ? 'bg-secondary-50 border-secondary-200'
-                : 'bg-red-50 border-danger/20'
-              }`}>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${cheaperIs === 'equal' ? 'bg-surface-200 text-graphite'
-                    : isWorthIt ? 'bg-secondary text-white'
-                      : 'bg-danger text-white'
-                    }`}>
-                    {cheaperIs === 'equal' ? '=' : isWorthIt ? '✓' : '!'}
+                  <div className="flex-1">
+                    <div className={`font-bold text-sm mb-1 ${cheaperIs === 'equal' ? 'text-graphite'
+                      : isWorthIt ? 'text-secondary-700'
+                        : 'text-danger'
+                      }`}>
+                      {cheaperIs === 'equal'
+                        ? 'Системы равноценны по затратам'
+                        : isWorthIt
+                          ? `Переход на ${targetIs === 'cng' ? 'КПГ' : 'СПГ'} — выгоден`
+                          : `Смена на ${targetIs === 'cng' ? 'КПГ' : 'СПГ'} — невыгодна по цене`
+                      }
+                    </div>
+                    <div className="text-utility-muted text-xs">
+                      {cheaperIs !== 'equal' && (
+                        <>
+                          {isWorthIt ? 'Годовая выгода: ' : 'Потенциальный убыток в год: '}
+                          <strong>{fmt(savings)}</strong>
+                          {equip > 0 && (
+                            <>
+                              <br className="sm:hidden" />
+                              <span className="hidden sm:inline">&nbsp;•&nbsp;</span>
+                              {isWorthIt ? (
+                                <>
+                                  Окупаемость:
+                                  <strong> {isFinite(paybackYr) ? `${paybackYr.toFixed(1)} лет` : '—'}</strong>
+                                </>
+                              ) : (
+                                <span className="text-danger font-bold text-[10px] uppercase">Инвестиции не окупаются</span>
+                              )}
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="sm:hidden flex-1 text-right">
-                    <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5">Ежемес. разница</div>
-                    <div className={`text-lg font-black ${cheaperIs === 'equal' ? 'text-graphite'
+                  <div className="hidden sm:block text-right shrink-0">
+                    <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5 whitespace-nowrap">Ежемес. разница</div>
+                    <div className={`text-xl font-black ${cheaperIs === 'equal' ? 'text-graphite'
                       : isWorthIt ? 'text-secondary-700' : 'text-danger'
                       }`}>
                       {fmt(Math.round(savings / 12))}
                     </div>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <div className={`font-bold text-sm mb-1 ${cheaperIs === 'equal' ? 'text-graphite'
-                    : isWorthIt ? 'text-secondary-700'
-                      : 'text-danger'
-                    }`}>
-                    {cheaperIs === 'equal'
-                      ? 'Системы равноценны по затратам'
-                      : isWorthIt
-                        ? `Переход на ${targetIs === 'cng' ? 'КПГ' : 'СПГ'} — выгоден`
-                        : `Смена на ${targetIs === 'cng' ? 'КПГ' : 'СПГ'} — невыгодна по цене`
-                    }
-                  </div>
-                  <div className="text-utility-muted text-xs">
-                    {cheaperIs !== 'equal' && (
-                      <>
-                        {isWorthIt ? 'Годовая выгода: ' : 'Потенциальный убыток в год: '}
-                        <strong>{fmt(savings)}</strong>
-                        {equip > 0 && (
-                          <>
-                            <br className="sm:hidden" />
-                            <span className="hidden sm:inline">&nbsp;•&nbsp;</span>
-                            {isWorthIt ? (
-                              <>
-                                Окупаемость:
-                                <strong> {isFinite(paybackYr) ? `${paybackYr.toFixed(1)} лет` : '—'}</strong>
-                              </>
-                            ) : (
-                              <span className="text-danger font-bold text-[10px] uppercase">Инвестиции не окупаются</span>
-                            )}
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="hidden sm:block text-right shrink-0">
-                  <div className="text-[9px] font-bold uppercase text-utility-muted mb-0.5 whitespace-nowrap">Ежемес. разница</div>
-                  <div className={`text-xl font-black ${cheaperIs === 'equal' ? 'text-graphite'
-                    : isWorthIt ? 'text-secondary-700' : 'text-danger'
-                    }`}>
-                    {fmt(Math.round(savings / 12))}
-                  </div>
-                </div>
               </div>
-            </div>
 
-            {/* Диаграмма */}
-            <div className="bg-surface-50 rounded-xl md:rounded-2xl border border-surface-200 p-4 md:p-5">
-              <h4 className="text-[8px] md:text-[10px] font-bold text-utility-muted uppercase mb-4 flex items-center gap-2 tracking-widest">
-                <BarChart3 size={12} /> Годовые затраты: сравнение
-              </h4>
-              <div className="space-y-3">
-                {/* КПГ bar */}
-                <div>
-                  <div className="flex justify-between text-[12px] font-bold mb-1">
-                    <span className="text-secondary-700">КПГ</span>
-                    <span className="text-secondary-700">{fmt(annualCng)}</span>
+              {/* Диаграмма */}
+              <div className="bg-surface-50 rounded-xl md:rounded-2xl border border-surface-200 p-4 md:p-5">
+                <h4 className="text-[8px] md:text-[10px] font-bold text-utility-muted uppercase mb-4 flex items-center gap-2 tracking-widest">
+                  <BarChart3 size={12} /> Годовые затраты: сравнение
+                </h4>
+                <div className="space-y-3">
+                  {/* КПГ bar */}
+                  <div>
+                    <div className="flex justify-between text-[12px] font-bold mb-1">
+                      <span className="text-secondary-700">КПГ</span>
+                      <span className="text-secondary-700">{fmt(annualCng)}</span>
+                    </div>
+                    <div className="h-5 bg-surface-200 rounded-lg overflow-hidden">
+                      <div className="h-full bg-secondary transition-all duration-700 rounded-lg"
+                        style={{ width: `${barCng}%` }} />
+                    </div>
                   </div>
-                  <div className="h-5 bg-surface-200 rounded-lg overflow-hidden">
-                    <div className="h-full bg-secondary transition-all duration-700 rounded-lg"
-                      style={{ width: `${barCng}%` }} />
-                  </div>
-                </div>
-                {/* СПГ bar */}
-                <div>
-                  <div className="flex justify-between text-[12px] font-bold mb-1">
-                    <span className="text-primary-700">СПГ</span>
-                    <span className="text-primary-700">{fmt(annualLng)}</span>
-                  </div>
-                  <div className="h-5 bg-surface-200 rounded-lg overflow-hidden">
-                    <div className="h-full bg-primary transition-all duration-700 rounded-lg"
-                      style={{ width: `${barLng}%` }} />
+                  {/* СПГ bar */}
+                  <div>
+                    <div className="flex justify-between text-[12px] font-bold mb-1">
+                      <span className="text-primary-700">СПГ</span>
+                      <span className="text-primary-700">{fmt(annualLng)}</span>
+                    </div>
+                    <div className="h-5 bg-surface-200 rounded-lg overflow-hidden">
+                      <div className="h-full bg-primary transition-all duration-700 rounded-lg"
+                        style={{ width: `${barLng}%` }} />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             </div>
 
             <div className="px-4 md:px-8 pb-4 md:pb-8">
@@ -1968,7 +1966,7 @@ const App = () => {
       </div>
     );
   }
-  
+
   // ═══════════════════════════════════════════
   //  ЭКРАН 9 — ГАЗОДИЗЕЛЬ: ОТЧЁТ OLD
   // ═══════════════════════════════════════════
@@ -1978,7 +1976,7 @@ const App = () => {
     const disc = ggmtDiscount;
     const subRate = vC(inp.substitutionRate);
     const gasCoef = vC(systemType === 'lng' ? inp.lngCoefficient : inp.cngCoefficient);
-    
+
     const mMile = vC(inp.monthlyMileage);
     const dP = vC(inp.dieselPrice), dC = vC(inp.dieselConsumption);
     const gP = vC(systemType === 'lng' ? inp.lngPrice : inp.cngPrice);
@@ -2011,7 +2009,7 @@ const App = () => {
     const fmtR = (n) => new Intl.NumberFormat('ru-RU').format(Math.round(n));
 
     return (
-      <div 
+      <div
         className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0"
         onTouchStart={handlePinchStart}
         onTouchMove={handlePinchMove}
@@ -2019,16 +2017,15 @@ const App = () => {
       >
         <div id="old-report-table-container" className="w-[900px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none bg-white"
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center', transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none' }}>
-          
+
           <header className="px-6 md:px-10 pt-6 md:pt-10 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
             <BackBtn className="order-1 md:mr-auto" />
-            <button 
-              onClick={handleTakeOldScreenshot} 
-              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
-                screenshotCopied 
-                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+            <button
+              onClick={handleTakeOldScreenshot}
+              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${screenshotCopied
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md'
                   : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
-              }`}
+                }`}
             >
               {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
               <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
@@ -2037,157 +2034,157 @@ const App = () => {
 
           <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
             <table className="w-full border-collapse">
-            <thead>
-              <tr className="text-sm">
-                <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
-                  <h1 className="text-lg font-black text-black leading-tight uppercase">
-                    Расчет экономической эффективности "ГАЗОДИЗЕЛЬ"
-                  </h1>
-                </th>
-                <th className="bg-[#ffc1c1] p-1 text-center text-[15px] font-bold border-l-2 border-r-2 border-red-400/40 w-[21%] align-top">
-                  100% пробега - ДТ
-                </th>
-                <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
-                  100% пробега - газодизель<br/>с замещением {subRate}%<br/>ДТ + КПГ метан
-                </th>
-                <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
-                  <div className="flex flex-col items-center">
-                    <span>100% пробега - газодизель</span>
-                    <span>с замещением {subRate}%</span>
-                    <span>ДТ + КПГ метан</span>
-                    <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на метан<br/>по программе</span>
-                    <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display='none'} />
-                  </div>
-                </th>
-              </tr>
-              <tr className="border-b-2 border-black">
-                <th className="bg-[#ffc1c1] py-1 text-center text-[12px] font-bold border-l-2 border-r-2 border-red-400/40">Дизель, л</th>
-                <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">
-                  <div className="flex justify-around px-1">
-                    <span>Дизель, л</span>
-                    <span className="border-l border-black/20 h-4 mx-1"></span>
-                    <span>КПГ Метан, м³</span>
-                  </div>
-                </th>
-                <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-gray-200">
-                  <div className="flex justify-around px-1">
-                    <span>Дизель, л</span>
-                    <span className="border-l border-black/20 h-4 mx-1"></span>
-                    <span>КПГ Метан, м³</span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-[13px]">
-              <tr>
-                <td className="py-2 pr-3 pl-0 align-middle border-none">Цена топлива за литр, ₽</td>
-                <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtN(dP)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtN(dP)}</span>
-                    <span className="text-black/50">{fmtN(gP)}</span>
-                  </div>
-                </td>
-                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
-                   <div className="flex justify-between">
-                    <span>{fmtN(dP)}</span>
-                    <span className="text-black/50">{fmtN(gP_d)}</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
-                <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtN(dC)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtN(dC * (1 - subRate/100))}</span>
-                    <span className="text-black/50">{fmtN(dC * (subRate/100) * gasCoef)}</span>
-                  </div>
-                </td>
-                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtN(dC * (1 - subRate/100))}</span>
-                    <span className="text-black/50">{fmtN(dC * (subRate/100) * gasCoef)}</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
-                <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtR(mMile)},00</td>
-                <td className="bg-[#d1f2eb] text-center py-2 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
-                <td className="text-center py-2 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
-              </tr>
-              <tr>
-                <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
-                <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtR(dFuelM_base)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtR(dFuelM_gd)}</span>
-                    <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
-                  </div>
-                </td>
-                <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtR(dFuelM_gd)}</span>
-                    <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
-                  </div>
-                </td>
-              </tr>
-              <tr className="border-b-2 border-black">
-                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
-                <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[15px] border-x-2 border-red-400/40">{fmtR(dCostM_base)}</td>
-                <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[14px] border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtR(dCostM_gd)}</span>
-                    <span className="text-black/50">{fmtR(gCostM_gd)}</span>
-                  </div>
-                </td>
-                <td className="text-right py-2.5 px-3 font-black align-middle text-[14px] bg-white border-none">
-                  <div className="flex justify-between">
-                    <span>{fmtR(dCostM_gd)}</span>
-                    <span className="text-black/50">{fmtR(gCostM_gd_d)}</span>
-                  </div>
-                </td>
-              </tr>
-              <tr className="border-none">
-                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
-                <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[16px] border-x-2 border-red-400/40">{fmtR(dCostM_base)}</td>
-                <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px]">{fmtR(totalCostM_gd)}</td>
-                <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white">{fmtR(totalCostM_gd_d)}</td>
-              </tr>
-              <tr className="border-b-2 border-black">
-                <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
-                <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[16px] border-x-2 border-red-400/40">{fmtN(dCostM_base / (mMile || 1))}</td>
-                <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px] border-none">{fmtN(totalCostM_gd / (mMile || 1))}</td>
-                <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white border-none">{fmtN(totalCostM_gd_d / (mMile || 1))}</td>
-              </tr>
+              <thead>
+                <tr className="text-sm">
+                  <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
+                    <h1 className="text-lg font-black text-black leading-tight uppercase">
+                      Расчет экономической эффективности "ГАЗОДИЗЕЛЬ"
+                    </h1>
+                  </th>
+                  <th className="bg-[#ffc1c1] p-1 text-center text-[15px] font-bold border-l-2 border-r-2 border-red-400/40 w-[21%] align-top">
+                    100% пробега - ДТ
+                  </th>
+                  <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
+                    100% пробега - газодизель<br />с замещением {subRate}%<br />ДТ + КПГ метан
+                  </th>
+                  <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top leading-tight">
+                    <div className="flex flex-col items-center">
+                      <span>100% пробега - газодизель</span>
+                      <span>с замещением {subRate}%</span>
+                      <span>ДТ + КПГ метан</span>
+                      <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на метан<br />по программе</span>
+                      <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display = 'none'} />
+                    </div>
+                  </th>
+                </tr>
+                <tr className="border-b-2 border-black">
+                  <th className="bg-[#ffc1c1] py-1 text-center text-[12px] font-bold border-l-2 border-r-2 border-red-400/40">Дизель, л</th>
+                  <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">
+                    <div className="flex justify-around px-1">
+                      <span>Дизель, л</span>
+                      <span className="border-l border-black/20 h-4 mx-1"></span>
+                      <span>КПГ Метан, м³</span>
+                    </div>
+                  </th>
+                  <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-gray-200">
+                    <div className="flex justify-around px-1">
+                      <span>Дизель, л</span>
+                      <span className="border-l border-black/20 h-4 mx-1"></span>
+                      <span>КПГ Метан, м³</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-[13px]">
+                <tr>
+                  <td className="py-2 pr-3 pl-0 align-middle border-none">Цена топлива за литр, ₽</td>
+                  <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtN(dP)}</td>
+                  <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtN(dP)}</span>
+                      <span className="text-black/50">{fmtN(gP)}</span>
+                    </div>
+                  </td>
+                  <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtN(dP)}</span>
+                      <span className="text-black/50">{fmtN(gP_d)}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
+                  <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtN(dC)}</td>
+                  <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtN(dC * (1 - subRate / 100))}</span>
+                      <span className="text-black/50">{fmtN(dC * (subRate / 100) * gasCoef)}</span>
+                    </div>
+                  </td>
+                  <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtN(dC * (1 - subRate / 100))}</span>
+                      <span className="text-black/50">{fmtN(dC * (subRate / 100) * gasCoef)}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
+                  <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtR(mMile)},00</td>
+                  <td className="bg-[#d1f2eb] text-center py-2 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                  <td className="text-center py-2 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
+                  <td className="bg-[#ffc1c1] text-center py-2 px-3 font-bold align-middle border-x-2 border-red-400/30">{fmtR(dFuelM_base)}</td>
+                  <td className="bg-[#d1f2eb] text-right py-2 px-3 font-bold align-middle border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtR(dFuelM_gd)}</span>
+                      <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
+                    </div>
+                  </td>
+                  <td className="text-right py-2 px-3 font-bold align-middle bg-white border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtR(dFuelM_gd)}</span>
+                      <span className="text-black/50">{fmtR(gFuelM_gd)}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-b-2 border-black">
+                  <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
+                  <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[15px] border-x-2 border-red-400/40">{fmtR(dCostM_base)}</td>
+                  <td className="bg-[#d1f2eb] text-right py-2.5 px-3 font-black align-middle text-[14px] border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtR(dCostM_gd)}</span>
+                      <span className="text-black/50">{fmtR(gCostM_gd)}</span>
+                    </div>
+                  </td>
+                  <td className="text-right py-2.5 px-3 font-black align-middle text-[14px] bg-white border-none">
+                    <div className="flex justify-between">
+                      <span>{fmtR(dCostM_gd)}</span>
+                      <span className="text-black/50">{fmtR(gCostM_gd_d)}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-none">
+                  <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
+                  <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[16px] border-x-2 border-red-400/40">{fmtR(dCostM_base)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px]">{fmtR(totalCostM_gd)}</td>
+                  <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white">{fmtR(totalCostM_gd_d)}</td>
+                </tr>
+                <tr className="border-b-2 border-black">
+                  <td className="py-2.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
+                  <td className="bg-[#ffc1c1] text-center py-2.5 px-3 font-black align-middle text-[16px] border-x-2 border-red-400/40">{fmtN(dCostM_base / (mMile || 1))}</td>
+                  <td className="bg-[#d1f2eb] text-center py-2.5 px-3 font-black align-middle text-[16px] border-none">{fmtN(totalCostM_gd / (mMile || 1))}</td>
+                  <td className="text-center py-2.5 px-3 font-black align-middle text-[16px] bg-white border-none">{fmtN(totalCostM_gd_d / (mMile || 1))}</td>
+                </tr>
 
-              <tr className="h-10"><td></td></tr>
+                <tr className="h-10"><td></td></tr>
 
-              <tr className="border-t border-black">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
-              </tr>
-              <tr className="border-none">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 12)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
-              </tr>
-              <tr className="border-none">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 5 лет на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 60)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 60)}</td>
-              </tr>
-              <tr className="border-b border-black">
-                <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
-                <td className="bg-[#d1f2eb] text-center px-3 py-0.5 text-[12px] font-bold border-l border-white">{dCostM_base ? (savM / dCostM_base * 100).toFixed(1) : 0}%</td>
-                <td className="text-center px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{dCostM_base ? (savM_d / dCostM_base * 100).toFixed(1) : 0}%</td>
-              </tr>
-            </tbody>
-          </table>
+                <tr className="border-t border-black">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
+                </tr>
+                <tr className="border-none">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 12)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
+                </tr>
+                <tr className="border-none">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 5 лет на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 60)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 60)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
+                  <td className="bg-[#d1f2eb] text-center px-3 py-0.5 text-[12px] font-bold border-l border-white">{dCostM_base ? (savM / dCostM_base * 100).toFixed(1) : 0}%</td>
+                  <td className="text-center px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{dCostM_base ? (savM_d / dCostM_base * 100).toFixed(1) : 0}%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          
+
           <div className="px-6 md:px-10 pb-6 md:pb-10">
             <p className="mt-2 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
               * Расчёт носит справочный характер и основан на введённых данных.
@@ -2229,7 +2226,7 @@ const App = () => {
     // Новая логика расчета для 3-й колонки (КПГ со скидкой)
     // 1. Объем газа со скидкой (лимит)
     const limit = vC(lngCngDiscountLimit);
-    
+
     // 2. Расчет затрат в месяц
     // Из общего объема в месяц (cFuelM) первые 'limit' идут по цене cP_d, остальное по cP
     const discountedVol = Math.min(cFuelM, limit);
@@ -2252,34 +2249,33 @@ const App = () => {
     const fmtR = (n) => new Intl.NumberFormat('ru-RU').format(Math.round(n));
 
     return (
-      <div 
+      <div
         className="min-h-screen bg-white p-4 md:p-12 font-sans text-graphite overflow-x-auto print:p-0"
         onTouchStart={handlePinchStart}
         onTouchMove={handlePinchMove}
         onTouchEnd={handlePinchEnd}
       >
-        <div 
-          id="old-report-table-container" 
+        <div
+          id="old-report-table-container"
           className="w-[850px] mx-auto border border-gray-100 shadow-sm print:shadow-none print:border-none bg-white"
-          style={{ 
-            transform: `scale(${zoomScale})`, 
+          style={{
+            transform: `scale(${zoomScale})`,
             transformOrigin: 'top center',
             transition: lastDist === 0 ? 'transform 0.2s ease-out' : 'none'
           }}
         >
           <header className="px-6 md:px-10 pt-6 md:pt-10 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
-            
+
             {/* 1. Кнопка Назад */}
             <BackBtn className="order-1 md:mr-auto" />
 
             {/* 2. Кнопка Скриншот */}
-            <button 
-              onClick={handleTakeOldScreenshot} 
-              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
-                screenshotCopied 
-                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
+            <button
+              onClick={handleTakeOldScreenshot}
+              className={`order-2 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${screenshotCopied
+                  ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md'
                   : 'bg-surface-100 border-surface-200 text-graphite hover:bg-surface-200'
-              }`}
+                }`}
             >
               {screenshotCopied ? <Check size={14} /> : <Camera size={14} />}
               <span className="truncate">{screenshotCopied ? 'Скопировано!' : 'Скриншот'}</span>
@@ -2289,102 +2285,102 @@ const App = () => {
 
           <div id="old-report-capture-area" className="bg-white p-6 md:p-10">
             <table className="w-full border-collapse">
-            <thead>
-              <tr className="text-sm">
-                <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
-                  <h1 className="text-xl font-black text-black leading-tight">
-                    Расчет экономической эффективности перевода с {source} на {target}
-                  </h1>
-                </th>
-                <th className="bg-[#cfe2ff] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
-                  100% пробега<br />СПГ Метан
-                </th>
-                <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
-                  100% пробега<br />КПГ Метан
-                </th>
-                <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
-                  <div className="flex flex-col items-center">
-                    <span>100% пробега</span>
-                    <span>КПГ Метан</span>
-                    <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на метан<br/>по программе</span>
-                    <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display='none'} />
-                  </div>
-                </th>
-              </tr>
-              <tr className="border-b border-black">
-                <th className="bg-[#cfe2ff] py-1 text-center text-[12px] font-bold border-l border-white">СПГ Метан, кг</th>
-                <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
-                <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
-              </tr>
-            </thead>
-            <tbody className="text-[13px]">
-              <tr>
-                <td className="py-1 pr-3 pl-0 align-middle border-none">Цена топлива, ₽</td>
-                <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(lP)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(cP)}</td>
-                <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cP_d)}</td>
-              </tr>
-              <tr>
-                <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
-                <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(lC)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(cC)}</td>
-                <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cC)}</td>
-              </tr>
-              <tr>
-                <td className="py-1 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
-                <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
-                <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
-                <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
-              </tr>
-              <tr>
-                <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
-                <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(lFuelM)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(cFuelM)}</td>
-                <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(cFuelM)}</td>
-              </tr>
-              <tr className="border-b border-black">
-                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
-                <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(lCostM)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(cCostM)}</td>
-                <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtR(cCostM_d)}</td>
-              </tr>
-              <tr className="border-none">
-                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
-                <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(lCostM)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(cCostM)}</td>
-                <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white">{fmtR(cCostM_d)}</td>
-              </tr>
-              <tr className="border-b border-black">
-                <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
-                <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(lCostKm)}</td>
-                <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(cCostKm)}</td>
-                <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtN(cCostKm_d)}</td>
-              </tr>
+              <thead>
+                <tr className="text-sm">
+                  <th rowSpan="2" className="w-[37%] text-left py-1 pr-6 pl-0 align-middle">
+                    <h1 className="text-xl font-black text-black leading-tight">
+                      Расчет экономической эффективности перевода с {source} на {target}
+                    </h1>
+                  </th>
+                  <th className="bg-[#cfe2ff] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
+                    100% пробега<br />СПГ Метан
+                  </th>
+                  <th className="bg-[#d1f2eb] p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
+                    100% пробега<br />КПГ Метан
+                  </th>
+                  <th className="bg-white p-1 text-center text-[15px] font-bold border-l border-white w-[21%] align-top">
+                    <div className="flex flex-col items-center">
+                      <span>100% пробега</span>
+                      <span>КПГ Метан</span>
+                      <span className="font-normal text-[11px] leading-tight mt-1 mb-1.5 opacity-80">со скидкой {disc}% на метан<br />по программе</span>
+                      <img src="/logoGGMT.png" alt="Газпром" className="h-12 object-contain" onError={e => e.target.style.display = 'none'} />
+                    </div>
+                  </th>
+                </tr>
+                <tr className="border-b border-black">
+                  <th className="bg-[#cfe2ff] py-1 text-center text-[12px] font-bold border-l border-white">СПГ Метан, кг</th>
+                  <th className="bg-[#d1f2eb] py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
+                  <th className="bg-white py-1 text-center text-[12px] font-bold border-l border-white">КПГ Метан, м³</th>
+                </tr>
+              </thead>
+              <tbody className="text-[13px]">
+                <tr>
+                  <td className="py-1 pr-3 pl-0 align-middle border-none">Цена топлива, ₽</td>
+                  <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(lP)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(cP)}</td>
+                  <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cP_d)}</td>
+                </tr>
+                <tr>
+                  <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива на 100 км</td>
+                  <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(lC)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtN(cC)}</td>
+                  <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtN(cC)}</td>
+                </tr>
+                <tr>
+                  <td className="py-1 pr-3 pl-0 align-middle border-none">Общий пробег в месяц, км</td>
+                  <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                  <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(mMile)},00</td>
+                  <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(mMile)},00</td>
+                </tr>
+                <tr>
+                  <td className="py-1 pr-3 pl-0 align-middle border-none">Расход топлива в месяц</td>
+                  <td className="bg-[#cfe2ff] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(lFuelM)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1 px-3 font-bold align-middle border-none">{fmtR(cFuelM)}</td>
+                  <td className="text-center py-1 px-3 font-bold align-middle bg-white border-none">{fmtR(cFuelM)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на топливо в месяц, ₽</td>
+                  <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(lCostM)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtR(cCostM)}</td>
+                  <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtR(cCostM_d)}</td>
+                </tr>
+                <tr className="border-none">
+                  <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase">Общие затраты в месяц, ₽</td>
+                  <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(lCostM)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px]">{fmtR(cCostM)}</td>
+                  <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white">{fmtR(cCostM_d)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td className="py-1.5 pr-3 pl-0 align-middle font-bold text-xs uppercase border-none">Затраты на км пробега, ₽</td>
+                  <td className="bg-[#cfe2ff] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(lCostKm)}</td>
+                  <td className="bg-[#d1f2eb] text-center py-1.5 px-3 font-black align-middle text-[15px] border-none">{fmtN(cCostKm)}</td>
+                  <td className="text-center py-1.5 px-3 font-black align-middle text-[15px] bg-white border-none">{fmtN(cCostKm_d)}</td>
+                </tr>
 
-              <tr className="h-10"><td></td></tr>
+                <tr className="h-10"><td></td></tr>
 
-              <tr className="border-t border-black">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
-              </tr>
-              <tr className="border-none">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 12)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
-              </tr>
-              <tr className="border-none">
-                <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
-                <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 36)}</td>
-                <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 36)}</td>
-              </tr>
-              <tr className="border-b border-black">
-                <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
-                <td className="bg-[#d1f2eb] text-center px-3 py-0.5 text-[12px] font-bold border-l border-white">{lCostM ? (savM / lCostM * 100).toFixed(1) : 0}%</td>
-                <td className="text-center px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{lCostM ? (savM_d / lCostM * 100).toFixed(1) : 0}%</td>
-              </tr>
-            </tbody>
-          </table>
+                <tr className="border-t border-black">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px] border-none">Экономия в месяц на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d)}</td>
+                </tr>
+                <tr className="border-none">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия в год на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 12)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 12)}</td>
+                </tr>
+                <tr className="border-none">
+                  <td colSpan="2" className="py-0.5 pr-3 pl-0 font-bold text-[14px]">Экономия за 3 года на единицу техники, ₽</td>
+                  <td className="bg-[#d1f2eb] text-center py-0.5 px-3 font-black text-[15px] border-l border-white">{fmtR(savM * 36)}</td>
+                  <td className="text-center py-0.5 px-3 font-black text-[15px] border-l border-surface-100 bg-white">{fmtR(savM_d * 36)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td colSpan="2" className="py-0.5 px-3 text-[10px] uppercase font-bold text-black/60 pl-0 border-none">Суммарная экономия, %</td>
+                  <td className="bg-[#d1f2eb] text-center px-3 py-0.5 text-[12px] font-bold border-l border-white">{lCostM ? (savM / lCostM * 100).toFixed(1) : 0}%</td>
+                  <td className="text-center px-3 py-0.5 text-[12px] font-bold border-l border-surface-100 bg-white">{lCostM ? (savM_d / lCostM * 100).toFixed(1) : 0}%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div className="px-6 md:px-10 pb-6 md:pb-10">
             <p className="mt-2 text-[11px] text-graphite/40 italic text-center uppercase tracking-wider font-medium hidden md:block">
