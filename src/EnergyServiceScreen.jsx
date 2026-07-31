@@ -5,6 +5,7 @@ import { ds, fmt, v, Field, AppFooter, BackBtn, captureDesktopScreenshot } from 
 const EnergyServiceScreen = () => {
   const [showReport, setShowReport] = useState(false);
   const [screenshotCopied, setScreenshotCopied] = useState(false);
+  const [isEliteTheme, setIsEliteTheme] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -179,16 +180,40 @@ const EnergyServiceScreen = () => {
       <div className="min-h-screen bg-slate-50 flex flex-col p-2 md:p-6 overflow-x-hidden font-sans">
         <div className="max-w-[1200px] mx-auto w-full">
           
-          <header className="mb-4 flex flex-wrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+          <header className="mb-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-3 gap-x-2 md:gap-3 print:hidden">
+            
+            {/* 1. Кнопка Назад (Слева) */}
             <button onClick={() => setShowReport(false)}
-              className="order-1 w-[130px] md:w-[160px] md:mr-auto h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer"
+              className="order-1 w-[120px] sm:w-[130px] md:w-[160px] md:mr-auto h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <ChevronLeft size={14} /> Назад
             </button>
-            
+
+            {/* 2. Ползунок переключения тем (По центру) */}
+            <div className="order-2 flex-1 md:flex-none flex items-center justify-center gap-3 px-2">
+              <span className={`hidden md:block text-[10px] font-bold uppercase tracking-wider ${!isEliteTheme ? 'text-gray-900' : 'text-gray-400'}`}>
+                Стандарт
+              </span>
+              
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={isEliteTheme} 
+                  onChange={(e) => setIsEliteTheme(e.target.checked)} 
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+
+              <span className={`hidden md:block text-[10px] font-bold uppercase tracking-wider ${isEliteTheme ? 'text-[#2d7e44]' : 'text-gray-400'}`}>
+                Elite Gas
+              </span>
+            </div>
+
+            {/* 3. Кнопка Скриншот (Справа) */}
             <button 
               onClick={handleTakeScreenshot}
-              className={`order-2 md:order-3 w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
+              className={`order-3 w-[120px] sm:w-[130px] md:w-[160px] h-10 shrink-0 flex justify-center items-center gap-1.5 px-2 md:px-4 border rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 shadow-sm cursor-pointer ${
                 screenshotCopied 
                   ? 'bg-green-50 border-green-400 text-green-700 scale-105 shadow-md' 
                   : 'bg-white border-surface-200 text-graphite hover:border-primary hover:text-primary active:scale-95'
@@ -199,17 +224,32 @@ const EnergyServiceScreen = () => {
             </button>
           </header>
 
-          <div id="report-capture-area" className="bg-white rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in p-3 sm:p-5 pt-5 max-w-full relative overflow-hidden">
+          <div id="report-capture-area" className={`rounded-3xl md:rounded-[40px] shadow-2xl border-0 animate-fade-in p-3 sm:p-5 pt-5 max-w-full relative overflow-hidden ${isEliteTheme ? 'bg-[#fbf9f6]' : 'bg-white'}`}>
             
+            {/* Elite Theme Background Pattern */}
+            {isEliteTheme && (
+              <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute -top-[150px] -left-[150px] w-[400px] h-[400px] rounded-full border-[30px] border-[#bb1a2c] opacity-[0.03]"></div>
+                <div className="absolute top-[20%] right-[-200px] w-[500px] h-[500px] rounded-full border-[40px] border-[#2d7e44] opacity-[0.03]"></div>
+                <div className="absolute -bottom-[200px] -left-[100px] w-[600px] h-[600px] rounded-full border-[50px] border-[#bb1a2c] opacity-[0.03]"></div>
+                <div className="absolute -bottom-[100px] -right-[100px] w-[350px] h-[350px] rounded-full border-[25px] border-[#2d7e44] opacity-[0.03]"></div>
+              </div>
+            )}
+
             {/* Header Redesign */}
-            <div className="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3 border-b border-gray-100 pb-3">
-              <h1 className="text-xl md:text-[24px] font-bold uppercase text-gray-900 text-center xl:text-left tracking-wide shrink-0">
-                РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)
-              </h1>
+            <div className="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3 border-b border-gray-100 pb-3 relative z-10">
+              <div className="hidden md:flex items-center gap-3">
+                {isEliteTheme && (
+                  <img src="/ELITEGAS/logo.png" alt="Elite Gas" className="h-12 w-12 md:h-[50px] md:w-[50px] object-contain shrink-0" />
+                )}
+                <h1 className={`hidden md:block text-xl md:text-[24px] font-bold uppercase text-center xl:text-left tracking-wide shrink-0 ${isEliteTheme ? 'text-[#bb1a2c]' : 'text-gray-900'}`}>
+                  РАСЧЕТ ЗАТРАТ НА ТОПЛИВО (ЭНЕРГОСЕРВИС)
+                </h1>
+              </div>
               <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full xl:w-auto xl:flex xl:flex-nowrap">
                 
                 {/* 1. Пробег (Полная ширина на мобилке, 1-й ряд) */}
-                <div className="col-span-2 xl:col-span-1 flex items-center justify-center gap-3 bg-[#8fa1b4] px-5 py-2 rounded-full shadow-sm w-full">
+                <div className={`col-span-2 xl:col-span-1 flex items-center justify-center gap-3 px-5 py-2 rounded-full shadow-sm w-full ${isEliteTheme ? 'bg-[#bb1a2c]' : 'bg-[#8fa1b4]'}`}>
                   <Truck className="text-white shrink-0" size={24} strokeWidth={1.5} />
                   <div className="flex flex-col text-white">
                     <span className="text-[10px] font-medium leading-none mb-1">Пробег</span>
@@ -218,7 +258,7 @@ const EnergyServiceScreen = () => {
                 </div>
                 
                 {/* 2. Цена дизеля (Половина ширины на мобилке, 2-й ряд) */}
-                <div className="col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 bg-[#2a7bca] px-2 sm:px-4 py-2 rounded-full shadow-sm w-full">
+                <div className={`col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 px-2 sm:px-4 py-2 rounded-full shadow-sm w-full ${isEliteTheme ? 'bg-[#2d7e44]' : 'bg-[#2a7bca]'}`}>
                   <Droplet className="text-white shrink-0" size={20} strokeWidth={1.5} />
                   <div className="flex flex-col text-white overflow-hidden">
                     <span className="text-[10px] font-medium leading-none mb-1">Цена дизеля</span>
@@ -227,9 +267,9 @@ const EnergyServiceScreen = () => {
                 </div>
                 
                 {/* 3. Цена газа (Половина ширины на мобилке, 2-й ряд) */}
-                <div className="col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 bg-[#10a886] px-2 sm:px-4 py-2 rounded-full shadow-sm w-full">
-                  <Flame className="text-white shrink-0" size={20} strokeWidth={1.5} />
-                  <div className="flex flex-col text-white overflow-hidden">
+                <div className={`col-span-1 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 px-2 sm:px-4 py-2 rounded-full shadow-sm w-full ${isEliteTheme ? 'bg-[#e7f3eb] border border-[#2d7e44]' : 'bg-[#10a886]'}`}>
+                  <Flame className={`shrink-0 ${isEliteTheme ? 'text-[#2d7e44]' : 'text-white'}`} size={20} strokeWidth={1.5} />
+                  <div className={`flex flex-col overflow-hidden ${isEliteTheme ? 'text-[#2d7e44]' : 'text-white'}`}>
                     <span className="text-[10px] font-medium leading-none mb-1">Цена газа</span>
                     <span className="font-bold leading-none whitespace-nowrap text-[11px] sm:text-sm truncate">{gPrice} ₽/{gasUnit}</span>
                   </div>
@@ -244,8 +284,8 @@ const EnergyServiceScreen = () => {
                 
                 {/* Column 1 */}
                 <div className="flex flex-col w-full relative">
-                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
-                    <div className="bg-[#546476] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                  <div className={`bg-white rounded-3xl shadow-md flex flex-col border overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#bb1a2c]' : 'border-gray-100'}`}>
+                    <div className={`${isEliteTheme ? 'bg-[#bb1a2c]' : 'bg-[#546476]'} text-white text-center flex flex-col justify-center items-center h-[64px]`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">1. ЧИСТЫЙ ДИЗЕЛЬ</span>
                     </div>
                     <div className="p-3 sm:p-4 flex-1 flex flex-col gap-0 text-[13px]">
@@ -257,8 +297,8 @@ const EnergyServiceScreen = () => {
                       <Row icon={Calculator} label="Газ в месяц" value="0" />
                       <Row icon={Coins} label="Стоимость газа" value={fmt(0)} bold />
                     </div>
-                    <div className="bg-[#546476] p-3 flex justify-between items-center text-white">
-                      <span className="text-[13px] font-bold uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
+                    <div className={`${isEliteTheme ? 'bg-[#fdf2f3] text-[#bb1a2c]' : 'bg-[#546476] text-white'} p-3 flex justify-between items-center`}>
+                      <span className={`text-[13px] font-bold uppercase tracking-wider ${isEliteTheme ? 'text-[#bb1a2c]' : ''}`}>ИТОГО В МЕСЯЦ:</span>
                       <span className="text-[18px] font-black">{fmt(results.dCostM_base)}</span>
                     </div>
                   </div>
@@ -266,8 +306,8 @@ const EnergyServiceScreen = () => {
 
                 {/* Column 2 */}
                 <div className="flex flex-col w-full relative">
-                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
-                    <div className="bg-[#2a7bca] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                  <div className={`bg-white rounded-3xl shadow-md flex flex-col border overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#2d7e44]' : 'border-gray-100'}`}>
+                    <div className={`${isEliteTheme ? 'bg-[#2d7e44]' : 'bg-[#2a7bca]'} text-white text-center flex flex-col justify-center items-center h-[64px]`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">2. ГАЗОДИЗЕЛЬ</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[СТАНДАРТ]</span>
                       <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ {inputs.baseSubstitutionRate}%)</span>
@@ -281,21 +321,26 @@ const EnergyServiceScreen = () => {
                       <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_base_gas)} ${gasUnit}`} />
                       <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_base_gas)} bold />
                     </div>
-                    <div className="bg-[#dce9f6] p-3 flex justify-between items-center text-[#2a7bca]">
-                      <span className="text-[13px] font-bold text-gray-800 uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
+                    <div className={`${isEliteTheme ? 'bg-[#e7f3eb] text-[#2d7e44]' : 'bg-[#dce9f6] text-[#2a7bca]'} p-3 flex justify-between items-center`}>
+                      <span className={`text-[13px] font-bold uppercase tracking-wider ${isEliteTheme ? 'text-[#2d7e44]' : 'text-gray-800'}`}>ИТОГО В МЕСЯЦ:</span>
                       <span className="text-[18px] font-black">{fmt(results.totalCost_base_gas)}</span>
                     </div>
                   </div>
                   {/* Floating attachment */}
-                  <div className="absolute -bottom-12 left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 text-gray-900">
+                  <div className={`absolute -bottom-12 left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 ${isEliteTheme ? 'text-[#2d7e44]' : 'text-gray-900'}`}>
                     ▼ Экономия vs ДТ: {fmt(monthlySave2)}
                   </div>
                 </div>
 
                 {/* Column 3 */}
                 <div className="flex flex-col w-full relative">
-                  <div className="bg-white rounded-3xl shadow-md flex flex-col border border-gray-100 overflow-hidden relative z-10 h-full">
-                    <div className="bg-[#10a886] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                  <div className={`bg-white rounded-3xl shadow-md flex flex-col border overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#3b8c52]' : 'border-gray-100'}`}>
+                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] relative`}>
+                      {isEliteTheme && (
+                        <div className="absolute left-2 top-2 h-10 w-10 bg-white rounded-full flex items-center justify-center p-0.5 border border-[#3b8c52] shadow-sm">
+                          <img src="/ELITEGAS/logo.png" alt="logo" className="h-full w-full object-contain rounded-full" />
+                        </div>
+                      )}
                       <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ "ELITEGAS"</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
                       <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ {inputs.progressiveRate}%)</span>
@@ -309,15 +354,15 @@ const EnergyServiceScreen = () => {
                       <Row icon={Calculator} label="Газ в месяц" value={`${fmtNum(results.gFuelM_prog_gas)} ${gasUnit}`} />
                       <Row icon={Coins} label="Стоимость газа" value={fmt(results.gCostM_prog_gas)} bold />
                     </div>
-                    <div className="bg-[#67d9bc] p-3 flex justify-between items-center text-gray-900">
-                      <span className="text-[13px] font-bold text-gray-800 uppercase tracking-wider">ИТОГО В МЕСЯЦ:</span>
-                      <span className="text-[18px] font-black">{fmt(results.totalCost_prog_gas)}</span>
+                    <div className={`${isEliteTheme ? 'bg-[#e7f3eb]' : 'bg-[#67d9bc]'} p-3 flex justify-between items-center text-gray-900`}>
+                      <span className={`text-[13px] font-bold uppercase tracking-wider ${isEliteTheme ? 'text-[#3b8c52]' : 'text-gray-800'}`}>ИТОГО В МЕСЯЦ:</span>
+                      <span className={`text-[18px] font-black ${isEliteTheme ? 'text-[#3b8c52]' : ''}`}>{fmt(results.totalCost_prog_gas)}</span>
                     </div>
                   </div>
                   {/* Floating attachment */}
                   <div className="absolute -bottom-[72px] left-4 right-4 bg-[#f8fafc] rounded-b-2xl px-4 py-1.5 flex flex-col items-end text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2">
-                    <div className="text-gray-900">▼ Экономия vs ДТ: {fmt(monthlySave3)}</div>
-                    <div className="text-[#2a7bca] mt-0.5">▼ Экономия vs 40%: {fmt(monthlyDiff)}</div>
+                    <div className={`${isEliteTheme ? 'text-[#2d7e44]' : 'text-gray-900'}`}>▼ Экономия vs ДТ: {fmt(monthlySave3)}</div>
+                    <div className={`${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#2a7bca]'} mt-0.5`}>▼ Экономия vs 40%: {fmt(monthlyDiff)}</div>
                   </div>
                 </div>
 
@@ -334,8 +379,8 @@ const EnergyServiceScreen = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch mb-[90px]">
                 
                 {/* Column 1 */}
-                <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden h-full">
-                  <div className="bg-[#546476] text-white text-center flex flex-col justify-center items-center h-[64px]">
+                <div className={`bg-white rounded-3xl shadow-md border flex flex-col overflow-hidden h-full ${isEliteTheme ? 'border-[#bb1a2c]' : 'border-gray-100'}`}>
+                  <div className={`${isEliteTheme ? 'bg-[#bb1a2c]' : 'bg-[#546476]'} text-white text-center flex flex-col justify-center items-center h-[64px]`}>
                     <span className="font-bold uppercase text-[13px] tracking-wide">1. ЧИСТЫЙ ДИЗЕЛЬ</span>
                   </div>
                   <div className="p-3 sm:p-4 flex-1 flex flex-col text-[13px]">
@@ -363,11 +408,11 @@ const EnergyServiceScreen = () => {
                     
                     <div className="text-center mt-1 mb-2">
                       <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
-                      <div className="text-[22px] font-black text-gray-900">{fmt(var1TotalCost)}</div>
+                      <div className={`text-[22px] font-black ${isEliteTheme ? 'text-[#bb1a2c]' : 'text-gray-900'}`}>{fmt(var1TotalCost)}</div>
                     </div>
                     
                     <div className="mt-auto flex justify-center pt-2 pb-2">
-                      <div className="bg-[#eef2f5] text-gray-500 rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[11px] font-bold tracking-wider">
+                      <div className={`rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[11px] font-bold tracking-wider ${isEliteTheme ? 'bg-[#fdf2f3] text-[#bb1a2c]' : 'bg-[#eef2f5] text-gray-500'}`}>
                         БАЗОВЫЙ ВАРИАНТ
                       </div>
                     </div>
@@ -376,8 +421,8 @@ const EnergyServiceScreen = () => {
 
                 {/* Column 2 */}
                 <div className="flex flex-col w-full relative">
-                  <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden relative z-10 h-full">
-                    <div className="bg-[#2a7bca] text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight">
+                  <div className={`bg-white rounded-3xl shadow-md border flex flex-col overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#2d7e44]' : 'border-gray-100'}`}>
+                    <div className={`${isEliteTheme ? 'bg-[#2d7e44]' : 'bg-[#2a7bca]'} text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight`}>
                       <span className="font-bold uppercase text-[13px] tracking-wide">2. ГАЗОДИЗЕЛЬ</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[СТАНДАРТ]</span>
                       <span className="text-xs font-normal text-blue-100">(ЗАМЕЩЕНИЕ 40%)</span>
@@ -407,11 +452,11 @@ const EnergyServiceScreen = () => {
                       
                       <div className="text-center mt-1 mb-2">
                         <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ, ГАЗ и стоимость переоборудования ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
-                        <div className="text-[22px] font-black text-[#2a7bca]">{fmt(var2TotalCost)}</div>
+                        <div className={`text-[22px] font-black ${isEliteTheme ? 'text-[#2d7e44]' : 'text-[#2a7bca]'}`}>{fmt(var2TotalCost)}</div>
                       </div>
                       
                       <div className="mt-auto flex justify-center pt-2 pb-2">
-                        <div className="bg-[#dce9f6] text-[#2a7bca] rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold">
+                        <div className={`rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold ${isEliteTheme ? 'bg-[#e7f3eb] text-[#2d7e44]' : 'bg-[#dce9f6] text-[#2a7bca]'}`}>
                           <div>▼ Экономия vs ДТ:</div>
                           <div className="text-[16px]">{fmt(var2Saving)}</div>
                         </div>
@@ -422,8 +467,13 @@ const EnergyServiceScreen = () => {
 
                 {/* Column 3 */}
                 <div className="flex flex-col w-full relative">
-                  <div className="bg-white rounded-3xl shadow-md border border-gray-100 flex flex-col overflow-hidden relative z-10 h-full">
-                    <div className="bg-[#10a886] text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight">
+                  <div className={`bg-white rounded-3xl shadow-md border flex flex-col overflow-hidden relative z-10 h-full ${isEliteTheme ? 'border-[#3b8c52]' : 'border-gray-100'}`}>
+                    <div className={`${isEliteTheme ? 'bg-[#3b8c52]' : 'bg-[#10a886]'} text-white text-center flex flex-col justify-center items-center h-[64px] leading-tight relative`}>
+                      {isEliteTheme && (
+                        <div className="absolute left-2 top-2 h-10 w-10 bg-white rounded-full flex items-center justify-center p-0.5 border border-[#3b8c52] shadow-sm">
+                          <img src="/ELITEGAS/logo.png" alt="logo" className="h-full w-full object-contain rounded-full" />
+                        </div>
+                      )}
                       <span className="font-bold uppercase text-[13px] tracking-wide">3. ГАЗОДИЗЕЛЬ 'ELITEGAS'</span>
                       <span className="font-bold uppercase text-[13px] tracking-wide">[ЭНЕРГОСЕРВИС]</span>
                       <span className="text-xs font-normal text-emerald-100">(ЗАМЕЩЕНИЕ 70%)</span>
@@ -453,19 +503,19 @@ const EnergyServiceScreen = () => {
                       
                       <div className="text-center mt-1 mb-2">
                         <div className="text-[12px] font-bold text-gray-600 uppercase mb-1 min-h-[34px] flex items-end justify-center leading-tight">ИТОГО ЗАТРАТЫ НА ДТ, ГАЗ и стоимость переоборудования ЗА {termYears} {termYears === 1 ? 'ГОД' : (termYears >= 2 && termYears <= 4 ? 'ГОДА' : 'ЛЕТ')}:</div>
-                        <div className="text-[22px] font-black text-[#10a886]">{fmt(var3TotalCost)}</div>
+                        <div className={`text-[22px] font-black ${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#10a886]'}`}>{fmt(var3TotalCost)}</div>
                       </div>
                       
                       <div className="mt-auto flex justify-center pt-2 pb-2">
-                        <div className="bg-[#d2f3e8] text-[#0f5132] rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold">
-                          <div className="text-[#10a886]">▼ Экономия vs ДТ:</div>
+                        <div className={`rounded-full w-[95%] h-[54px] flex flex-col justify-center items-center text-[12px] font-bold ${isEliteTheme ? 'bg-[#e7f3eb] text-[#3b8c52]' : 'bg-[#d2f3e8] text-[#0f5132]'}`}>
+                          <div className={`${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#10a886]'}`}>▼ Экономия vs ДТ:</div>
                           <div className="text-[16px]">{fmt(var3Saving)}</div>
                         </div>
                       </div>
                     </div>
                   </div>
                   {/* Floating attachment */}
-                  <div className="absolute -bottom-[54px] left-6 right-6 bg-[#f8fafc] rounded-b-2xl px-4 py-2 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 text-[#2a7bca]">
+                  <div className={`absolute -bottom-[54px] left-6 right-6 bg-[#f8fafc] rounded-b-2xl px-4 py-2 flex justify-end items-center text-[15px] font-bold shadow-sm z-0 border-b border-l border-r border-gray-200 pt-6 pb-2 ${isEliteTheme ? 'text-[#3b8c52]' : 'text-[#2a7bca]'}`}>
                     ▼ Экономия vs 40%: {fmt(yearlyDiff)}
                   </div>
                 </div>
