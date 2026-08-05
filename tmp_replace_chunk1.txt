@@ -1,0 +1,49 @@
+﻿  const [mapFilter, setMapFilter] = useState('all'); // 'all', 'cng', 'lng', 'service'
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  useEffect(() => {
+    if (currentScreen !== 'STATIONS_MAP') return;
+
+    const initMap = () => {
+      if (!window.ymaps) return;
+      window.ymaps.ready(() => {
+        setIsMapLoaded(true);
+        const mapContainer = document.getElementById('yandex-custom-map');
+        if (!mapContainer || mapContainer.innerHTML !== '') return; // Р—Р°С‰РёС‚Р° РѕС‚ РґРІРѕР№РЅРѕР№ РѕС‚СЂРёСЃРѕРІРєРё
+
+        const map = new window.ymaps.Map('yandex-custom-map', {
+          center: [56.8389, 60.6057], // Р•РєР°С‚РµСЂРёРЅР±СѓСЂРі
+          zoom: 10,
+          controls: ['zoomControl']
+        });
+
+        // Р”РѕР±Р°РІР»РµРЅРёРµ РјРµС‚РѕРє
+        MOCK_STATIONS.forEach(station => {
+          let color = '#f97316'; // orange (service)
+          if (station.type === 'cng') color = '#16a34a'; // green
+          if (station.type === 'lng') color = '#2563eb'; // blue
+          if (station.type === 'propane') color = '#dc2626'; // red
+
+          const placemark = new window.ymaps.Placemark([station.lat, station.lon], {
+            balloonContentHeader: `<div style="font-weight:bold;font-size:14px;">${station.title}</div>`,
+            balloonContentBody: `<div style="font-size:12px;margin-top:4px;">${station.address}</div>
+                                 <div style="font-size:10px;color:gray;margin-top:4px;text-transform:uppercase;">РўРёРї: ${station.type}</div>`
+          }, {
+            preset: 'islands#circleIcon',
+            iconColor: color
+          });
+          map.geoObjects.add(placemark);
+        });
+      });
+    };
+
+    if (!window.ymaps) {
+      const script = document.createElement('script');
+      script.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+      script.async = true;
+      script.onload = initMap;
+      document.body.appendChild(script);
+    } else {
+      initMap();
+    }
+  }, [currentScreen]);

@@ -4,7 +4,8 @@ import {
   Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
   BarChart3, Tag, ArrowLeftRight,
   Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
-  Zap, Camera, Check, CheckCircle, Loader2
+  Zap, Camera, Check, CheckCircle, Loader2, Map,
+  Layers, Cloud, Snowflake, Wrench, Navigation
 } from 'lucide-react';
 import { toBlob } from 'html-to-image';
 
@@ -93,6 +94,14 @@ export const ds = {
       : 'from-secondary-700 via-secondary-600 to-primary-700'
   })
 };
+
+const MOCK_STATIONS = [
+  { id: 1, title: 'УЦ "ЭлитГаз" (Партнер)', address: 'Екатеринбург, ул. Шефская, 3АВ', type: 'service', lat: 56.8913, lon: 60.6234, status: 'Работает', distance: '2.3 км' },
+  { id: 2, title: 'СНГ Газпром #1', address: 'Екатеринбург, ул. Металлургов, 1', type: 'cng', lat: 56.8281, lon: 60.5369, status: 'Работает', distance: '5.1 км' },
+  { id: 3, title: 'КриоГЗС (СПГ)', address: 'Екатеринбург, ЕКАД 15-й км', type: 'lng', lat: 56.7554, lon: 60.6401, status: 'Ремонт', distance: '12.4 км' },
+  { id: 4, title: 'АГНКС Газпром №2', address: 'Екатеринбург, ул. Космонавтов, 100', type: 'cng', lat: 56.9142, lon: 60.6095, status: 'Работает', distance: '8.7 км' },
+  { id: 5, title: 'Пропан СУГ №1', address: 'Екатеринбург, Тюменский тракт', type: 'propane', lat: 56.79, lon: 60.7, status: 'Работает', distance: '10.2 км' },
+];
 
 // ── УТИЛИТЫ ───────────────────────────────
 export const fmt = (n) =>
@@ -241,6 +250,158 @@ const App = () => {
   const [silentOldReport, setSilentOldReport] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  const ALL_TYPES = ['cng', 'lng', 'lpg', 'service'];
+  const [activeFilters, setActiveFilters] = useState(ALL_TYPES);
+
+  const toggleFilter = (type) => {
+    setActiveFilters(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type) 
+        : [...prev, type]
+    );
+  };
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [stations, setStations] = useState([]);
+  const [isLoadingStations, setIsLoadingStations] = useState(false);
+  const mapRef = React.useRef(null);
+  
+  const [mapBounds, setMapBounds] = useState(null);
+  const [mapCenter, setMapCenter] = useState([56.8389, 60.6057]); // По умолчанию Екатеринбург
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Радиус Земли в км
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  useEffect(() => {
+    if (currentScreen !== 'STATIONS_MAP') return;
+
+    const fetchStations = async () => {
+      setIsLoadingStations(true);
+      try {
+        const res = await fetch('https://elitegas.ru/wp-json/gazmap/v1/stations');
+        const data = await res.json();
+        
+        const parsed = (Array.isArray(data) ? data : []).map((s, idx) => {
+          // Защита от битых/пустых элементов в API
+          if (!s) return null; 
+
+          const typeStr = String(s.type || s.fuel_type || s.category || '').toLowerCase();
+          const titleStr = String(s.title || s.name || '').toLowerCase();
+          
+          // LPG (Пропан) по умолчанию
+          let stationType = 'lpg'; 
+
+          if (typeStr.includes('lng') || titleStr.includes('спг') || titleStr.includes('крио')) {
+            stationType = 'lng';
+          } else if (typeStr.includes('cng') || titleStr.includes('кпг') || titleStr.includes('метан') || titleStr.includes('агнкс')) {
+            stationType = 'cng';
+          }
+          // Парсинг сервисов удален, чтобы не цеплять "АГЗС Партнер"
+
+          return {
+            id: s.id || idx,
+            title: s.title || s.name || 'Заправка',
+            address: s.address || '',
+            lat: parseFloat(s.lat || s.latitude || (s.coords && s.coords[0])),
+            lon: parseFloat(s.lng || s.lon || s.longitude || (s.coords && s.coords[1])),
+            type: stationType
+          };
+        }).filter(s => s !== null && !isNaN(s.lat) && !isNaN(s.lon));
+
+        // Вручную добавляем наш единственный сервисный центр
+        parsed.push({
+          id: 'elitegas-main-service',
+          title: 'УЦ "ЭлитГаз" (Партнер)',
+          address: 'г. Екатеринбург, ул. Шефская, 3АВ',
+          lat: 56.8913,
+          lon: 60.6234,
+          type: 'service'
+        });
+
+        // Сохраняем в стейт
+        setStations(parsed);
+        
+      } catch (err) {
+        console.error('Ошибка загрузки базы заправок:', err);
+      } finally {
+        setIsLoadingStations(false);
+      }
+    };
+
+    fetchStations();
+  }, [currentScreen]);
+
+  useEffect(() => {
+    if (currentScreen !== 'STATIONS_MAP') return;
+
+    const initMap = () => {
+      if (!window.ymaps) return;
+      window.ymaps.ready(() => {
+        setIsMapLoaded(true);
+        const mapContainer = document.getElementById('yandex-custom-map');
+        if (!mapContainer || mapContainer.innerHTML !== '') return;
+
+        const map = new window.ymaps.Map('yandex-custom-map', {
+          center: [56.8389, 60.6057], // Екатеринбург
+          zoom: 10,
+          controls: ['zoomControl']
+        });
+        mapRef.current = map;
+
+        setMapBounds(map.getBounds());
+        setMapCenter(map.getCenter());
+
+        map.events.add('boundschange', function (e) {
+          setMapBounds(e.get('newBounds'));
+          setMapCenter(e.get('newCenter'));
+        });
+      });
+    };
+
+    if (!window.ymaps) {
+      const script = document.createElement('script');
+      script.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+      script.async = true;
+      script.onload = initMap;
+      document.body.appendChild(script);
+    } else {
+      initMap();
+    }
+  }, [currentScreen]);
+
+  useEffect(() => {
+    if (!isMapLoaded || !mapRef.current || !window.ymaps) return;
+
+    mapRef.current.geoObjects.removeAll();
+
+    const filteredStations = stations.filter(s => activeFilters.includes(s.type));
+
+    filteredStations.forEach(station => {
+      let color = '#10b981'; // green (cng)
+      if (station.type === 'service') color = '#f59e0b'; // orange (service)
+      if (station.type === 'lng') color = '#3b82f6'; // blue (lng)
+      if (station.type === 'lpg') color = '#ef4444'; // red (lpg)
+
+      const placemark = new window.ymaps.Placemark([station.lat, station.lon], {
+        balloonContentHeader: `<div style="font-weight:bold;font-size:14px;">${station.title}</div>`,
+        balloonContentBody: `<div style="font-size:12px;margin-top:4px;">${station.address}</div>
+                             <div style="font-size:10px;color:gray;margin-top:4px;text-transform:uppercase;">Тип: ${station.type}</div>`
+      }, {
+        preset: 'islands#circleIcon',
+        iconColor: color
+      });
+      mapRef.current.geoObjects.add(placemark);
+    });
+  }, [stations, activeFilters, isMapLoaded]);
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -759,6 +920,27 @@ const App = () => {
                 </p>
               </div>
               <ChevronRight className="ml-auto text-surface-300 hidden md:block group-hover:text-secondary transition-colors duration-300" />
+            </button>
+
+            {/* Карта заправок */}
+            <button
+              onClick={() => navigateTo('STATIONS_MAP')}
+              className="bg-surface/80 backdrop-blur-md p-4 md:p-5 rounded-2xl border-2 border-surface-200
+                hover:border-blue-500 hover:shadow-lg transition-all duration-300 group
+                flex flex-col md:flex-row items-center md:gap-5 text-center md:text-left gap-2 cursor-pointer"
+            >
+              <div className="bg-blue-50 w-14 h-14 rounded-xl flex items-center justify-center
+                text-blue-600 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105
+                transition-all duration-300 shrink-0">
+                <Map size={28} />
+              </div>
+              <div className="flex flex-col items-center md:items-start">
+                <h3 className="text-base font-bold text-graphite mb-0.5">Карта газовых заправок</h3>
+                <p className="text-utility-muted text-[11px] font-semibold uppercase tracking-tight">
+                  АГНКС и КриоГЗС
+                </p>
+              </div>
+              <ChevronRight className="ml-auto text-surface-300 hidden md:block group-hover:text-blue-500 transition-colors duration-300" />
             </button>
           </div>
 
@@ -2405,6 +2587,210 @@ const App = () => {
 
   if (currentScreen === 'ENERGY_SERVICE') {
     return <EnergyServiceScreen />;
+  }
+
+  // ═══════════════════════════════════════════
+  //  ЭКРАН 10 — КАРТА ЗАПРАВОК
+  // ═══════════════════════════════════════════
+  if (currentScreen === 'STATIONS_MAP') {
+    // 1. Базовая фильтрация по типу
+    let displayStations = stations.filter(s => activeFilters.includes(s?.type));
+
+    // 2. Безопасная сортировка по геопозиции
+    try {
+      if (mapBounds && Array.isArray(mapBounds) && mapBounds.length === 2 && mapCenter && Array.isArray(mapCenter)) {
+        const p1 = mapBounds[0];
+        const p2 = mapBounds[1];
+        
+        // Убеждаемся, что внутри тоже массивы с координатами
+        if (Array.isArray(p1) && Array.isArray(p2) && p1.length >= 2 && p2.length >= 2) {
+          const latMin = Math.min(p1[0], p2[0]);
+          const latMax = Math.max(p1[0], p2[0]);
+          const lonMin = Math.min(p1[1], p2[1]);
+          const lonMax = Math.max(p1[1], p2[1]);
+
+          const processed = displayStations.map(station => {
+            if (!station || isNaN(station.lat) || isNaN(station.lon)) return null;
+            
+            const inBounds = station.lat >= latMin && station.lat <= latMax &&
+                             station.lon >= lonMin && station.lon <= lonMax;
+                             
+            let distance = 0;
+            if (typeof calculateDistance === 'function') {
+              distance = calculateDistance(mapCenter[0], mapCenter[1], station.lat, station.lon);
+            }
+            
+            return { ...station, distance, inBounds };
+          }).filter(Boolean); // Очищаем от null
+
+          // Сортируем (если дистанции нет, ставим 0)
+          processed.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+
+          // Разбиваем и сливаем (сначала видимые)
+          const inBoundsStations = processed.filter(s => s.inBounds);
+          const outOfBoundsStations = processed.filter(s => !s.inBounds);
+
+          displayStations = [...inBoundsStations, ...outOfBoundsStations];
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка при гео-сортировке станций:", error);
+      // Если что-то пошло не так, UI не падает, а показывает базовый список
+    }
+
+      return (
+        <div className="h-screen w-full flex relative overflow-hidden bg-surface-50">
+          
+          {/* Правая часть с картой */}
+          <div className="flex-1 bg-surface-50 p-3 md:p-6 flex flex-col min-h-screen">
+            
+            {/* Обёртка самой карты (создает рамку и скругления) */}
+            <div className="flex-1 relative w-full h-full rounded-2xl md:rounded-3xl border border-surface-200 shadow-sm overflow-hidden bg-surface-100 z-0">
+              
+              {!isMapLoaded && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
+                  <Loader2 size={32} className="text-primary animate-spin mb-3" />
+                  <p className="text-utility-muted font-bold uppercase tracking-widest text-[10px]">
+                    Загрузка карты...
+                  </p>
+                </div>
+              )}
+              
+              {/* Сама Яндекс.Карта */}
+              <div id="yandex-custom-map" className="w-full h-full relative z-10"></div>
+            
+            </div>
+          </div>
+
+        {/* Floating Sidebar */}
+        <div className="absolute left-0 top-0 bottom-0 md:left-4 md:top-4 md:bottom-4 w-full md:w-[380px] bg-white md:rounded-[2rem] shadow-2xl flex flex-col z-10 overflow-hidden pointer-events-auto border-r md:border border-surface-200/50">
+          
+          <div className="px-6 pt-6 pb-4 shrink-0 bg-white z-20">
+            <div className="mb-4">
+               <BackBtn />
+            </div>
+            <h1 className="text-[22px] font-black uppercase tracking-tight text-graphite leading-tight mb-1">
+              Карта газовых заправок
+            </h1>
+            <p className="text-[10px] md:text-xs text-utility-muted mt-1 font-semibold uppercase tracking-widest">
+              КПГ (CNG), СПГ (LNG), СУГ (LPG) и Сервисы
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-4 shrink-0 w-full px-4 pb-4 border-b border-surface-100">
+            <button 
+              onClick={() => setActiveFilters(ALL_TYPES)} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors ${activeFilters.length === 4 ? 'bg-graphite text-white' : 'bg-surface-100 text-utility-muted hover:bg-surface-200'}`}
+            >
+              <span>Все</span>
+              {activeFilters.length === 4 && <Check size={16} />}
+            </button>
+
+            <button 
+              onClick={() => toggleFilter('cng')} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors ${activeFilters.includes('cng') ? 'bg-secondary text-white' : 'bg-secondary-50 text-secondary-700 hover:bg-secondary-100'}`}
+            >
+              <span>КПГ (CNG)</span>
+              {activeFilters.includes('cng') && <Check size={16} />}
+            </button>
+
+            <button 
+              onClick={() => toggleFilter('lng')} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors ${activeFilters.includes('lng') ? 'bg-primary text-white' : 'bg-primary-50 text-primary-700 hover:bg-primary-100'}`}
+            >
+              <span>СПГ (LNG)</span>
+              {activeFilters.includes('lng') && <Check size={16} />}
+            </button>
+
+            <button 
+              onClick={() => toggleFilter('lpg')} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors ${activeFilters.includes('lpg') ? 'bg-red-500 text-white' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
+            >
+              <span>СУГ (LPG)</span>
+              {activeFilters.includes('lpg') && <Check size={16} />}
+            </button>
+
+            <button 
+              onClick={() => toggleFilter('service')} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors ${activeFilters.includes('service') ? 'bg-orange-500 text-white' : 'bg-orange-50 text-orange-600 hover:bg-orange-100'}`}
+            >
+              <span>Сервисы</span>
+              {activeFilters.includes('service') && <Check size={16} />}
+            </button>
+          </div>
+
+          <div className="px-6 pt-4 pb-2 shrink-0 bg-white z-20">
+            <p className="text-[10px] font-bold text-utility-muted uppercase tracking-widest">
+              Отображено на карте: {displayStations.length} станций
+            </p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 pb-6 bg-white relative z-10 scrollbar-hide">
+            <div className="flex flex-col gap-3">
+              {displayStations.map(station => (
+                <div key={station.id} className={`p-4 border rounded-[1.25rem] flex flex-col gap-3 transition-colors cursor-pointer
+                  ${activeFilters.includes(station.type) ? 'border-surface-200 bg-surface-50 hover:border-surface-300 shadow-sm' : 'border-surface-200 bg-white'}
+                `}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
+                      station.type === 'cng' ? 'bg-green-50 text-green-600' : 
+                      station.type === 'lng' ? 'bg-blue-50 text-blue-600' : 
+                      station.type === 'lpg' ? 'bg-red-50 text-red-500' : 
+                      'bg-orange-50 text-orange-500' // service
+                    }`}>
+                      {station.type === 'cng' ? <Cloud size={18} /> :
+                       station.type === 'lng' ? <Snowflake size={18} /> :
+                       station.type === 'lpg' ? <Fuel size={18} /> :
+                       <Wrench size={18} />}
+                    </div>
+                    <div className="overflow-hidden flex-1">
+                      <h4 className="text-[13px] font-bold text-graphite truncate leading-tight" title={station.title}>{station.title}</h4>
+                      <p className="text-[10px] text-utility-muted mt-1 truncate leading-tight" title={station.address}>{station.address}</p>
+                    </div>
+                    {/* Вывод дистанции */}
+                    {station.distance !== undefined && (
+                      <div className="shrink-0 text-right">
+                        <span className="text-[10px] font-bold text-graphite bg-surface-100 px-2 py-1 rounded-md">
+                          {station.distance < 1 ? '< 1 км' : `${station.distance.toFixed(1)} км`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-1 px-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-2 h-2 rounded-full ${station.status === 'Работает' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      <span className={`text-[10px] font-bold ${station.status === 'Работает' ? 'text-green-600' : 'text-red-500'}`}>{station.status}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-graphite font-bold text-[11px]">
+                      <Navigation size={12} className="text-graphite opacity-60" /> {station.distance !== undefined ? (station.distance < 1 ? '< 1 км' : `${station.distance.toFixed(1)} км`) : ''}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`https://yandex.ru/maps/?rtext=~${station.lat},${station.lon}&rtt=auto`, '_blank');
+                      }}
+                      className="flex-1 border border-graphite text-graphite font-bold text-[11px] uppercase tracking-wider py-2 rounded-xl hover:bg-surface-200 transition-colors active:scale-95"
+                    >
+                      Маршрут
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {displayStations.length === 0 && (
+                <div className="text-center text-utility-muted text-xs py-8 font-medium">
+                  Ничего не найдено
+                </div>
+              )}
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    );
   }
 
   return null;
