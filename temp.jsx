@@ -1,412 +1,33 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import EnergyServiceScreen from './EnergyServiceScreen';
-import {
-  Fuel, Flame, Gauge, ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
-  BarChart3, Tag, ArrowLeftRight,
-  Truck, Settings2, Car, Settings, X, Phone, MapPin, Send,
-  Zap, Camera, Check, CheckCircle, Loader2, Map,
-  Layers, Cloud, Snowflake, Wrench, Navigation, Search
-} from 'lucide-react';
-import { toBlob } from 'html-to-image';
-import localStations from './stations.json';
-
-export const captureDesktopScreenshot = async (elementId, forceWidth = null) => {
-  const el = document.getElementById(elementId);
-  if (!el) return null;
-
-  return new Promise((resolve, reject) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '1280px';
-    iframe.style.height = '2000px';
-    iframe.style.position = 'absolute';
-    iframe.style.left = '-99999px';
-    iframe.style.top = '-99999px';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <base href="${document.baseURI}">
-        <meta charset="utf-8">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <style>
-          * { box-sizing: border-box !important; }
-        </style>
-    `);
-
-    const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
-    styles.forEach(s => iframeDoc.write(s.outerHTML));
-
-    iframeDoc.write('</head><body class="font-sans antialiased text-gray-900 bg-white" style="margin:0; padding:2rem; font-family: Inter, sans-serif;">');
-    iframeDoc.write(`<div style="width: ${forceWidth || el.offsetWidth}px; margin: 0 auto;">`);
-    iframeDoc.write(el.outerHTML);
-    iframeDoc.write('</div></body></html>');
-    iframeDoc.close();
-
-    setTimeout(async () => {
-      try {
-        if (iframe.contentWindow.document.fonts) {
-          await iframe.contentWindow.document.fonts.ready;
-        }
-        // Small extra delay to ensure font rendering has repainted the DOM
-        await new Promise(r => setTimeout(r, 150));
-
-        const targetEl = iframeDoc.getElementById(elementId);
-        if (!targetEl) throw new Error('Target element not found in iframe');
-
-        const blob = await toBlob(targetEl, {
-          cacheBust: true,
-          backgroundColor: '#ffffff',
-          style: {
-            transform: 'scale(1)',
-            transformOrigin: 'top left',
-            margin: '0'
-          }
-        });
-        document.body.removeChild(iframe);
-        resolve(blob);
-      } catch (e) {
-        document.body.removeChild(iframe);
-        reject(e);
-      }
-    }, 600);
-  });
-};
-
-/* ─────────────────────────────────────────────
-   ДИЗАЙН-СИСТЕМА: токены из брендбука
-   ─────────────────────────────────────────── */
-export const ds = {
-  // Газовые темы: КПГ → secondary (green), СПГ → primary (blue)
-  gas: (isLng) => ({
-    text: isLng ? 'text-primary' : 'text-secondary-700',
-    textDark: isLng ? 'text-primary-800' : 'text-secondary-700',
-    bg: isLng ? 'bg-primary-50' : 'bg-secondary-50',
-    border: isLng ? 'border-primary-200' : 'border-secondary-200',
-    ring: isLng ? 'focus:ring-primary/30' : 'focus:ring-secondary/30',
-    btnSolid: isLng ? 'bg-primary hover:bg-primary-600'
-      : 'bg-secondary hover:bg-secondary-600',
-    gradient: isLng ? 'from-primary-700 to-primary-900'
-      : 'from-secondary-700 via-secondary-600 to-primary-700'
-  })
-};
-
-const MOCK_STATIONS = [
-  { id: 1, title: 'УЦ "ЭлитГаз" (Партнер)', address: 'Екатеринбург, ул. Шефская, 3АВ', type: 'service', lat: 56.8913, lon: 60.6234, status: 'Работает', distance: '2.3 км' },
-  { id: 2, title: 'СНГ Газпром #1', address: 'Екатеринбург, ул. Металлургов, 1', type: 'cng', lat: 56.8281, lon: 60.5369, status: 'Работает', distance: '5.1 км' },
-  { id: 3, title: 'КриоГЗС (СПГ)', address: 'Екатеринбург, ЕКАД 15-й км', type: 'lng', lat: 56.7554, lon: 60.6401, status: 'Ремонт', distance: '12.4 км' },
-  { id: 4, title: 'АГНКС Газпром №2', address: 'Екатеринбург, ул. Космонавтов, 100', type: 'cng', lat: 56.9142, lon: 60.6095, status: 'Работает', distance: '8.7 км' },
-  { id: 5, title: 'Пропан СУГ №1', address: 'Екатеринбург, Тюменский тракт', type: 'propane', lat: 56.79, lon: 60.7, status: 'Работает', distance: '10.2 км' },
-];
-
-// ── УТИЛИТЫ ───────────────────────────────
-export const fmt = (n) =>
-  new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(n || 0);
-
-export const v = (val) => { const n = parseFloat(val); return isNaN(n) ? 0 : n; };
-
-// ── ОБЩИЕ UI-БЛОКИ ────────────────────────
-/* ── Общее поле ввода ── */
-export const Field = ({ label, name, value, onChange, step, suffix, colorClass = '' }) => {
-  const handleChange = (e) => {
-    const rawVal = e.target.value.replace(/\s/g, '').replace(',', '.');
-    onChange({ target: { name: e.target.name, value: rawVal } });
-  };
-
-  const displayValue = String(value ?? '')
-    .split('.')
-    .map((part, index) => index === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : part)
-    .join('.');
-
-  return (
-    <div className="flex flex-col h-full">
-      <label className="block text-[11px] md:text-xs font-semibold text-graphite-500 uppercase tracking-wider mb-1.5 min-h-[28px] flex items-end">
-        {label}
-      </label>
-      <div className="relative mt-auto">
-        <input
-          type="text"
-          inputMode="decimal"
-          name={name}
-          value={displayValue}
-          onChange={handleChange}
-          className={`w-full p-2 md:p-2.5 bg-surface-50 border border-surface-300 rounded-lg font-bold text-lg text-graphite outline-none
-            focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-200 ${colorClass}`}
-        />
-        {suffix && (
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-utility-muted pointer-events-none">
-            {suffix}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/* ── Футер ── */
-export const AppFooter = ({ showDisclaimer = false }) => {
-  const year = new Date().getFullYear();
-  return (
-    <footer className="mt-8 mb-4 flex flex-col items-center text-center gap-1.5">
-      {showDisclaimer && (
-        <p className="text-[10px] text-utility-muted max-w-md mb-2 italic">
-          * Расчёт носит справочный характер.
-        </p>
-      )}
-      <div className="flex flex-col items-center leading-tight">
-        <p className="text-utility-muted text-[9px] uppercase tracking-widest font-bold">Партнер проекта</p>
-        <a
-          href="https://elitegas.ru/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-graphite font-black text-xs md:text-sm uppercase tracking-tight hover:text-primary transition-colors cursor-pointer"
-        >
-          "Установочный центр "ЭЛИТГАЗ"
-        </a>
-      </div>
-      <div className="flex items-center gap-1.5 text-utility-muted text-[10px] md:text-xs">
-        <MapPin size={12} className="text-utility-muted" />
-        <a
-          href="https://yandex.ru/maps/?text=Екатеринбург, Шефская, 3АВ"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-primary transition-colors cursor-pointer hover:underline"
-        >
-          г. Екатеринбург, ул. Шефская, 3АВ
-        </a>
-      </div>
-      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-0.5 text-graphite font-bold text-[10px] md:text-xs">
-        <a href="tel:+73432532888"
-          className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
-          <Phone size={12} className="text-primary" /> +7 (343) 253-28-88
-        </a>
-        <a href="tel:+73433289888"
-          className="flex items-center gap-1.5 hover:text-primary transition-colors duration-200">
-          <Phone size={12} className="text-primary" /> +7 (343) 328-98-88
-        </a>
-      </div>
-      <a
-        href="https://t.me/Le_luk"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-2 flex items-center gap-1.5 px-4 py-1.5 bg-[#0088cc] text-white rounded-full
-          text-[10px] md:text-xs font-bold hover:bg-[#0077b3] shadow-sm active:scale-95 transition-all duration-200"
-      >
-        <Send size={12} fill="white" /> Написать в Telegram
-      </a>
-      <p className="text-utility-muted text-[9px] mt-2 uppercase tracking-widest opacity-60 font-medium">
-        © {year}
-      </p>
-    </footer>
-  );
-};
-
-/* ── Модальное окно настроек ── */
-export const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 bg-graphite/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div className="bg-surface rounded-2xl p-6 w-full max-w-xs shadow-xl border border-surface-200 relative animate-scale-in">
-      <button
-        onClick={onClose}
-        className="absolute right-4 top-4 text-utility-muted hover:text-graphite transition-colors duration-200 cursor-pointer"
-      >
-        <X size={20} />
-      </button>
-      <h2 className="text-lg font-bold mb-5 text-graphite">{title}</h2>
-      {children}
-    </div>
-  </div>
-);
-
-export const SaveBtn = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="w-full bg-primary hover:bg-primary-600 text-white font-bold py-3.5 rounded-xl mt-4
-      shadow-md uppercase tracking-wider text-xs active:scale-95 transition-all duration-200 cursor-pointer"
-  >
-    Сохранить
-  </button>
-);
-
-export const BackBtn = ({ onClick, label = "Назад", className = "" }) => {
-  const handleNavigationBack = () => { window.history.back(); };
-  return (
-    <button
-      onClick={onClick ?? handleNavigationBack}
-      className={`w-[130px] md:w-[160px] h-10 shrink-0 flex items-center justify-center gap-1.5 px-2 md:px-4 bg-white border border-surface-200 rounded-xl text-[11px] md:text-xs font-bold text-graphite shadow-sm hover:border-primary hover:text-primary active:scale-95 transition-all duration-200 cursor-pointer ${className}`}
-    >
-      <ChevronLeft size={14} /> {label}
-    </button>
-  );
-};
-
-const App = () => {
-  // ── НАВИГАЦИЯ ─────────────────────────────
-  const [currentScreen, setCurrentScreen] = useState('MAIN_SELECTION');
-  const [screenshotCopied, setScreenshotCopied] = useState(false);
-  const [silentOldReport, setSilentOldReport] = useState(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
-  const ALL_TYPES = ['cng', 'lng', 'lpg', 'service'];
-  const [activeFilters, setActiveFilters] = useState(['service']); // По умолчанию только сервисы
-
-  const toggleFilter = (type) => {
-    setActiveFilters(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type) 
-        : [...prev, type]
-    );
-  };
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [stations, setStations] = useState([]);
-  const [isLoadingStations, setIsLoadingStations] = useState(false);
-  const mapRef = React.useRef(null);
-  const placemarksRef = React.useRef({});
-  const activePlacemarkRef = React.useRef(null);
-  const animationIntervalRef = React.useRef(null);
-  
-  const [mapBounds, setMapBounds] = useState(null);
-  const [mapCenter, setMapCenter] = useState([56.8389, 60.6057]); // По умолчанию Екатеринбург
-  const [mobileViewMode, setMobileViewMode] = useState('list'); // 'list' или 'map'
-
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Радиус Земли в км
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  const displayStations = useMemo(() => {
-    // 1. Фильтруем по активным типам
-    let filtered = stations.filter(s => activeFilters.includes(s?.type));
-
-    // 2. Безопасная сортировка по геопозиции
-    try {
-      if (mapBounds && Array.isArray(mapBounds) && mapBounds.length === 2 && mapCenter && Array.isArray(mapCenter)) {
-        const p1 = mapBounds[0];
-        const p2 = mapBounds[1];
-        
-        if (Array.isArray(p1) && Array.isArray(p2) && p1.length >= 2 && p2.length >= 2) {
-          const latMin = Math.min(p1[0], p2[0]);
-          const latMax = Math.max(p1[0], p2[0]);
-          const lonMin = Math.min(p1[1], p2[1]);
-          const lonMax = Math.max(p1[1], p2[1]);
-
-          const processed = filtered.map(station => {
-            if (!station || isNaN(station.lat) || isNaN(station.lon)) return null;
-            
-            const inBounds = station.lat >= latMin && station.lat <= latMax &&
-                             station.lon >= lonMin && station.lon <= lonMax;
-                             
-            let distance = 0;
-            if (typeof calculateDistance === 'function') {
-              distance = calculateDistance(mapCenter[0], mapCenter[1], station.lat, station.lon);
-            }
-            
-            return { ...station, distance, inBounds };
-          }).filter(Boolean);
-
-          processed.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-
-          const inBoundsStations = processed.filter(s => s.inBounds);
-          const outOfBoundsStations = processed.filter(s => !s.inBounds);
-
-          filtered = [...inBoundsStations, ...outOfBoundsStations];
-        }
-      }
-    } catch (error) {
-      console.error("Ошибка при гео-сортировке станций:", error);
-    }
-
-    return filtered;
-  }, [stations, activeFilters, mapBounds, mapCenter]);
-
-  useEffect(() => {
-    if (currentScreen === 'STATIONS_MAP' || currentScreen === 'ROUTE_CALCULATOR') {
+const Test = () => {
+if (currentScreen === 'STATIONS_MAP') {
       // Данные уже отфильтрованы и идеальны, просто кладем в стейт
       setStations(localStations);
     }
   }, [currentScreen]);
 
   useEffect(() => {
-    // 1. ЕСЛИ МЫ УШЛИ В ДРУГОЕ МЕНЮ — ПРИНУДИТЕЛЬНО УБИВАЕМ ИНСТАНС
-    if (currentScreen !== 'STATIONS_MAP' && currentScreen !== 'ROUTE_CALCULATOR') {
-      if (mapRef.current) {
-        mapRef.current.destroy();
-        mapRef.current = null;
-      }
-      return; // Прерываем выполнение
-    }
+    if (currentScreen !== 'STATIONS_MAP') return;
 
     const initMap = () => {
       if (!window.ymaps) return;
       window.ymaps.ready(() => {
         setIsMapLoaded(true);
-        const container = document.getElementById('map-container');
-        if (!container) return;
+        const mapContainer = document.getElementById('yandex-custom-map');
+        if (!mapContainer || mapContainer.innerHTML !== '') return;
 
-        // 1. Инициализируем саму карту ТОЛЬКО ОДИН РАЗ
-        if (!mapRef.current) {
-          container.innerHTML = '';
-          mapRef.current = new window.ymaps.Map('map-container', {
-            center: [56.838926, 60.605702], // Координаты Екатеринбурга по умолчанию
-            zoom: 10,
-            controls: ['zoomControl', 'fullscreenControl']
-          });
+        const map = new window.ymaps.Map('yandex-custom-map', {
+          center: [56.8389, 60.6057], // Екатеринбург
+          zoom: 10,
+          controls: ['zoomControl']
+        });
+        mapRef.current = map;
 
-          setMapBounds(mapRef.current.getBounds());
-          setMapCenter(mapRef.current.getCenter());
+        setMapBounds(map.getBounds());
+        setMapCenter(map.getCenter());
 
-          mapRef.current.events.add('boundschange', function (e) {
-            setMapBounds(e.get('newBounds'));
-            setMapCenter(e.get('newCenter'));
-          });
-        }
-
-        // 2. Очищаем только СТАРЫЕ МЕТКИ (сама карта остается на месте)
-        mapRef.current.geoObjects.removeAll();
-        placemarksRef.current = {};
-
-        // 3. Добавляем НОВЫЕ МЕТКИ из текущего массива displayStations
-        displayStations.forEach(station => {
-          let color = '#10b981'; // green (cng)
-          if (station.type === 'service') color = '#f59e0b'; // orange (service)
-          if (station.type === 'lng') color = '#3b82f6'; // blue (lng)
-          if (station.type === 'lpg') color = '#ef4444'; // red (lpg)
-
-          const phoneHtml = station.cleanPhone 
-            ? `<div style="margin-top: 8px;"><strong>Телефон:</strong> <a href="tel:${station.cleanPhone}" style="color: #10b981; text-decoration: none; font-weight: bold;">${station.cleanPhone}</a></div>` 
-            : '';
-
-          const balloonHTML = `
-            <div style="font-family: sans-serif; padding: 5px; max-width: 250px;">
-              <h3 style="margin: 0 0 5px 0; font-size: 14px; color: #1f2937;">${station.title}</h3>
-              <p style="margin: 0 0 5px 0; font-size: 12px; color: #4b5563;">${station.address}</p>
-              <p style="margin: 0; font-size: 11px; color: #6b7280; text-transform: uppercase;">ТИП: ${station.type}</p>
-              ${phoneHtml}
-            </div>
-          `;
-
-          const placemark = new window.ymaps.Placemark([station.lat, station.lon], {
-            hintContent: station.title,
-            balloonContent: balloonHTML
-          }, {
-            preset: 'islands#circleIcon',
-            iconColor: color,
-            hideIconOnBalloonOpen: false
-          });
-          
-          placemarksRef.current[station.id] = placemark;
-          mapRef.current.geoObjects.add(placemark);
+        map.events.add('boundschange', function (e) {
+          setMapBounds(e.get('newBounds'));
+          setMapCenter(e.get('newCenter'));
         });
       });
     };
@@ -420,19 +41,33 @@ const App = () => {
     } else {
       initMap();
     }
-  }, [currentScreen, displayStations]);
+  }, [currentScreen]);
 
-  // Пересчет размеров Яндекс.Карты при переключении табов на мобильном
   useEffect(() => {
-    if (mapRef.current && mobileViewMode === 'map') {
-      // Небольшой таймаут нужен, чтобы DOM успел применить CSS-классы видимости
-      setTimeout(() => {
-        if (mapRef.current) {
-          mapRef.current.container.fitToViewport();
-        }
-      }, 100);
-    }
-  }, [mobileViewMode]);
+    if (!isMapLoaded || !mapRef.current || !window.ymaps) return;
+
+    mapRef.current.geoObjects.removeAll();
+
+    const filteredStations = stations.filter(s => activeFilters.includes(s.type));
+
+    filteredStations.forEach(station => {
+      let color = '#10b981'; // green (cng)
+      if (station.type === 'service') color = '#f59e0b'; // orange (service)
+      if (station.type === 'lng') color = '#3b82f6'; // blue (lng)
+      if (station.type === 'lpg') color = '#ef4444'; // red (lpg)
+
+      const placemark = new window.ymaps.Placemark([station.lat, station.lon], {
+        balloonContentHeader: `<div style="font-weight:bold;font-size:14px;">${station.title}</div>`,
+        balloonContentBody: `<div style="font-size:12px;margin-top:4px;">${station.address}</div>
+                             <div style="font-size:10px;color:gray;margin-top:4px;text-transform:uppercase;">Тип: ${station.type}</div>`
+      }, {
+        preset: 'islands#circleIcon',
+        iconColor: color
+      });
+      mapRef.current.geoObjects.add(placemark);
+    });
+  }, [stations, activeFilters, isMapLoaded]);
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -1002,7 +637,7 @@ const App = () => {
 
           {/* Навигация */}
           <div className="w-full flex justify-start mb-4">
-            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
+            <BackBtn label="На главную" />
           </div>
 
           {/* Шапка */}
@@ -1227,7 +862,7 @@ const App = () => {
       <div className="min-h-screen bg-surface-50 flex flex-col items-center justify-center p-4">
         <div className="max-w-4xl w-full flex flex-col min-h-[80vh] md:justify-center animate-fade-in">
           <div className="w-full flex justify-start mb-4">
-            <BackBtn label="На главную" onClick={() => navigateTo('MAIN_SELECTION')} />
+            <BackBtn label="На главную" />
           </div>
 
           <div className="text-center mb-8">
@@ -2620,91 +2255,22 @@ const App = () => {
     return <EnergyServiceScreen />;
   }
 
-  const handleStationClick = (station) => {
-    if (!mapRef.current) return;
-    
-    // Переключаемся на карту на мобильных (улучшение UX)
-    if (window.innerWidth < 768) {
-      setMobileViewMode('map');
-    }
-    
-    // Отменяем предыдущую анимацию, если пользователь кликает слишком быстро
-    if (animationIntervalRef.current) {
-      clearInterval(animationIntervalRef.current);
-      animationIntervalRef.current = null;
-    }
-    
-    // Закрываем предыдущий открытый балун немедленно
-    if (activePlacemarkRef.current) {
-      try {
-        // Надежнее закрыть балун через саму карту
-        if (mapRef.current.balloon.isOpen()) {
-          mapRef.current.balloon.close();
-        }
-      } catch (e) {
-        console.warn('Could not close previous balloon', e);
-      }
-    }
-    
-    const placemark = placemarksRef.current[station.id];
-    activePlacemarkRef.current = placemark;
-    
-    // Плавное перемещение карты к станции
-    const currentZoom = mapRef.current.getZoom();
-    mapRef.current.setCenter([station.lat, station.lon], currentZoom, {
-      duration: 800
-    });
-    
-    // Ждем окончания движения (800мс + 200мс пауза)
-    setTimeout(() => {
-      // ВАЖНО: берем свежую ссылку на метку ИМЕННО ЗДЕСЬ. 
-      // Во время полета карты срабатывал boundschange, React пересчитывал displayStations
-      // и старая метка (placemark) уже удалена с карты и заменена новой!
-      const activePlacemark = placemarksRef.current[station.id];
-      
-      if (activePlacemark) {
-        // Начинаем плавное моргание (4 раза по 150мс = 600мс)
-        let pulses = 0;
-        animationIntervalRef.current = setInterval(() => {
-          if (pulses % 2 === 0) {
-            activePlacemark.options.set('preset', 'islands#circleDotIcon');
-          } else {
-            activePlacemark.options.set('preset', 'islands#circleIcon');
-          }
-          pulses++;
-          
-          if (pulses >= 4) {
-            clearInterval(animationIntervalRef.current);
-            animationIntervalRef.current = null;
-            
-            // Открываем балун СРАЗУ ПОСЛЕ моргания
-            setTimeout(() => {
-              if (activePlacemark) {
-                activePlacemark.events.fire('click');
-              }
-            }, 50);
-          }
-        }, 150);
-      }
-    }, 1000);
-  };
-
   // ═══════════════════════════════════════════
-  //  ЭКРАН 10 — КАРТА ЗАПРАВОК И МАРШРУТ
+  //  ЭКРАН 10 — КАРТА ЗАПРАВОК
   // ═══════════════════════════════════════════
-  if (currentScreen === 'STATIONS_MAP' || currentScreen === 'ROUTE_CALCULATOR') {
+  if (currentScreen === 'STATIONS_MAP') {
       return (
-        <div className="flex flex-col md:flex-row h-screen w-full bg-surface-50 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-full w-full bg-surface-50 overflow-hidden">
           {/* ГЛАВНЫЙ КОНТЕЙНЕР ЭКРАНА */}
           
           {/* --- ЛЕВЫЙ САЙДБАР --- */}
           {/* На мобильном: высота подстраивается под контент (в режиме карты) или на весь экран (в списке). На десктопе: всегда на всю высоту, ширина 400px */}
           <div className={`flex flex-col w-full md:w-[400px] shrink-0 bg-surface-50 border-r border-surface-200 z-10 transition-all ${mobileViewMode === 'map' ? 'h-auto md:h-full' : 'h-full'}`}>
             
-            {/* 1. Блок с фильтрами (ВСЕГДА ОДИНАКОВЫЙ И ВИДИМЫЙ) */}
-            <div className="shrink-0 bg-white px-4 pt-4 pb-4 shadow-sm relative z-20 w-full flex flex-col gap-4">
-            {/* Стандартная кнопка Назад и Маршрут */}
-            <div className="flex justify-between items-center w-full">
+            {/* 1. Блок с фильтрами (ВСЕГДА ВИДИМ) */}
+            <div className="shrink-0 bg-white px-4 pt-4 pb-2 shadow-sm relative z-20">
+            {/* Стандартная кнопка Назад */}
+            <div className="mb-5 flex">
               <button 
                 onClick={() => setCurrentScreen('MAIN_SELECTION')} 
                 className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-surface-200 rounded-xl text-[13px] font-bold text-graphite hover:bg-surface-50 hover:border-surface-300 transition-all shadow-sm"
@@ -2712,21 +2278,10 @@ const App = () => {
                 <ChevronLeft size={16} />
                 <span>Назад</span>
               </button>
-              {currentScreen === 'STATIONS_MAP' && (
-                <button 
-                  onClick={() => setCurrentScreen('ROUTE_CALCULATOR')} 
-                  className="hidden md:flex items-center gap-2 text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors shadow-sm border border-emerald-200/50"
-                >
-                  <Map size={16} />
-                  <span>Маршрут</span>
-                </button>
-              )}
             </div>
             
-            {currentScreen === 'STATIONS_MAP' ? (
-              <>
             {/* Глобальный фильтр -> Все объекты + Карта/Список */}
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full mb-4">
               {/* Левый переключатель: Все объекты */}
               <button 
                 onClick={() => {
@@ -2760,7 +2315,7 @@ const App = () => {
               </div>
             </div>
             
-            <div className="h-[1px] bg-surface-100 w-full block"></div>
+            <div className={`h-[1px] bg-surface-100 w-full mb-4 ${mobileViewMode === 'map' ? 'hidden md:block' : 'block'}`}></div>
 
             {/* 2x2 Grid of toggles - Теперь всегда видимы */}
             <div className="grid grid-cols-2 gap-4 px-1 mb-2 md:mb-6">
@@ -2833,82 +2388,13 @@ const App = () => {
                 </div>
               </div>
             )}
-              </>
-            ) : (
-              <div className="flex flex-col gap-4 mt-2">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-[16px] font-extrabold text-graphite tracking-tight">Построение маршрута</h2>
-                  <button 
-                    onClick={() => setCurrentScreen('STATIONS_MAP')} 
-                    className="text-utility-muted hover:text-graphite transition-colors p-1"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-                
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <label className="text-[11px] font-bold text-utility-muted uppercase tracking-wider mb-1.5 block">Откуда</label>
-                    <input type="text" id="route-start" placeholder="Адрес или 'Мое местоположение'" className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-graphite focus:outline-none focus:border-primary/50 transition-colors shadow-sm" />
-                  </div>
-                  
-                  <div>
-                    <label className="text-[11px] font-bold text-utility-muted uppercase tracking-wider mb-1.5 block">Куда</label>
-                    <input type="text" id="route-end" placeholder="Адрес назначения" className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-graphite focus:outline-none focus:border-primary/50 transition-colors shadow-sm" />
-                  </div>
-                  
-                  <div>
-                    <label className="text-[11px] font-bold text-utility-muted uppercase tracking-wider mb-1.5 block">Тип топлива</label>
-                    <select className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-graphite focus:outline-none focus:border-primary/50 transition-colors shadow-sm">
-                      <option value="cng">КПГ (Метан)</option>
-                      <option value="lng">СПГ</option>
-                      <option value="lpg">СУГ (Пропан)</option>
-                    </select>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-utility-muted uppercase tracking-wider mb-1.5 block">Расход на 100 км</label>
-                      <div className="relative">
-                        <input type="number" placeholder="Например: 15" className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-3 pr-10 py-2 text-sm text-graphite focus:outline-none focus:border-primary/50 transition-colors shadow-sm" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-utility-muted font-bold">куб.м</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-utility-muted uppercase tracking-wider mb-1.5 block">Объем бака</label>
-                      <div className="relative">
-                        <input type="number" placeholder="Например: 100" className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-3 pr-10 py-2 text-sm text-graphite focus:outline-none focus:border-primary/50 transition-colors shadow-sm" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-utility-muted font-bold">куб.м</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      console.log("Рассчитать маршрут:", {
-                        start: document.getElementById('route-start')?.value,
-                        end: document.getElementById('route-end')?.value
-                      });
-                    }}
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-sm py-3 rounded-xl shadow-sm transition-colors mt-2"
-                  >
-                    Рассчитать
-                  </button>
-                </div>
-              </div>
-            )}
             </div>
 
             {/* 2. Блок списка заправок */}
-            {currentScreen === 'STATIONS_MAP' && (
-              <div className={`flex-1 overflow-y-auto p-4 ${mobileViewMode === 'map' ? 'hidden md:block' : 'block'}`}>
+            <div className={`flex-1 overflow-y-auto p-4 ${mobileViewMode === 'map' ? 'hidden md:block' : 'block'}`}>
             <div className="flex flex-col gap-3">
               {displayStations.slice(0, 50).map(station => (
-                <div 
-                  key={station.id} 
-                  onClick={() => handleStationClick(station)}
-                  className="p-3 border border-surface-200 bg-surface-50 rounded-xl flex flex-col gap-3 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
-                >
+                <div key={station.id} className="p-3 border border-surface-200 bg-surface-50 rounded-xl flex flex-col gap-3 hover:border-primary/30 transition-colors cursor-default">
                   
                   {/* Верхняя часть: Иконка, Текст и Дистанция */}
                   <div className="flex items-start gap-3">
@@ -2949,10 +2435,7 @@ const App = () => {
                   {/* Кнопки действий */}
                   <div className="flex gap-2 w-full">
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(`https://yandex.ru/maps/?rtext=~${station.lat},${station.lon}&rtt=auto`, '_blank');
-                      }}
+                      onClick={() => window.open(`https://yandex.ru/maps/?rtext=~${station.lat},${station.lon}&rtt=auto`, '_blank')}
                       className="flex-1 py-2 bg-white border border-surface-200 shadow-sm rounded-lg text-[11px] font-bold text-graphite hover:bg-surface-100 hover:border-graphite/30 transition-all flex items-center justify-center gap-2"
                     >
                       <Navigation size={14} className="text-utility-muted" />
@@ -2962,7 +2445,6 @@ const App = () => {
                     {station.cleanPhone && (
                       <a 
                         href={`tel:${station.cleanPhone}`}
-                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 py-2 bg-green-50 border border-green-200 shadow-sm rounded-lg text-[11px] font-bold text-green-700 hover:bg-green-100 hover:border-green-300 transition-all flex items-center justify-center gap-2"
                       >
                         <Phone size={14} />
@@ -2986,34 +2468,25 @@ const App = () => {
                   Ничего не найдено
                 </div>
               )}
-              </div>
-              </div>
-            )}
+            </div>
           </div>
           
           {/* --- ПРАВЫЙ БЛОК (КАРТА) --- */}
-          <div className={`flex-1 relative bg-surface-100 transition-opacity duration-300 ${
-            mobileViewMode === 'list' 
-              ? 'opacity-0 pointer-events-none absolute inset-0 z-0 md:opacity-100 md:pointer-events-auto md:relative md:z-auto' 
-              : 'h-full w-full opacity-100 pointer-events-auto z-0'
-          }`}>
+          {/* На десктопе занимает всё оставшееся место. На мобильном скрывается, если открыт список */}
+          <div className={`flex-1 h-full relative bg-gray-100 ${mobileViewMode === 'list' ? 'hidden md:block' : 'block'}`}>
             {!isMapLoaded && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
                 <Loader2 size={32} className="text-primary animate-spin mb-3" />
                 <p className="text-utility-muted font-bold uppercase tracking-widest text-[10px]">
                   Загрузка карты...
                 </p>
               </div>
             )}
-            {/* Контейнер Я.Карты с жесткой привязкой по краям */}
-            <div id="map-container" className="absolute inset-0 w-full h-full" />
+            <div id="yandex-custom-map" className="w-full h-full relative z-10"></div>
           </div>
 
       </div>
     );
   }
 
-  return null;
-};
-
-export default App;
+  };
