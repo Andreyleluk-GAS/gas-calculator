@@ -362,6 +362,7 @@ const App = () => {
             zoom: 10,
             controls: ['zoomControl', 'fullscreenControl']
           });
+          mapRef.current.options.set('balloonPanelMaxMapArea', 0);
 
           setMapBounds(mapRef.current.getBounds());
           setMapCenter(mapRef.current.getCenter());
@@ -402,7 +403,8 @@ const App = () => {
           }, {
             preset: 'islands#circleIcon',
             iconColor: color,
-            hideIconOnBalloonOpen: false
+            hideIconOnBalloonOpen: false,
+            balloonPanelMaxMapArea: 0
           });
           
           placemarksRef.current[station.id] = placemark;
